@@ -1,0 +1,14 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "minformax:item/memory_shard"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "minformax:storage": 1
+      },
+      "model": "minformax:item/memory_shard_filled"
+    }
+  ]
+}

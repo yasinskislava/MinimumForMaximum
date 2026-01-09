@@ -1,0 +1,18 @@
+{
+  "parent": "minecraft:item/handheld",
+  "loader": "neoforge:separate_transforms",
+  "base": {
+    "parent": "minformax:item/scanner_3d"
+  },
+  "perspectives": {
+    "gui": {
+      "parent": "minformax:item/scanner_2d"
+    },
+    "ground": {
+      "parent": "minformax:item/scanner_2d"
+    },
+    "fixed": {
+      "parent": "minformax:item/scanner_2d"
+    }
+  }
+}

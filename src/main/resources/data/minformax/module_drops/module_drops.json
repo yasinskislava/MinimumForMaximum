@@ -1,0 +1,97 @@
+{
+  "minformax:chef_module": {
+    "allowed_items": [
+      "minecraft:carrot",
+      "minecraft:potato",
+      "minecraft:beetroot",
+      "minecraft:wheat"
+    ],
+    "prohibited_items": [],
+    "allowed_tags": [],
+    "prohibited_tags": [],
+    "xp": 0
+  },
+
+  "minformax:farmer_module": {
+    "allowed_items": [],
+    "prohibited_items": ["minecraft:torchflower_seeds"],
+    "allowed_tags": ["c:seeds"],
+    "prohibited_tags": [],
+    "xp": 0
+  },
+
+  "minformax:gatherer_module": {
+    "allowed_items": [
+      "minecraft:sweet_berries",
+      "minecraft:glow_berries",
+      "minecraft:pumpkin",
+      "minecraft:melon",
+      "minecraft:sugar_cane",
+      "minecraft:nether_wart",
+      "minecraft:cocoa_beans",
+      "minecraft:chorus_fruit",
+      "minecraft:bamboo"
+    ],
+    "prohibited_items": [],
+    "allowed_tags": [],
+    "prohibited_tags": [],
+    "xp": 0
+  },
+
+  "minformax:fisher_module": {
+    "allowed_items": [
+      "minecraft:cod",
+      "minecraft:salmon",
+      "minecraft:tropical_fish",
+      "minecraft:pufferfish"
+    ],
+    "prohibited_items": [],
+    "allowed_tags": [],
+    "prohibited_tags": [],
+    "xp": 0
+  },
+
+  "minformax:butcher_module": {
+    "allowed_items": [
+      "minecraft:beef",
+      "minecraft:porkchop",
+      "minecraft:mutton",
+      "minecraft:chicken",
+      "minecraft:rabbit"
+    ],
+    "prohibited_items": [],
+    "allowed_tags": [],
+    "prohibited_tags": [],
+    "xp": 0
+  },
+
+  "minformax:ender_dragon_module": {
+    "allowed_items": [
+      "minecraft:dragon_egg"
+    ],
+    "prohibited_items": [],
+    "allowed_tags": [],
+    "prohibited_tags": [],
+    "xp": 50
+  },
+
+  "minformax:wither_module": {
+    "allowed_items": [
+      "minecraft:nether_star"
+    ],
+    "prohibited_items": [],
+    "allowed_tags": [],
+    "prohibited_tags": [],
+    "xp": 50
+  },
+
+  "minformax:warden_module": {
+    "allowed_items": [
+      "minecraft:echo_shard"
+    ],
+    "prohibited_items": [],
+    "allowed_tags": [],
+    "prohibited_tags": [],
+    "xp": 50
+  }
+}

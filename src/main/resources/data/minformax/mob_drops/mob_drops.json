@@ -1,0 +1,219 @@
+{
+  "entity.minecraft.chicken": {
+    "main_drop": "minecraft:chicken",
+    "additional_drop": [
+      "minecraft:feather",
+      "minecraft:egg"
+    ],
+    "xp": 3,
+    "duration": 256
+  },
+  "entity.minecraft.cow": {
+    "main_drop": "minecraft:beef",
+    "additional_drop": [
+      "minecraft:leather"
+    ],
+    "xp": 3,
+    "duration": 256
+  },
+  "entity.minecraft.mooshroom": {
+    "main_drop": "minecraft:beef",
+    "additional_drop": [
+      "minecraft:leather",
+      "minecraft:red_mushroom",
+      "minecraft:brown_mushroom"
+    ],
+    "xp": 3,
+    "duration": 256
+  },
+  "entity.minecraft.pig": {
+    "main_drop": "minecraft:porkchop",
+    "additional_drop": [],
+    "xp": 3,
+    "duration": 256
+  },
+  "entity.minecraft.rabbit": {
+    "main_drop": "minecraft:rabbit",
+    "additional_drop": [
+      "minecraft:rabbit_foot",
+      "minecraft:rabbit_hide"
+    ],
+    "xp": 3,
+    "duration": 256
+  },
+  "entity.minecraft.sheep": {
+    "main_drop": "minecraft:mutton",
+    "additional_drop": [
+      "minecraft:white_wool"
+    ],
+    "xp": 3,
+    "duration": 256
+  },
+  "entity.minecraft.bee": {
+    "main_drop": "minecraft:honeycomb",
+    "additional_drop": [
+      "minecraft:honey_bottle"
+    ],
+    "xp": 3,
+    "duration": 256
+  },
+  "entity.minecraft.iron_golem": {
+    "main_drop": "minecraft:iron_ingot",
+    "additional_drop": [],
+    "xp": 0,
+    "duration": 512
+  },
+
+  "entity.minecraft.zombie": {
+    "main_drop": "minecraft:rotten_flesh",
+    "additional_drop": [],
+    "xp": 5,
+    "duration": 256
+  },
+  "entity.minecraft.skeleton": {
+    "main_drop": "minecraft:bone",
+    "additional_drop": [
+      "minecraft:arrow"
+    ],
+    "xp": 5,
+    "duration": 256
+  },
+  "entity.minecraft.creeper": {
+    "main_drop": "minecraft:gunpowder",
+    "additional_drop": [],
+    "xp": 5,
+    "duration": 256
+  },
+  "entity.minecraft.spider": {
+    "main_drop": "minecraft:string",
+    "additional_drop": [
+      "minecraft:spider_eye"
+    ],
+    "xp": 5,
+    "duration": 256
+  },
+  "entity.minecraft.enderman": {
+    "main_drop": "minecraft:ender_pearl",
+    "additional_drop": [],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.minecraft.slime": {
+    "main_drop": "minecraft:slime_ball",
+    "additional_drop": [],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.minecraft.ghast": {
+    "main_drop": "minecraft:ghast_tear",
+    "additional_drop": [
+      "minecraft:gunpowder"
+    ],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.minecraft.blaze": {
+    "main_drop": "minecraft:blaze_rod",
+    "additional_drop": [],
+    "xp": 10,
+    "duration": 512
+  },
+  "entity.minecraft.witch": {
+    "main_drop": "minecraft:redstone",
+    "additional_drop": [
+      "minecraft:glowstone_dust",
+      "minecraft:sugar",
+      "minecraft:gunpowder"
+    ],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.minecraft.wither_skeleton": {
+    "main_drop": "minecraft:bone",
+    "additional_drop": [
+      "minecraft:coal",
+      "minecraft:wither_skeleton_skull"
+    ],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.minecraft.evoker": {
+    "main_drop": "minecraft:totem_of_undying",
+    "additional_drop": [
+      "minecraft:emerald"
+    ],
+    "xp": 10,
+    "duration": 1024
+  },
+  "entity.minecraft.vindicator": {
+    "main_drop": "minecraft:emerald",
+    "additional_drop": [],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.minecraft.shulker": {
+    "main_drop": "minecraft:shulker_shell",
+    "additional_drop": [],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.minecraft.phantom": {
+    "main_drop": "minecraft:phantom_membrane",
+    "additional_drop": [],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.minecraft.drowned": {
+    "main_drop": "minecraft:rotten_flesh",
+    "additional_drop": [
+      "minecraft:copper_ingot"
+    ],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.minecraft.magma_cube": {
+    "main_drop": "minecraft:magma_cream",
+    "additional_drop": [],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.minecraft.hoglin": {
+    "main_drop": "minecraft:porkchop",
+    "additional_drop": [
+      "minecraft:leather"
+    ],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.minecraft.piglin_brute": {
+    "main_drop": "minecraft:netherite_upgrade_smithing_template",
+    "additional_drop": [],
+    "xp": 20,
+    "duration": 1024
+  },
+  "entity.minecraft.zombified_piglin": {
+    "main_drop": "minecraft:rotten_flesh",
+    "additional_drop": [
+      "minecraft:gold_ingot"
+    ],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.minecraft.guardian": {
+    "main_drop": "minecraft:prismarine_shard",
+    "additional_drop": [
+      "minecraft:prismarine_crystals"
+    ],
+    "xp": 10,
+    "duration": 512
+  },
+  "entity.minecraft.elder_guardian": {
+    "main_drop": "minecraft:prismarine_shard",
+    "additional_drop": [
+      "minecraft:prismarine_crystals",
+      "minecraft:wet_sponge"
+    ],
+    "xp": 10,
+    "duration": 1024
+  }
+}
