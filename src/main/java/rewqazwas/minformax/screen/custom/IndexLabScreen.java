@@ -113,7 +113,7 @@ public class IndexLabScreen extends AbstractContainerScreen<IndexLabMenu> {
             if(mouseX >= i + 205 && mouseX <= i + 205 + 16 && mouseY >= j + 23 && mouseY <= j + 23 + 16) {guiGraphics.renderTooltip(this.font, mainDrop, mouseX, mouseY);}
             guiGraphics.drawString(this.font, "+", i + 225, j + 29, 16777215, false);
             guiGraphics.renderFakeItem(Items.EXPERIENCE_BOTTLE.getDefaultInstance(), i + 233, j + 23);
-            guiGraphics.drawString(this.font, "" + this.mobData.xpAmount(), i + 249, j + 31, 16777215, false);
+            guiGraphics.drawString(this.font, "" + this.mobData.xp(), i + 249, j + 31, 16777215, false);
 
             guiGraphics.drawString(this.font, "Extra Drop", i + 205, j + 45, 16777215, false);
             guiGraphics.blitSprite(SUB_BACKGROUND, i + 202, j + 59, 0, 61, 20);//▼

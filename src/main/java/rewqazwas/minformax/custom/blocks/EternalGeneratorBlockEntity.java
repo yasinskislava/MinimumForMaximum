@@ -26,22 +26,18 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 import rewqazwas.minformax.custom.ModBlockEntities;
 import rewqazwas.minformax.custom.component.ModDataComponents;
-import rewqazwas.minformax.custom.index.HolderClass;
-import rewqazwas.minformax.custom.index.MasterIndex;
-import rewqazwas.minformax.custom.index.reload.ModuleDropsReloadListener;
+import rewqazwas.minformax.custom.index.ModDataReloadListener;
+import rewqazwas.minformax.custom.index.ModuleDropsReloadListener;
 import rewqazwas.minformax.custom.items.BossModuleItem;
 import rewqazwas.minformax.custom.items.MemoryShard;
 import rewqazwas.minformax.custom.items.ModuleItem;
 import rewqazwas.minformax.custom.items.upgrades.*;
-import rewqazwas.minformax.custom.utility.Utils;
 import rewqazwas.minformax.screen.custom.EternalGeneratorMenu;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
-import static rewqazwas.minformax.custom.utility.Utils.warn;
 
 public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProvider {
 
@@ -271,9 +267,11 @@ public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProv
                     duration += 1024;
                 } else if(currentLoader.getItem() instanceof MemoryShard) {
                     var key = currentLoader.get(ModDataComponents.MOB_INDEX);
-                    MasterIndex index = MasterIndex.get((ServerLevel) level);
-                    var loot = index.getValue(key);
-                    duration += loot.duration();
+                    var index = ModDataReloadListener.MOB_DROPS;
+                    if(index.containsKey(key)) {
+                        var loot = index.get(key);
+                        duration += loot.duration();
+                    }
                 } else if(currentLoader.getItem() instanceof BossModuleItem && pass) {
                     duration += 2048;
                 }
@@ -306,12 +304,14 @@ public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProv
                         mainDrop = ModuleDropsReloadListener.mainDropsFromModule(loaderItem);
                     } else if(loaderItem instanceof MemoryShard) {
                         var key = loader.get(ModDataComponents.MOB_INDEX);
-                        MasterIndex index = MasterIndex.get((ServerLevel) level);
-                        var loot = index.getValue(key);
-                        mainDrop = List.of(loot.mainDrop());
-                        additionalDrop = loot.additionalDrop();
-                        this.totalXp += loot.xpAmount() * modifiers.operationMultiplier;
-                        isShard = true;
+                        var index = ModDataReloadListener.MOB_DROPS;
+                        if(index.containsKey(key)) {
+                            var loot = index.get(key);
+                            mainDrop = List.of(loot.mainDrop());
+                            additionalDrop = loot.additionalDrop();
+                            this.totalXp += loot.xp() * modifiers.operationMultiplier;
+                            isShard = true;
+                        }
                     }
                     var sides = getSides(level, blockPos);
                     moveItems(sides, modifiers, mainDrop, additionalDrop, isShard);
@@ -327,4 +327,3 @@ public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProv
 
     private record ModifierData(int speedModifier, int operationMultiplier, int extraDropPercentage, boolean inverted, boolean isStrong) {}
 }
-

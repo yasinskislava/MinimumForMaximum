@@ -6,9 +6,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
-import net.neoforged.fml.common.Mod;
 import rewqazwas.minformax.custom.blocks.EternalGeneratorBlockEntity;
-import rewqazwas.minformax.custom.index.MasterIndex;
+import rewqazwas.minformax.custom.index.ModDataReloadListener;
 
 import java.util.List;
 
@@ -19,10 +18,6 @@ public class QuantumIngotItem extends Item {
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
-        if(!context.getLevel().isClientSide()) {
-            MasterIndex masterIndex = MasterIndex.get(context.getLevel().getServer().overworld());
-            System.out.println(masterIndex.getIndex());
-        }
         if(context.getPlayer().isCrouching()){
             var target = context.getLevel().getBlockEntity(context.getClickedPos());
             if(target instanceof EternalGeneratorBlockEntity generator && generator.canConsumeOverload()) {

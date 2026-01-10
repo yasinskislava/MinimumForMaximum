@@ -18,9 +18,8 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
-import net.neoforged.neoforge.client.IArmPoseTransformer;
 import rewqazwas.minformax.custom.ModAttachmentTypes;
-import rewqazwas.minformax.custom.index.MasterIndex;
+import rewqazwas.minformax.custom.index.ModDataReloadListener;
 import rewqazwas.minformax.custom.index.PlayerIndex;
 import rewqazwas.minformax.custom.utility.Raycaster;
 import rewqazwas.minformax.custom.utility.Utils;
@@ -50,9 +49,8 @@ public class ScannerItem extends Item {
 
                 if (target instanceof Mob && !level.isClientSide()) {
                     String key = target.getType().toString();
-                    MasterIndex masterIndex = MasterIndex.get((ServerLevel) level);
                     level.playSound(null, player.blockPosition(), SoundEvents.AMETHYST_BLOCK_STEP, SoundSource.PLAYERS,1f, 1f);
-                    if(masterIndex.contains(key)) {
+                    if(ModDataReloadListener.MOB_DROPS.containsKey(key)) {
                         if (!PlayerIndex.contains(((ServerPlayer) player), key)) {
                             PlayerIndex.add(((ServerPlayer) player), key);
                             player.setData(ModAttachmentTypes.INDEX_SYNC, Utils.clearContent(PlayerIndex.getLocalIndex((ServerPlayer) player), level));
@@ -71,5 +69,3 @@ public class ScannerItem extends Item {
 
 
 }
-
-

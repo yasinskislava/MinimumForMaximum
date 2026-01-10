@@ -1,22 +1,12 @@
 package rewqazwas.minformax.custom.utility;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import org.jetbrains.annotations.NotNull;
 import rewqazwas.minformax.custom.index.HolderClass;
-import rewqazwas.minformax.custom.index.MasterIndex;
+import rewqazwas.minformax.custom.index.ModDataReloadListener;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
 
 public class Utils {
     public static void warn(String text) {
@@ -48,10 +38,9 @@ public class Utils {
     public static HashMap<String, HolderClass> clearContent(List<String> keys, Level level) {
         var map = new HashMap<String, HolderClass>();
         if(!level.isClientSide()) {
-            var masterIndex = MasterIndex.get((ServerLevel) level);
             for (String key : keys) {
-                if (masterIndex.contains(key)) {
-                    var value = masterIndex.getValue(key);
+                if (ModDataReloadListener.MOB_DROPS.containsKey(key)) {
+                    var value = ModDataReloadListener.MOB_DROPS.get(key);
                     map.put(key, value);
                 }
             }

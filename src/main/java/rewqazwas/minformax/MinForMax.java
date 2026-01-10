@@ -10,15 +10,18 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import rewqazwas.minformax.config.DataConfigs;
 import rewqazwas.minformax.custom.CreativeTabs;
 import rewqazwas.minformax.custom.ModAttachmentTypes;
 import rewqazwas.minformax.custom.ModBlockEntities;
@@ -26,20 +29,20 @@ import rewqazwas.minformax.custom.blocks.CreativeEnergyBlockEntity;
 import rewqazwas.minformax.custom.blocks.EternalGeneratorBlockEntity;
 import rewqazwas.minformax.custom.blocks.ModBlocks;
 import rewqazwas.minformax.custom.component.ModDataComponents;
-import rewqazwas.minformax.custom.index.MasterIndex;
+import rewqazwas.minformax.custom.index.ModDataReloadListener;
 import rewqazwas.minformax.custom.index.PlayerIndex;
-import rewqazwas.minformax.custom.index.reload.MobDropsReloadListener;
-import rewqazwas.minformax.custom.index.reload.ModuleDropsReloadListener;
 import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.screen.ModMenuTypes;
 import rewqazwas.minformax.screen.custom.EternalGeneratorScreen;
 import rewqazwas.minformax.screen.custom.IndexLabScreen;
 
 import static rewqazwas.minformax.custom.utility.Utils.clearContent;
+import static rewqazwas.minformax.custom.utility.Utils.warn;
 
 @Mod(MinForMax.MOD_ID)
 public class MinForMax {
     public static final String MOD_ID = "minformax";
+    public static final Logger LOGGER = LogManager.getLogger();
 
 
     public MinForMax(IEventBus eventBus, ModContainer modContainer) {
@@ -50,6 +53,8 @@ public class MinForMax {
         ModMenuTypes.MENUS.register(eventBus);
         ModDataComponents.DATA_COMPONENT_TYPES.register(eventBus);
         ModAttachmentTypes.ATTACHMENT_TYPES.register(eventBus);
+
+        modContainer.registerConfig(ModConfig.Type.COMMON, DataConfigs.COMMON);
     }
 
 
@@ -75,7 +80,7 @@ public class MinForMax {
     public static class ClientServerSetup {
         @SubscribeEvent
         public static void onServerReady(ServerStartedEvent event) {
-            MobDropsReloadListener.syncMobDropsIntoAllLevels(event.getServer().overworld());
+
         }
 
         @SubscribeEvent
@@ -92,9 +97,8 @@ public class MinForMax {
         }
 
         @SubscribeEvent
-        public static void onAddReloadListeners(AddReloadListenerEvent event) {
-            event.addListener(new MobDropsReloadListener());
-            event.addListener(new ModuleDropsReloadListener());
+        public static void onAddReloadListener(AddReloadListenerEvent event) {
+            event.addListener(new ModDataReloadListener());
         }
     }
 }
