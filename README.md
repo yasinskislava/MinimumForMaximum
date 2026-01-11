@@ -15,7 +15,7 @@ Mob drops are defined under the `mob_drops` key. Each entry consists of a mob's 
 ```json
 {
   "mob_drops": {
-    "minecraft:cow": {
+    "entity.minecraft.cow": {
       "main_drop": "minecraft:beef",
       "additional_drop": [
         "minecraft:leather"

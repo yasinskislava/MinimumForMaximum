@@ -1,12 +1,21 @@
 package rewqazwas.minformax.custom.utility;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import org.jetbrains.annotations.NotNull;
 import rewqazwas.minformax.custom.index.HolderClass;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
 
 import java.util.HashMap;
 import java.util.List;
-
 
 public class Utils {
     public static void warn(String text) {
@@ -46,6 +55,39 @@ public class Utils {
             }
         }
         return map;
+    }
+
+    public static IItemHandler[] getItemHandlers(Level level, BlockPos blockPos) {
+        return new IItemHandler[]{
+                level.getCapability(Capabilities.ItemHandler.BLOCK, blockPos.above(), Direction.DOWN),
+                level.getCapability(Capabilities.ItemHandler.BLOCK, blockPos.below(), Direction.UP),
+                level.getCapability(Capabilities.ItemHandler.BLOCK, blockPos.north(), Direction.SOUTH),
+                level.getCapability(Capabilities.ItemHandler.BLOCK, blockPos.south(), Direction.NORTH),
+                level.getCapability(Capabilities.ItemHandler.BLOCK, blockPos.east(), Direction.WEST),
+                level.getCapability(Capabilities.ItemHandler.BLOCK, blockPos.west(), Direction.EAST)
+        };
+    }
+
+    public static IFluidHandler[] getFluidHandlers(Level level, BlockPos blockPos) {
+        return new IFluidHandler[]{
+                level.getCapability(Capabilities.FluidHandler.BLOCK, blockPos.above(), Direction.DOWN),
+                level.getCapability(Capabilities.FluidHandler.BLOCK, blockPos.below(), Direction.UP),
+                level.getCapability(Capabilities.FluidHandler.BLOCK, blockPos.north(), Direction.SOUTH),
+                level.getCapability(Capabilities.FluidHandler.BLOCK, blockPos.south(), Direction.NORTH),
+                level.getCapability(Capabilities.FluidHandler.BLOCK, blockPos.east(), Direction.WEST),
+                level.getCapability(Capabilities.FluidHandler.BLOCK, blockPos.west(), Direction.EAST)
+        };
+    }
+
+    public static IEnergyStorage[] getEnergyHandlers(Level level, BlockPos blockPos) {
+        return new IEnergyStorage[]{
+                level.getCapability(Capabilities.EnergyStorage.BLOCK, blockPos.above(), Direction.DOWN),
+                level.getCapability(Capabilities.EnergyStorage.BLOCK, blockPos.below(), Direction.UP),
+                level.getCapability(Capabilities.EnergyStorage.BLOCK, blockPos.north(), Direction.SOUTH),
+                level.getCapability(Capabilities.EnergyStorage.BLOCK, blockPos.south(), Direction.NORTH),
+                level.getCapability(Capabilities.EnergyStorage.BLOCK, blockPos.east(), Direction.WEST),
+                level.getCapability(Capabilities.EnergyStorage.BLOCK, blockPos.west(), Direction.EAST)
+        };
     }
 
     public static String simpleEnergyDisplay(int energy, int maxEnergy) {

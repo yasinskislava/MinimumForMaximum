@@ -215,5 +215,11 @@
     ],
     "xp": 10,
     "duration": 1024
+  },
+  "entity.minecraft.breeze": {
+    "main_drop": "minecraft:breeze_rod",
+    "additional_drop": [],
+    "xp": 0,
+    "duration": 256
   }
 }

@@ -49,9 +49,6 @@ public class CreativeTabs {
                     output.accept(ModItems.ENDER_DRAGON_MODULE);
                     output.accept(ModItems.WITHER_MODULE);
                     output.accept(ModItems.WARDEN_MODULE);
-
-
-
                 })
                 .build();
     });

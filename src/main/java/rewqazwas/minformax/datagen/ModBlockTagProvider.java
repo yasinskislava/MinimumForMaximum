@@ -25,5 +25,6 @@ public class ModBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.ETERNAL_GENERATOR_TIER3.get())
                 .add(ModBlocks.ETERNAL_GENERATOR_TIER4.get())
                 .add(ModBlocks.INDEX_LAB.get());
+
     }
 }

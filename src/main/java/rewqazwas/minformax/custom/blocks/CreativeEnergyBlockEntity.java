@@ -10,6 +10,8 @@ import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import rewqazwas.minformax.custom.ModBlockEntities;
 
+import static rewqazwas.minformax.custom.utility.Utils.getEnergyHandlers;
+
 
 public class CreativeEnergyBlockEntity extends BlockEntity {
     public final EnergyStorage energyHandler = new EnergyStorage(1000_000_000);
@@ -21,21 +23,12 @@ public class CreativeEnergyBlockEntity extends BlockEntity {
 
     public void tick(Level level, BlockPos blockPos, BlockState blockState, CreativeEnergyBlockEntity blockEntity) {
         if(level.isClientSide()) return;
-        for(IEnergyStorage side : getSides(level, blockPos)) {
+        for(IEnergyStorage side : getEnergyHandlers(level, blockPos)) {
             if(side != null && side.canReceive()) {
                 side.receiveEnergy(energyHandler.getEnergyStored(), false);
             }
         }
     }
 
-    private IEnergyStorage[] getSides(Level level, BlockPos blockPos) {
-        return new IEnergyStorage[]{
-                level.getCapability(Capabilities.EnergyStorage.BLOCK, blockPos.above(), Direction.DOWN),
-                level.getCapability(Capabilities.EnergyStorage.BLOCK, blockPos.below(), Direction.UP),
-                level.getCapability(Capabilities.EnergyStorage.BLOCK, blockPos.north(), Direction.SOUTH),
-                level.getCapability(Capabilities.EnergyStorage.BLOCK, blockPos.south(), Direction.NORTH),
-                level.getCapability(Capabilities.EnergyStorage.BLOCK, blockPos.east(), Direction.WEST),
-                level.getCapability(Capabilities.EnergyStorage.BLOCK, blockPos.west(), Direction.EAST)
-        };
-    }
+
 }
