@@ -2,10 +2,8 @@ package rewqazwas.minformax.custom.blocks;
 
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import rewqazwas.minformax.MinForMax;
@@ -22,6 +20,8 @@ public class ModBlocks {
     public static final DeferredBlock<Block> ETERNAL_GENERATOR_TIER3 = registerBlock("eternal_generator_tier3", () -> new EternalGeneratorBlock(3));
     public static final DeferredBlock<Block> ETERNAL_GENERATOR_TIER4 = registerBlock("eternal_generator_tier4", () -> new EternalGeneratorBlock(4));
     public static final DeferredBlock<Block> CREATIVE_ENERGY = registerBlock("creative_energy", () -> new CreativeEnergyBlock(BlockBehaviour.Properties.of()));
+    public static final DeferredBlock<Block> FLUID_REPLICATOR = registerBlock("fluid_replicator", () -> new FluidReplicator(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops().noOcclusion()));
+    public static final DeferredBlock<Block> BLOCK_REPLICATOR = registerBlock("block_replicator", () -> new BlockReplicator(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops().noOcclusion()));
 
 
     //Automated register for block item

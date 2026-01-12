@@ -1,0 +1,17 @@
+{
+  "minecraft:water": {
+    "basic_amount_generated": 100,
+    "duration": 20,
+    "energy_multiplier": 1
+  },
+  "minecraft:lava": {
+    "basic_amount_generated": 100,
+    "duration": 40,
+    "energy_multiplier": 5
+  },
+  "minecraft:milk": {
+    "basic_amount_generated": 100,
+    "duration": 20,
+    "energy_multiplier": 2
+  }
+}

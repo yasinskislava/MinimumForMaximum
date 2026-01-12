@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.neoforged.fml.loading.FMLPaths;
@@ -22,11 +21,15 @@ public class ModDataReloadListener implements ResourceManagerReloadListener {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     public static Map<String, HolderClass> MOB_DROPS = new HashMap<>();
     public static Map<String, ModuleData> MODULE_DROPS = new HashMap<>();
+    public static Map<String, FluidReplicatorData> FLUID_REPLICATOR_DATA = new HashMap<>();
+    public static Map<String, BlockReplicatorData> BLOCK_REPLICATOR_DATA = new HashMap<>();
 
     @Override
     public void onResourceManagerReload(ResourceManager resourceManager) {
         MOB_DROPS.clear();
         MODULE_DROPS.clear();
+        FLUID_REPLICATOR_DATA.clear();
+        BLOCK_REPLICATOR_DATA.clear();
 
         // Load default mob_drops from data packs (specifically minformax namespace)
         var mobResources = resourceManager.listResources("mob_drops", id -> id.getPath().endsWith(".json") && id.getNamespace().equals("minformax"));
@@ -55,6 +58,40 @@ public class ModDataReloadListener implements ResourceManagerReloadListener {
                         ModuleData.CODEC.parse(JsonOps.INSTANCE, entry.getValue())
                                 .resultOrPartial(error -> System.err.println("Failed to parse module drop: " + error))
                                 .ifPresent(moduleData -> MODULE_DROPS.put(entry.getKey(), moduleData));
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        // Load default fluid_replicator_data from data packs (specifically minformax namespace)
+        var fluidResources = resourceManager.listResources("fluid_replicator_data", id -> id.getPath().endsWith(".json") && id.getNamespace().equals("minformax"));
+        fluidResources.forEach((location, resource) -> {
+            try (Reader reader = resource.openAsReader()) {
+                JsonElement json = GSON.fromJson(reader, JsonElement.class);
+                if (json != null && json.isJsonObject()) {
+                    json.getAsJsonObject().entrySet().forEach(entry -> {
+                        FluidReplicatorData.CODEC.parse(JsonOps.INSTANCE, entry.getValue())
+                                .resultOrPartial(error -> System.err.println("Failed to parse fluid replicator data: " + error))
+                                .ifPresent(data -> FLUID_REPLICATOR_DATA.put(entry.getKey(), data));
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        // Load default block_replicator_data from data packs (specifically minformax namespace)
+        var blockResources = resourceManager.listResources("block_replicator_data", id -> id.getPath().endsWith(".json") && id.getNamespace().equals("minformax"));
+        blockResources.forEach((location, resource) -> {
+            try (Reader reader = resource.openAsReader()) {
+                JsonElement json = GSON.fromJson(reader, JsonElement.class);
+                if (json != null && json.isJsonObject()) {
+                    json.getAsJsonObject().entrySet().forEach(entry -> {
+                        BlockReplicatorData.CODEC.parse(JsonOps.INSTANCE, entry.getValue())
+                                .resultOrPartial(error -> System.err.println("Failed to parse block replicator data: " + error))
+                                .ifPresent(data -> BLOCK_REPLICATOR_DATA.put(entry.getKey(), data));
                     });
                 }
             } catch (Exception e) {
@@ -91,6 +128,22 @@ public class ModDataReloadListener implements ResourceManagerReloadListener {
                 });
                 emptyConfig.add("module_drops", moduleDropsJson);
 
+                JsonObject fluidReplicatorJson = new JsonObject();
+                FLUID_REPLICATOR_DATA.forEach((key, value) -> {
+                    FluidReplicatorData.CODEC.encodeStart(JsonOps.INSTANCE, value)
+                            .result()
+                            .ifPresent(json -> fluidReplicatorJson.add(key, json));
+                });
+                emptyConfig.add("fluid_replicator_data", fluidReplicatorJson);
+
+                JsonObject blockReplicatorJson = new JsonObject();
+                BLOCK_REPLICATOR_DATA.forEach((key, value) -> {
+                    BlockReplicatorData.CODEC.encodeStart(JsonOps.INSTANCE, value)
+                            .result()
+                            .ifPresent(json -> blockReplicatorJson.add(key, json));
+                });
+                emptyConfig.add("block_replicator_data", blockReplicatorJson);
+
                 GSON.toJson(emptyConfig, writer);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -111,6 +164,20 @@ public class ModDataReloadListener implements ResourceManagerReloadListener {
                             ModuleData.CODEC.parse(JsonOps.INSTANCE, entry.getValue())
                                     .resultOrPartial(error -> System.err.println("Failed to parse custom module drop: " + error))
                                     .ifPresent(moduleData -> MODULE_DROPS.put(entry.getKey(), moduleData));
+                        });
+                    }
+                    if (json.has("fluid_replicator_data")) {
+                        json.getAsJsonObject("fluid_replicator_data").entrySet().forEach(entry -> {
+                            FluidReplicatorData.CODEC.parse(JsonOps.INSTANCE, entry.getValue())
+                                    .resultOrPartial(error -> System.err.println("Failed to parse custom fluid replicator data: " + error))
+                                    .ifPresent(data -> FLUID_REPLICATOR_DATA.put(entry.getKey(), data));
+                        });
+                    }
+                    if (json.has("block_replicator_data")) {
+                        json.getAsJsonObject("block_replicator_data").entrySet().forEach(entry -> {
+                            BlockReplicatorData.CODEC.parse(JsonOps.INSTANCE, entry.getValue())
+                                    .resultOrPartial(error -> System.err.println("Failed to parse custom block replicator data: " + error))
+                                    .ifPresent(data -> BLOCK_REPLICATOR_DATA.put(entry.getKey(), data));
                         });
                     }
                 }

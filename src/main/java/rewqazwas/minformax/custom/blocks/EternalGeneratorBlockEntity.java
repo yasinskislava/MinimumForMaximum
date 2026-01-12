@@ -8,7 +8,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -284,7 +283,11 @@ public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProv
         var size = loaders.size();
 
         if(size > 0) {
-            var requiredEnergy = modifiers.operationMultiplier * modifiers.speedModifier * 4 * size;
+            int effectiveSpeed = Math.min(modifiers.speedModifier, duration / size);
+            var requiredEnergy = modifiers.operationMultiplier * effectiveSpeed * 4 * size;
+            if (modifiers.speedModifier == 9999) {
+                requiredEnergy = 0;
+            }
             if(currentEnergy < requiredEnergy) return;
             energyHandler.extractEnergy(requiredEnergy, false);
 

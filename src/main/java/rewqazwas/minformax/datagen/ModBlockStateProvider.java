@@ -25,6 +25,8 @@ public class ModBlockStateProvider extends BlockStateProvider {
         blockWithItem(ModBlocks.ETERNAL_GENERATOR_TIER4);
         blockWithItem(ModBlocks.INDEX_LAB);
         blockWithItem(ModBlocks.CREATIVE_ENERGY);
+        blockWithItem(ModBlocks.FLUID_REPLICATOR);
+        blockWithItem(ModBlocks.BLOCK_REPLICATOR);
     }
 
 

@@ -24,7 +24,8 @@ public class ModBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.ETERNAL_GENERATOR_TIER2.get())
                 .add(ModBlocks.ETERNAL_GENERATOR_TIER3.get())
                 .add(ModBlocks.ETERNAL_GENERATOR_TIER4.get())
-                .add(ModBlocks.INDEX_LAB.get());
-
+                .add(ModBlocks.INDEX_LAB.get())
+                .add(ModBlocks.FLUID_REPLICATOR.get())
+                .add(ModBlocks.BLOCK_REPLICATOR.get());
     }
 }

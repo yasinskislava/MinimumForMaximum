@@ -24,6 +24,7 @@ public class ModItems {
     public static final DeferredItem<Item> SPEED_UPGRADE_TIER2 = ITEMS.register("speed_upgrade_tier2", () -> new SpeedUpgrade(4));
     public static final DeferredItem<Item> SPEED_UPGRADE_TIER3 = ITEMS.register("speed_upgrade_tier3", () -> new SpeedUpgrade(8));
     public static final DeferredItem<Item> SPEED_UPGRADE_TIER4 = ITEMS.register("speed_upgrade_tier4", () -> new SpeedUpgrade(16));
+    public static final DeferredItem<Item> CREATIVE_SPEED_UPGRADE = ITEMS.register("creative_speed_upgrade", () -> new SpeedUpgrade(9999));
     public static final DeferredItem<Item> STACK_UPGRADE_TIER1 = ITEMS.register("stack_upgrade_tier1", () -> new StackUpgrade(4));
     public static final DeferredItem<Item> STACK_UPGRADE_TIER2 = ITEMS.register("stack_upgrade_tier2", () -> new StackUpgrade(16));
     public static final DeferredItem<Item> STACK_UPGRADE_TIER3 = ITEMS.register("stack_upgrade_tier3", () -> new StackUpgrade(64));

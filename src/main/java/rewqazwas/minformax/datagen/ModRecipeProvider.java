@@ -23,12 +23,6 @@ public class ModRecipeProvider extends RecipeProvider {
 
     @Override
     protected void buildRecipes(@NotNull RecipeOutput recipeOutput) {
-//        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Blocks.RAINBOW_BLOCK.get())
-//                .pattern("###")
-//                .pattern("###")
-//                .pattern("###")
-//                .define('#', Items.RAINBOW_INGOT.get()).unlockedBy("has_rainbow_ingots", has(Items.RAINBOW_INGOT)).save(recipeOutput);
-//
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.MEMORY_SHARD.get())
                 .pattern(" rc")
@@ -355,6 +349,26 @@ public class ModRecipeProvider extends RecipeProvider {
                 .define('d', Ingredient.of(Items.DIAMOND))
                 .define('g', Ingredient.of(Items.GLASS_PANE))
                 .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FLUID_REPLICATOR.get())
+                .pattern("iii")
+                .pattern("bnb")
+                .pattern("iii")
+                .define('i', Ingredient.of(Items.IRON_BLOCK))
+                .define('n', Ingredient.of(Items.NETHERITE_INGOT))
+                .define('b', Ingredient.of(Items.BUCKET))
+                .unlockedBy("has_netherite", has(Items.NETHERITE_INGOT))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.BLOCK_REPLICATOR.get())
+                .pattern("iii")
+                .pattern("gng")
+                .pattern("iii")
+                .define('i', Ingredient.of(Items.IRON_BLOCK))
+                .define('n', Ingredient.of(Items.NETHERITE_INGOT))
+                .define('g', Ingredient.of(Items.GLASS))
+                .unlockedBy("has_netherite", has(Items.NETHERITE_INGOT))
                 .save(recipeOutput);
     }
 }

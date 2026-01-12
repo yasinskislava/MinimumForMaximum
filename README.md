@@ -58,4 +58,48 @@ Module drops are defined under the `module_drops` key. Each entry consists of a 
 -   `prohibited_tags`: A list of item tags that are not allowed to be dropped.
 -   `xp`: The amount of experience points gained from the module.
 
+### Block Replicator Data
+
+Block replicator data is defined under the `block_replicator_data` key. Each entry consists of a block's ID followed by its replication data.
+
+**Example:**
+
+```json
+{
+  "block_replicator_data": {
+    "minecraft:cobblestone": {
+      "duration": 100,
+      "energy_multiplier": 1,
+      "basic_amount_generated": 1
+    }
+  }
+}
+```
+
+-   `duration`: The base time it takes to replicate the block.
+-   `energy_multiplier`: A multiplier for the energy cost of replication.
+-   `basic_amount_generated`: The base amount of the block generated per cycle.
+
+### Fluid Replicator Data
+
+Fluid replicator data is defined under the `fluid_replicator_data` key. Each entry consists of a fluid's ID followed by its replication data.
+
+**Example:**
+
+```json
+{
+  "fluid_replicator_data": {
+    "minecraft:water": {
+      "duration": 100,
+      "energy_multiplier": 1,
+      "basic_amount_generated": 100
+    }
+  }
+}
+```
+
+-   `duration`: The base time it takes to replicate the fluid.
+-   `energy_multiplier`: A multiplier for the energy cost of replication.
+-   `basic_amount_generated`: The base amount of the fluid generated per cycle (in millibuckets).
+
 To customize the drops, simply modify the values in the `drops.json` file. The changes will be applied the next time the game is launched.

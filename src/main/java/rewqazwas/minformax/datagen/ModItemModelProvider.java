@@ -21,6 +21,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.SPEED_UPGRADE_TIER2.get());
         basicItem(ModItems.SPEED_UPGRADE_TIER3.get());
         basicItem(ModItems.SPEED_UPGRADE_TIER4.get());
+        basicItem(ModItems.CREATIVE_SPEED_UPGRADE.get());
         basicItem(ModItems.STACK_UPGRADE_TIER1.get());
         basicItem(ModItems.STACK_UPGRADE_TIER2.get());
         basicItem(ModItems.STACK_UPGRADE_TIER3.get());

@@ -19,4 +19,6 @@ public class ModBlockEntities {
             ModBlocks.ETERNAL_GENERATOR_TIER3.get(),
             ModBlocks.ETERNAL_GENERATOR_TIER4.get())
             .build(null));
+    public static final Supplier<BlockEntityType<FluidReplicatorBlockEntity>> FLUID_REPLICATOR_BE = BLOCK_ENTITY_TYPES.register("fluid_replicator", () -> BlockEntityType.Builder.of(FluidReplicatorBlockEntity::new, ModBlocks.FLUID_REPLICATOR.get()).build(null));
+    public static final Supplier<BlockEntityType<BlockReplicatorBlockEntity>> BLOCK_REPLICATOR_BE = BLOCK_ENTITY_TYPES.register("block_replicator", () -> BlockEntityType.Builder.of(BlockReplicatorBlockEntity::new, ModBlocks.BLOCK_REPLICATOR.get()).build(null));
 }

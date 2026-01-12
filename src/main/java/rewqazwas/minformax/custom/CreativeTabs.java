@@ -24,6 +24,8 @@ public class CreativeTabs {
                     output.accept(ModBlocks.ETERNAL_GENERATOR_TIER2);
                     output.accept(ModBlocks.ETERNAL_GENERATOR_TIER3);
                     output.accept(ModBlocks.ETERNAL_GENERATOR_TIER4);
+                    output.accept(ModBlocks.FLUID_REPLICATOR);
+                    output.accept(ModBlocks.BLOCK_REPLICATOR);
                     output.accept(ModItems.MEMORY_SHARD);
                     output.accept(ModItems.QUANTUM_FOAM);
                     output.accept(ModItems.QUANTUM_INGOT);
@@ -33,6 +35,7 @@ public class CreativeTabs {
                     output.accept(ModItems.SPEED_UPGRADE_TIER2);
                     output.accept(ModItems.SPEED_UPGRADE_TIER3);
                     output.accept(ModItems.SPEED_UPGRADE_TIER4);
+                    output.accept(ModItems.CREATIVE_SPEED_UPGRADE);
                     output.accept(ModItems.STACK_UPGRADE_TIER1);
                     output.accept(ModItems.STACK_UPGRADE_TIER2);
                     output.accept(ModItems.STACK_UPGRADE_TIER3);

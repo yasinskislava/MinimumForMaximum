@@ -12,26 +12,25 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import rewqazwas.minformax.config.DataConfigs;
 import rewqazwas.minformax.custom.CreativeTabs;
 import rewqazwas.minformax.custom.ModAttachmentTypes;
 import rewqazwas.minformax.custom.ModBlockEntities;
-import rewqazwas.minformax.custom.blocks.CreativeEnergyBlockEntity;
-import rewqazwas.minformax.custom.blocks.EternalGeneratorBlockEntity;
-import rewqazwas.minformax.custom.blocks.ModBlocks;
+import rewqazwas.minformax.custom.blocks.*;
 import rewqazwas.minformax.custom.component.ModDataComponents;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
 import rewqazwas.minformax.custom.index.PlayerIndex;
 import rewqazwas.minformax.custom.items.ModItems;
+import rewqazwas.minformax.renderer.BlockReplicatorRenderer;
+import rewqazwas.minformax.renderer.FluidReplicatorRenderer;
 import rewqazwas.minformax.screen.ModMenuTypes;
 import rewqazwas.minformax.screen.custom.EternalGeneratorScreen;
 import rewqazwas.minformax.screen.custom.IndexLabScreen;
@@ -73,15 +72,17 @@ public class MinForMax {
             event.register(ModMenuTypes.INDEX_LAB_MENU.get(), IndexLabScreen::new);
             event.register(ModMenuTypes.ETERNAL_GENERATOR_MENU.get(), EternalGeneratorScreen::new);
         }
-    }
 
+        @SubscribeEvent
+        public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+            event.registerBlockEntityRenderer(ModBlockEntities.BLOCK_REPLICATOR_BE.get(), BlockReplicatorRenderer::new);
+            event.registerBlockEntityRenderer(ModBlockEntities.FLUID_REPLICATOR_BE.get(), FluidReplicatorRenderer::new);
+        }
+
+    }
 
     @EventBusSubscriber
     public static class ClientServerSetup {
-        @SubscribeEvent
-        public static void onServerReady(ServerStartedEvent event) {
-
-        }
 
         @SubscribeEvent
         public static void playerJoins(PlayerEvent.PlayerLoggedInEvent event) {
@@ -94,7 +95,13 @@ public class MinForMax {
             event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.ETERNAL_GENERATOR_BE.get(), (EternalGeneratorBlockEntity be, Direction context) -> be.upgradeHandler);
             event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.ETERNAL_GENERATOR_BE.get(), (EternalGeneratorBlockEntity be, Direction context) -> be.energyHandler);
             event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.CREATIVE_ENERGY_BE.get(), (CreativeEnergyBlockEntity be, Direction context) -> be.energyHandler);
-        }
+            event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.FLUID_REPLICATOR_BE.get(), (FluidReplicatorBlockEntity be, Direction context) -> be.fluidHandler);
+            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.FLUID_REPLICATOR_BE.get(), (FluidReplicatorBlockEntity be, Direction context) -> be.upgradeHandler);
+            event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.FLUID_REPLICATOR_BE.get(), (FluidReplicatorBlockEntity be, Direction context) -> be.energyHandler);
+            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.BLOCK_REPLICATOR_BE.get(), (BlockReplicatorBlockEntity be, Direction context) -> be.upgradeHandler);
+            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.BLOCK_REPLICATOR_BE.get(), (BlockReplicatorBlockEntity be, Direction context) -> be.itemHandler);
+            event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.BLOCK_REPLICATOR_BE.get(), (BlockReplicatorBlockEntity be, Direction context) -> be.energyHandler);
+         }
 
         @SubscribeEvent
         public static void onAddReloadListener(AddReloadListenerEvent event) {

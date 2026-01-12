@@ -9,15 +9,15 @@ import java.util.List;
 public class DataConfigs {
     public static final ModConfigSpec COMMON;
 
-    public static final  ModConfigSpec.IntValue TEST;
+    public static final  ModConfigSpec.BooleanValue shouldRender;
 
     static {
         final var common = new ModConfigSpec.Builder();
 
         common.push("general");
-        TEST = common
-                .comment("TEST value")
-                .defineInRange("test_data", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        shouldRender = common
+                .comment("Should replicators render block inside")
+                .define("should_render", true);
         common.pop();
 
         COMMON= common.build();

@@ -23,7 +23,8 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(ModBlocks.ETERNAL_GENERATOR_TIER3.get());
         dropSelf(ModBlocks.ETERNAL_GENERATOR_TIER4.get());
         dropSelf(ModBlocks.CREATIVE_ENERGY.get());
-
+        dropSelf(ModBlocks.FLUID_REPLICATOR.get());
+        dropSelf(ModBlocks.BLOCK_REPLICATOR.get());
     }
 
 
