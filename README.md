@@ -1,6 +1,16 @@
-# Minimum For Maximum
+# Minimum For Maximum (MFM)
 
-This is a Minecraft mod that introduces new ways to generate resources.
+**Minimum For Maximum (MFM)** is a tech mod themed around powerful and efficient automation. The progression is centered around providing players with straightforward ways to generate vast quantities of items, blocks, and fluids. While the mod is standalone, you will need an external source of Forge Energy (FE). MFM is highly recommended for any modpack that demands significant resource investment.
+
+This mod is built on the idea of minimizing complexity so you can focus on creativity and large-scale building.
+
+### MFM's Goals
+
+-   **Eliminate Grinding:** Let players bypass repetitive resource gathering with powerful, set-and-forget automation.
+-   **Streamline Production:** Offer simple, high-output machines like the **Block Replicator** and **Fluid Replicator** for infinite resource generation.
+-   **Advanced Processing:** Introduce the **Eternal Generator**, a high-tier machine for converting mob data and custom modules directly into valuable resources and experience points.
+-   **Scalable & Intuitive:** Provide a clear upgrade path for all machines, allowing players to boost speed, efficiency, and output with a simple system of upgrade items.
+-   **Performance-Friendly:** Reduce the need for large, entity-heavy farms that can cause server lag, facilitating a smoother gameplay experience.
 
 ## Customizing Drop Data
 
@@ -28,7 +38,7 @@ Mob drops are defined under the `mob_drops` key. Each entry consists of a mob's 
 ```
 
 -   `main_drop`: The primary item dropped by the mob.
--   `additional_drop`: A list of additional items that may be dropped.
+-   `additional_drop`: A list of additional items that may be dropped. **Note: There is a limit of maximum 3 items for additional drops.**
 -   `xp`: The amount of experience points dropped.
 -   `duration`: The time it takes to generate the drops.
 

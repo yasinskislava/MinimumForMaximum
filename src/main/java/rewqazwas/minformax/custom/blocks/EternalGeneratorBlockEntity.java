@@ -181,29 +181,56 @@ public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProv
     }
 
     private void moveItems(IItemHandler[] sides, ModifierData modifiers, List<ItemStack> mainDrop, List<ItemStack> additionalDrop, boolean isShard) {
-        mainDrop.forEach(stack -> stack.setCount(modifiers.operationMultiplier));
-        additionalDrop.forEach(extra -> extra.setCount(modifiers.operationMultiplier));
+        List<ItemStack> mainDropProcessed = new ArrayList<>();
+        for(ItemStack stack : mainDrop) {
+            ItemStack copy = stack.copy();
+            copy.setCount(modifiers.operationMultiplier);
+            mainDropProcessed.add(copy);
+        }
+
+        List<ItemStack> additionalDropProcessed = new ArrayList<>();
+        for(ItemStack stack : additionalDrop) {
+            ItemStack copy = stack.copy();
+            copy.setCount(modifiers.operationMultiplier);
+            additionalDropProcessed.add(copy);
+        }
+
         List<IItemHandler> filteredSides = new ArrayList<>();
         if(isShard && modifiers.inverted) {
-            var temp = mainDrop;
-            mainDrop = additionalDrop;
-            additionalDrop = temp;
+            var temp = mainDropProcessed;
+            mainDropProcessed = additionalDropProcessed;
+            additionalDropProcessed = temp;
         }
         Arrays.stream(sides).filter(Objects::nonNull).forEach(filteredSides::add);
 
         if(!filteredSides.isEmpty()) {
-            for(ItemStack main: mainDrop) {
-                var remainder = ItemHandlerHelper.insertItemStacked(filteredSides.getFirst(), main, false);
-                overload += remainder.getCount();
+            for(ItemStack main: mainDropProcessed) {
+                ItemStack remaining = main;
+                for(IItemHandler side : filteredSides) {
+                    remaining = ItemHandlerHelper.insertItemStacked(side, remaining, false);
+                    if(remaining.isEmpty()) break;
+                }
+                overload += remaining.getCount();
             }
-            for(ItemStack extra: additionalDrop) {
+            for(ItemStack extra: additionalDropProcessed) {
                 if(Math.random() * 100 < modifiers.extraDropPercentage){
-                    var remainder = ItemHandlerHelper.insertItemStacked(filteredSides.getFirst(), extra, false);
-                    overload += remainder.getCount();
+                    ItemStack remaining = extra;
+                    for(IItemHandler side : filteredSides) {
+                        remaining = ItemHandlerHelper.insertItemStacked(side, remaining, false);
+                        if(remaining.isEmpty()) break;
+                    }
+                    overload += remaining.getCount();
                 }
             }
         } else {
-            overload += mainDrop.size() * modifiers.operationMultiplier + additionalDrop.size() * modifiers.operationMultiplier;
+            for(ItemStack stack : mainDropProcessed) {
+                overload += stack.getCount();
+            }
+            for(ItemStack stack : additionalDropProcessed) {
+                if(Math.random() * 100 < modifiers.extraDropPercentage){
+                    overload += stack.getCount();
+                }
+            }
         }
     }
 
