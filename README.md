@@ -38,9 +38,11 @@ Mob drops are defined under the `mob_drops` key. Each entry consists of a mob's 
 ```
 
 -   `main_drop`: The primary item dropped by the mob.
--   `additional_drop`: A list of additional items that may be dropped. **Note: There is a limit of maximum 3 items for additional drops.**
+-   `additional_drop`: A list of additional items that may be dropped. 
 -   `xp`: The amount of experience points dropped.
 -   `duration`: The time it takes to generate the drops.
+
+**Note: There is a limit of maximum 3 items for additional drops.**
 
 ### Module Drops
 
