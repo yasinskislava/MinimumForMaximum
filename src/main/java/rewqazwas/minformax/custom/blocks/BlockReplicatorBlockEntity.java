@@ -1,7 +1,6 @@
 package rewqazwas.minformax.custom.blocks;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -15,7 +14,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
@@ -24,8 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import rewqazwas.minformax.custom.ModBlockEntities;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
 import rewqazwas.minformax.custom.items.upgrades.SpeedUpgrade;
-import rewqazwas.minformax.custom.items.upgrades.StackUpgrade;
-import rewqazwas.minformax.custom.items.upgrades.UpgradeItem;
+import rewqazwas.minformax.custom.items.upgrades.ProcessingUpgrade;
 
 import static rewqazwas.minformax.custom.utility.Utils.getItemHandlers;
 
@@ -38,7 +35,7 @@ public class BlockReplicatorBlockEntity extends BlockEntity {
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return stack.getItem() instanceof SpeedUpgrade || stack.getItem() instanceof StackUpgrade;
+            return stack.getItem() instanceof SpeedUpgrade || stack.getItem() instanceof ProcessingUpgrade;
         }
 
         @Override
@@ -160,8 +157,8 @@ public class BlockReplicatorBlockEntity extends BlockEntity {
             var upgrade = upgradeHandler.getStackInSlot(i).getItem();
             if(upgrade instanceof SpeedUpgrade speedUpgrade) {
                 speedModifier = speedUpgrade.getModifier();
-            } else if(upgrade instanceof StackUpgrade stackUpgrade) {
-                stackMultiplier = stackUpgrade.getMultiplier();
+            } else if(upgrade instanceof ProcessingUpgrade processingUpgrade) {
+                stackMultiplier = processingUpgrade.getMultiplier();
             }
         }
 
@@ -178,7 +175,8 @@ public class BlockReplicatorBlockEntity extends BlockEntity {
 
         if(process >= maxProcess / speedModifier) {
             var amount = data.basicAmountGenerated() * stackMultiplier;
-            var toFill = sourceStack.copy();
+            var toFill = new ItemStack(sourceStack.getItem());
+
             toFill.setCount(amount);
             
             for(IItemHandler side : getItemHandlers(level, blockPos)) {

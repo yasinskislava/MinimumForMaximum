@@ -256,8 +256,8 @@ public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProv
 
             if(upgrade instanceof SpeedUpgrade speedUpgrade) {
                 speedModifier = speedUpgrade.getModifier();
-            } else if(upgrade instanceof StackUpgrade stackUpgrade) {
-                stackMultiplier = stackUpgrade.getMultiplier();
+            } else if(upgrade instanceof ProcessingUpgrade processingUpgrade) {
+                stackMultiplier = processingUpgrade.getMultiplier();
             } else if(upgrade instanceof ExtraDropUpgrade extraDropUpgrade) {
                 percentage = extraDropUpgrade.getPercentage();
             } else if(upgrade instanceof InvertedUpgrade) {

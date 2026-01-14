@@ -6,10 +6,10 @@ import net.minecraft.world.item.TooltipFlag;
 
 import java.util.List;
 
-public class StackUpgrade extends UpgradeItem{
+public class ProcessingUpgrade extends UpgradeItem{
     private int multiplier;
 
-    public StackUpgrade(int multiplier) {
+    public ProcessingUpgrade(int multiplier) {
         this.multiplier = multiplier;
     }
 

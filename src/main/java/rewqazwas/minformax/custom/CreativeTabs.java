@@ -36,10 +36,10 @@ public class CreativeTabs {
                     output.accept(ModItems.SPEED_UPGRADE_TIER3);
                     output.accept(ModItems.SPEED_UPGRADE_TIER4);
                     output.accept(ModItems.CREATIVE_SPEED_UPGRADE);
-                    output.accept(ModItems.STACK_UPGRADE_TIER1);
-                    output.accept(ModItems.STACK_UPGRADE_TIER2);
-                    output.accept(ModItems.STACK_UPGRADE_TIER3);
-                    output.accept(ModItems.STACK_UPGRADE_TIER4);
+                    output.accept(ModItems.PROCESSING_UPGRADE_TIER1);
+                    output.accept(ModItems.PROCESSING_UPGRADE_TIER2);
+                    output.accept(ModItems.PROCESSING_UPGRADE_TIER3);
+                    output.accept(ModItems.PROCESSING_UPGRADE_TIER4);
                     output.accept(ModItems.EXTRA_DROP_UPGRADE_TIER1);
                     output.accept(ModItems.EXTRA_DROP_UPGRADE_TIER2);
                     output.accept(ModItems.EXTRA_DROP_UPGRADE_TIER3);

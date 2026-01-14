@@ -207,7 +207,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         //STACK
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.STACK_UPGRADE_TIER1.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.PROCESSING_UPGRADE_TIER1.get())
                 .pattern("qrq")
                 .pattern("rdr")
                 .pattern("qrq")
@@ -217,33 +217,33 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.STACK_UPGRADE_TIER2.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.PROCESSING_UPGRADE_TIER2.get())
                 .pattern("lul")
                 .pattern("usu")
                 .pattern("lul")
                 .define('l', Ingredient.of(Items.LAPIS_LAZULI))
                 .define('s', Ingredient.of(Items.SLIME_BALL))
-                .define('u', Ingredient.of(ModItems.STACK_UPGRADE_TIER1))
+                .define('u', Ingredient.of(ModItems.PROCESSING_UPGRADE_TIER1))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.STACK_UPGRADE_TIER3.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.PROCESSING_UPGRADE_TIER3.get())
                 .pattern("eue")
                 .pattern("usu")
                 .pattern("eue")
                 .define('e', Ingredient.of(Items.EMERALD))
                 .define('s', Ingredient.of(Items.SLIME_BALL))
-                .define('u', Ingredient.of(ModItems.STACK_UPGRADE_TIER2))
+                .define('u', Ingredient.of(ModItems.PROCESSING_UPGRADE_TIER2))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.STACK_UPGRADE_TIER4.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.PROCESSING_UPGRADE_TIER4.get())
                 .pattern("gug")
                 .pattern("usu")
                 .pattern("gug")
                 .define('g', Ingredient.of(Items.GOLD_INGOT))
                 .define('s', Ingredient.of(Items.SLIME_BALL))
-                .define('u', Ingredient.of(ModItems.STACK_UPGRADE_TIER3))
+                .define('u', Ingredient.of(ModItems.PROCESSING_UPGRADE_TIER3))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 

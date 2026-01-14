@@ -36,7 +36,7 @@ public class UpgradeItem extends Item {
                             if (newSpeed.getModifier() > existingSpeed.getModifier()) {
                                 isBetter = true;
                             }
-                        } else if (stackInSlot.getItem() instanceof StackUpgrade existingStack && context.getItemInHand().getItem() instanceof StackUpgrade newStack) {
+                        } else if (stackInSlot.getItem() instanceof ProcessingUpgrade existingStack && context.getItemInHand().getItem() instanceof ProcessingUpgrade newStack) {
                             if (newStack.getMultiplier() > existingStack.getMultiplier()) {
                                 isBetter = true;
                             }

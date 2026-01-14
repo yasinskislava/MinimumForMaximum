@@ -38,9 +38,9 @@ Mob drops are defined under the `mob_drops` key. Each entry consists of a mob's 
 ```
 
 -   `main_drop`: The primary item dropped by the mob.
--   `additional_drop`: A list of additional items that may be dropped. 
--   `xp`: The amount of experience points dropped.
--   `duration`: The time it takes to generate the drops.
+-   `additional_drop`: A list of additional items that may be produced. 
+-   `xp`: The amount of experience points produced.
+-   `duration`: The time it takes to generate the loot.
 
 **Note: There is a limit of maximum 3 items for additional drops.**
 
@@ -64,10 +64,10 @@ Module drops are defined under the `module_drops` key. Each entry consists of a 
 }
 ```
 
--   `allowed_items`: A list of specific item IDs that are allowed to be dropped.
--   `prohibited_items`: A list of specific item IDs that are not allowed to be dropped.
--   `allowed_tags`: A list of item tags that are allowed to be dropped.
--   `prohibited_tags`: A list of item tags that are not allowed to be dropped.
+-   `allowed_items`: A list of specific item IDs that are allowed to be produced.
+-   `prohibited_items`: A list of specific item IDs that are not allowed to be produced.
+-   `allowed_tags`: A list of item tags that are allowed to be produced.
+-   `prohibited_tags`: A list of item tags that are not allowed to be produced.
 -   `xp`: The amount of experience points gained from the module.
 
 ### Block Replicator Data

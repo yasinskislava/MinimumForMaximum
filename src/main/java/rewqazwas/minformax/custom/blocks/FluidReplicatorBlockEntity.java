@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import rewqazwas.minformax.custom.ModBlockEntities;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
 import rewqazwas.minformax.custom.items.upgrades.SpeedUpgrade;
-import rewqazwas.minformax.custom.items.upgrades.StackUpgrade;
+import rewqazwas.minformax.custom.items.upgrades.ProcessingUpgrade;
 
 import static rewqazwas.minformax.custom.utility.Utils.getFluidHandlers;
 
@@ -52,7 +52,7 @@ public class FluidReplicatorBlockEntity extends BlockEntity {
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return stack.getItem() instanceof SpeedUpgrade || stack.getItem() instanceof StackUpgrade;
+            return stack.getItem() instanceof SpeedUpgrade || stack.getItem() instanceof ProcessingUpgrade;
         }
 
         @Override
@@ -134,8 +134,8 @@ public class FluidReplicatorBlockEntity extends BlockEntity {
             var upgrade = upgradeHandler.getStackInSlot(i).getItem();
             if(upgrade instanceof SpeedUpgrade speedUpgrade) {
                 speedModifier = speedUpgrade.getModifier();
-            } else if(upgrade instanceof StackUpgrade stackUpgrade) {
-                stackMultiplier = stackUpgrade.getMultiplier();
+            } else if(upgrade instanceof ProcessingUpgrade processingUpgrade) {
+                stackMultiplier = processingUpgrade.getMultiplier();
             }
         }
 
