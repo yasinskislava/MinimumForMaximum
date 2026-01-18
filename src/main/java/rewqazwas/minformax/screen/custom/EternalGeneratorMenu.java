@@ -15,6 +15,7 @@ import rewqazwas.minformax.custom.blocks.EternalGeneratorBlockEntity;
 import rewqazwas.minformax.custom.blocks.ModBlocks;
 import rewqazwas.minformax.custom.component.ModDataComponents;
 import rewqazwas.minformax.custom.items.MemoryShard;
+import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.items.upgrades.UpgradeItem;
 import rewqazwas.minformax.custom.utility.Utils;
 import rewqazwas.minformax.screen.ModMenuTypes;
@@ -199,7 +200,6 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
             super(itemHandler, index, xPosition, yPosition);
             this.itemHandler = itemHandler;
         }
-
         @Override
         public boolean mayPlace(ItemStack stack) {
             var pass = false;
@@ -207,8 +207,9 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
                 var currentStack = itemHandler.getStackInSlot(i);
                 pass = stack.getItem().getClass() == currentStack.getItem().getClass() || pass;
             }
-            return stack.getItem() instanceof UpgradeItem && !pass;
+            return stack.getItem() instanceof UpgradeItem && !pass && !stack.is(ModItems.ULTIMATE_PROCESSING_UPGRADE);
         }
+
 
         @Override
         public int getMaxStackSize(ItemStack stack) {

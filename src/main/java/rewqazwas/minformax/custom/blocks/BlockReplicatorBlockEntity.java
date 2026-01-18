@@ -21,6 +21,7 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 import rewqazwas.minformax.custom.ModBlockEntities;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
+import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.items.upgrades.SpeedUpgrade;
 import rewqazwas.minformax.custom.items.upgrades.ProcessingUpgrade;
 
@@ -35,7 +36,7 @@ public class BlockReplicatorBlockEntity extends BlockEntity {
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return stack.getItem() instanceof SpeedUpgrade || stack.getItem() instanceof ProcessingUpgrade;
+            return stack.getItem() instanceof SpeedUpgrade || (stack.getItem() instanceof ProcessingUpgrade && !(stack.getItem() == ModItems.ULTIMATE_PROCESSING_UPGRADE.get()));
         }
 
         @Override

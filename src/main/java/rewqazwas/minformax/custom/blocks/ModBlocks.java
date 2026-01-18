@@ -22,6 +22,7 @@ public class ModBlocks {
     public static final DeferredBlock<Block> CREATIVE_ENERGY = registerBlock("creative_energy", () -> new CreativeEnergyBlock(BlockBehaviour.Properties.of()));
     public static final DeferredBlock<Block> FLUID_REPLICATOR = registerBlock("fluid_replicator", () -> new FluidReplicator(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops().noOcclusion()));
     public static final DeferredBlock<Block> BLOCK_REPLICATOR = registerBlock("block_replicator", () -> new BlockReplicator(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops().noOcclusion()));
+    public static final DeferredBlock<Block> ORE_COALESCER = registerBlock("ore_coalescer", () -> new OreCoalescerBlock(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops().noOcclusion()));
 
 
     //Automated register for block item

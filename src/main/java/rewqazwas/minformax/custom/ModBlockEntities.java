@@ -21,4 +21,5 @@ public class ModBlockEntities {
             .build(null));
     public static final Supplier<BlockEntityType<FluidReplicatorBlockEntity>> FLUID_REPLICATOR_BE = BLOCK_ENTITY_TYPES.register("fluid_replicator", () -> BlockEntityType.Builder.of(FluidReplicatorBlockEntity::new, ModBlocks.FLUID_REPLICATOR.get()).build(null));
     public static final Supplier<BlockEntityType<BlockReplicatorBlockEntity>> BLOCK_REPLICATOR_BE = BLOCK_ENTITY_TYPES.register("block_replicator", () -> BlockEntityType.Builder.of(BlockReplicatorBlockEntity::new, ModBlocks.BLOCK_REPLICATOR.get()).build(null));
+    public static final Supplier<BlockEntityType<OreCoalescerBlockEntity>> ORE_COALESCER_BE = BLOCK_ENTITY_TYPES.register("ore_coalescer", () -> BlockEntityType.Builder.of(OreCoalescerBlockEntity::new, ModBlocks.ORE_COALESCER.get()).build(null));
 }

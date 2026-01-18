@@ -29,8 +29,10 @@ import rewqazwas.minformax.custom.index.ModDataReloadListener;
 import rewqazwas.minformax.custom.index.ModuleDropsReloadListener;
 import rewqazwas.minformax.custom.items.BossModuleItem;
 import rewqazwas.minformax.custom.items.MemoryShard;
+import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.items.ModuleItem;
 import rewqazwas.minformax.custom.items.upgrades.*;
+import rewqazwas.minformax.custom.utility.Utils;
 import rewqazwas.minformax.screen.custom.EternalGeneratorMenu;
 
 import java.util.ArrayList;
@@ -54,7 +56,10 @@ public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProv
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return stack.getItem() instanceof UpgradeItem;
+            return stack.getItem() instanceof UpgradeItem &&
+                   !(stack.getItem() instanceof FortuneUpgrade) &&
+                   !(stack.is(ModItems.AUTO_SMELTING_UPGRADE)) &&
+                   !(stack.getItem() == ModItems.ULTIMATE_PROCESSING_UPGRADE.get());
         }
 
         @Override
@@ -234,17 +239,6 @@ public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProv
         }
     }
 
-    private IItemHandler[] getSides(Level level, BlockPos blockPos) {
-        return new IItemHandler[]{
-                level.getCapability(Capabilities.ItemHandler.BLOCK, blockPos.above(), Direction.DOWN),
-                level.getCapability(Capabilities.ItemHandler.BLOCK, blockPos.below(), Direction.UP),
-                level.getCapability(Capabilities.ItemHandler.BLOCK, blockPos.north(), Direction.SOUTH),
-                level.getCapability(Capabilities.ItemHandler.BLOCK, blockPos.south(), Direction.NORTH),
-                level.getCapability(Capabilities.ItemHandler.BLOCK, blockPos.east(), Direction.WEST),
-                level.getCapability(Capabilities.ItemHandler.BLOCK, blockPos.west(), Direction.EAST)
-        };
-    }
-
     private ModifierData getModifier() {
         int speedModifier = 1;
         int stackMultiplier = 1;
@@ -252,7 +246,8 @@ public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProv
         boolean inverted = false;
         boolean isStrong = false;
         for(int i = 0; i < upgradeHandler.getSlots(); i++) {
-            var upgrade = upgradeHandler.getStackInSlot(i).getItem();
+            var stack = upgradeHandler.getStackInSlot(i);
+            var upgrade = stack.getItem();
 
             if(upgrade instanceof SpeedUpgrade speedUpgrade) {
                 speedModifier = speedUpgrade.getModifier();
@@ -260,9 +255,9 @@ public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProv
                 stackMultiplier = processingUpgrade.getMultiplier();
             } else if(upgrade instanceof ExtraDropUpgrade extraDropUpgrade) {
                 percentage = extraDropUpgrade.getPercentage();
-            } else if(upgrade instanceof InvertedUpgrade) {
+            } else if(stack.is(ModItems.INVERTED_UPGRADE)) {
                 inverted = true;
-            } else if(upgrade instanceof StrengthUpgrade) {
+            } else if(stack.is(ModItems.STRENGTH_UPGRADE)) {
                 isStrong = true;
             }
         }
@@ -343,7 +338,7 @@ public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProv
                             isShard = true;
                         }
                     }
-                    var sides = getSides(level, blockPos);
+                    var sides = Utils.getItemHandlers(level, blockPos);
                     moveItems(sides, modifiers, mainDrop, additionalDrop, isShard);
                     setChanged(level, blockPos, blockState);
                 }

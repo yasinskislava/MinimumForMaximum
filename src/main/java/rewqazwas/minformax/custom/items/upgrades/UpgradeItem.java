@@ -10,6 +10,7 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import rewqazwas.minformax.custom.blocks.BlockReplicatorBlockEntity;
 import rewqazwas.minformax.custom.blocks.EternalGeneratorBlockEntity;
 import rewqazwas.minformax.custom.blocks.FluidReplicatorBlockEntity;
+import rewqazwas.minformax.custom.blocks.OreCoalescerBlockEntity;
 
 public class UpgradeItem extends Item {
     public UpgradeItem() {
@@ -17,7 +18,7 @@ public class UpgradeItem extends Item {
     }
 
     private boolean isBlockValid(BlockEntity blockEntity) {
-        return blockEntity instanceof EternalGeneratorBlockEntity || blockEntity instanceof FluidReplicatorBlockEntity || blockEntity instanceof BlockReplicatorBlockEntity;
+        return blockEntity instanceof EternalGeneratorBlockEntity || blockEntity instanceof FluidReplicatorBlockEntity || blockEntity instanceof BlockReplicatorBlockEntity || blockEntity instanceof OreCoalescerBlockEntity;
     }
 
     @Override
@@ -42,6 +43,10 @@ public class UpgradeItem extends Item {
                             }
                         } else if (stackInSlot.getItem() instanceof ExtraDropUpgrade existingExtra && context.getItemInHand().getItem() instanceof ExtraDropUpgrade newExtra) {
                             if (newExtra.getPercentage() > existingExtra.getPercentage()) {
+                                isBetter = true;
+                            }
+                        } else if (stackInSlot.getItem() instanceof FortuneUpgrade existingFortune && context.getItemInHand().getItem() instanceof FortuneUpgrade newFortune) {
+                            if (newFortune.getLevel() > existingFortune.getLevel()) {
                                 isBetter = true;
                             }
                         }

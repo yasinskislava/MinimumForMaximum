@@ -5,21 +5,28 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 
 import java.util.List;
+import java.util.Random;
 
-public class ProcessingUpgrade extends UpgradeItem{
-    private int multiplier;
+public class FortuneUpgrade extends UpgradeItem {
+    private final int level;
 
-    public ProcessingUpgrade(int multiplier) {
-        this.multiplier = multiplier;
+    public FortuneUpgrade(int level) {
+        this.level = level;
     }
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        tooltipComponents.add(Component.literal("§a" + multiplier + "x operations"));
+        tooltipComponents.add(Component.literal("§aFortune " + level));
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
     }
 
     public int getMultiplier() {
-        return multiplier;
+        var coef = (float) level / 100;
+        Random random = new Random();
+        return (int) (Math.min(Math.min((random.nextFloat() + coef), 1) * 10, ((level / 24) + 1) * 2 + 2));
+    }
+
+    public int getLevel() {
+        return level;
     }
 }

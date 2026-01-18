@@ -10,6 +10,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import rewqazwas.minformax.MinForMax;
 import rewqazwas.minformax.screen.custom.EternalGeneratorMenu;
 import rewqazwas.minformax.screen.custom.IndexLabMenu;
+import rewqazwas.minformax.screen.custom.OreCoalescerMenu;
 
 
 public class ModMenuTypes {
@@ -17,6 +18,7 @@ public class ModMenuTypes {
 
     public static final DeferredHolder<MenuType<?>, MenuType<IndexLabMenu>> INDEX_LAB_MENU = registerMenuType("index_lab_menu", IndexLabMenu::new);
     public static final DeferredHolder<MenuType<?>, MenuType<EternalGeneratorMenu>> ETERNAL_GENERATOR_MENU = registerMenuType("eternal_generator_menu", EternalGeneratorMenu::new);
+    public static final DeferredHolder<MenuType<?>, MenuType<OreCoalescerMenu>> ORE_COALESCER_MENU = registerMenuType("ore_coalescer_menu", OreCoalescerMenu::new);
 
 
     private static <T extends AbstractContainerMenu>DeferredHolder<MenuType<?>, MenuType<T>> registerMenuType(String name, IContainerFactory<T> factory) {

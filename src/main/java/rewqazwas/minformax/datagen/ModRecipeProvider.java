@@ -6,6 +6,7 @@ import net.minecraft.data.recipes.*;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import org.jetbrains.annotations.NotNull;
 import rewqazwas.minformax.custom.blocks.ModBlocks;
@@ -206,7 +207,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 
-        //STACK
+        //PROCESSES
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.PROCESSING_UPGRADE_TIER1.get())
                 .pattern("qrq")
                 .pattern("rdr")
@@ -369,6 +370,79 @@ public class ModRecipeProvider extends RecipeProvider {
                 .define('n', Ingredient.of(Items.NETHERITE_INGOT))
                 .define('g', Ingredient.of(Items.GLASS))
                 .unlockedBy("has_netherite", has(Items.NETHERITE_INGOT))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ORE_COALESCER.get())
+                .pattern("ibi")
+                .pattern("bnb")
+                .pattern("ibi")
+                .define('i', Ingredient.of(Items.IRON_BLOCK))
+                .define('n', Ingredient.of(Blocks.NETHERITE_BLOCK))
+                .define('b', Ingredient.of(Items.BLAZE_ROD))
+                .unlockedBy("has_netherite", has(Items.NETHERITE_INGOT))
+                .save(recipeOutput);
+
+        //AutoSmelting
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.AUTO_SMELTING_UPGRADE.get())
+                .pattern("ibi")
+                .pattern("lfl")
+                .pattern("ibi")
+                .define('i', Ingredient.of(ModItems.QUANTUM_INGOT))
+                .define('f', Ingredient.of(ModBlocks.FLUID_REPLICATOR))
+                .define('l', Ingredient.of(Items.LAVA_BUCKET))
+                .define('b', Ingredient.of(Items.BLAZE_ROD))
+                .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
+                .save(recipeOutput);
+
+        //FORTUNE
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.FORTUNE_UPGRADE_TIER1.get())
+                .pattern("qrq")
+                .pattern("rdr")
+                .pattern("qrq")
+                .define('r', Ingredient.of(Items.DIAMOND))
+                .define('d', Ingredient.of(Items.GLASS_PANE))
+                .define('q', Ingredient.of(ModItems.QUANTUM_INGOT))
+                .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.FORTUNE_UPGRADE_TIER2.get())
+                .pattern("lul")
+                .pattern("usu")
+                .pattern("lul")
+                .define('l', Ingredient.of(Items.LAPIS_LAZULI))
+                .define('s', Ingredient.of(Items.SLIME_BALL))
+                .define('u', Ingredient.of(ModItems.FORTUNE_UPGRADE_TIER1))
+                .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.FORTUNE_UPGRADE_TIER3.get())
+                .pattern("eue")
+                .pattern("usu")
+                .pattern("eue")
+                .define('e', Ingredient.of(Items.EMERALD))
+                .define('s', Ingredient.of(Items.SLIME_BALL))
+                .define('u', Ingredient.of(ModItems.FORTUNE_UPGRADE_TIER2))
+                .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.FORTUNE_UPGRADE_TIER4.get())
+                .pattern("gug")
+                .pattern("usu")
+                .pattern("gug")
+                .define('g', Ingredient.of(Items.GOLD_INGOT))
+                .define('s', Ingredient.of(Items.SLIME_BALL))
+                .define('u', Ingredient.of(ModItems.FORTUNE_UPGRADE_TIER3))
+                .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
+                .save(recipeOutput);
+
+        //ULTIMATE
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.ULTIMATE_PROCESSING_UPGRADE.get())
+                .pattern("uuu")
+                .pattern("udu")
+                .pattern("uuu")
+                .define('u', Ingredient.of(ModItems.PROCESSING_UPGRADE_TIER4.get()))
+                .define('d', Ingredient.of(Blocks.DRAGON_EGG))
+                .unlockedBy("has_dragon_egg", has(Blocks.DRAGON_EGG))
                 .save(recipeOutput);
     }
 }

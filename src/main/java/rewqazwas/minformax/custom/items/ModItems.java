@@ -1,10 +1,15 @@
 package rewqazwas.minformax.custom.items;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import rewqazwas.minformax.MinForMax;
 import rewqazwas.minformax.custom.items.upgrades.*;
+
+import java.util.List;
 
 
 public class ModItems {
@@ -20,17 +25,47 @@ public class ModItems {
     public static final DeferredItem<Item> SPEED_UPGRADE_TIER2 = ITEMS.register("speed_upgrade_tier2", () -> new SpeedUpgrade(4));
     public static final DeferredItem<Item> SPEED_UPGRADE_TIER3 = ITEMS.register("speed_upgrade_tier3", () -> new SpeedUpgrade(8));
     public static final DeferredItem<Item> SPEED_UPGRADE_TIER4 = ITEMS.register("speed_upgrade_tier4", () -> new SpeedUpgrade(16));
-    public static final DeferredItem<Item> CREATIVE_SPEED_UPGRADE = ITEMS.register("creative_speed_upgrade", () -> new SpeedUpgrade(9999));
+    public static final DeferredItem<Item> ULTIMATE_SPEED_UPGRADE = ITEMS.register("ultimate_speed_upgrade", () -> new SpeedUpgrade(9999) {
+        @Override
+        public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+            super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+            tooltipComponents.add(Component.translatable("tooltip.minformax.ultimate_speed_upgrade"));
+        }
+    });
     public static final DeferredItem<Item> PROCESSING_UPGRADE_TIER1 = ITEMS.register("processing_upgrade_tier1", () -> new ProcessingUpgrade(4));
     public static final DeferredItem<Item> PROCESSING_UPGRADE_TIER2 = ITEMS.register("processing_upgrade_tier2", () -> new ProcessingUpgrade(16));
     public static final DeferredItem<Item> PROCESSING_UPGRADE_TIER3 = ITEMS.register("processing_upgrade_tier3", () -> new ProcessingUpgrade(64));
     public static final DeferredItem<Item> PROCESSING_UPGRADE_TIER4 = ITEMS.register("processing_upgrade_tier4", () -> new ProcessingUpgrade(256));
+    public static final DeferredItem<Item> ULTIMATE_PROCESSING_UPGRADE = ITEMS.register("ultimate_processing_upgrade", () -> new ProcessingUpgrade(9999));
     public static final DeferredItem<Item> EXTRA_DROP_UPGRADE_TIER1 = ITEMS.register("extra_drop_upgrade_tier1", () -> new ExtraDropUpgrade(25));
     public static final DeferredItem<Item> EXTRA_DROP_UPGRADE_TIER2 = ITEMS.register("extra_drop_upgrade_tier2", () -> new ExtraDropUpgrade(50));
     public static final DeferredItem<Item> EXTRA_DROP_UPGRADE_TIER3 = ITEMS.register("extra_drop_upgrade_tier3", () -> new ExtraDropUpgrade(75));
     public static final DeferredItem<Item> EXTRA_DROP_UPGRADE_TIER4 = ITEMS.register("extra_drop_upgrade_tier4", () -> new ExtraDropUpgrade(100));
-    public static final DeferredItem<Item> INVERTED_UPGRADE = ITEMS.register("inverted_upgrade", InvertedUpgrade::new);
-    public static final DeferredItem<Item> STRENGTH_UPGRADE = ITEMS.register("strength_upgrade", StrengthUpgrade::new);
+    public static final DeferredItem<Item> INVERTED_UPGRADE = ITEMS.register("inverted_upgrade", () -> new UpgradeItem() {
+        @Override
+        public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+            tooltipComponents.add(Component.literal("§aMain ↔ Additional"));
+            super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        }
+    });
+    public static final DeferredItem<Item> STRENGTH_UPGRADE = ITEMS.register("strength_upgrade", () -> new UpgradeItem() {
+        @Override
+        public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+            tooltipComponents.add(Component.literal("§aAllows to farm bosses."));
+            super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        }
+    });
+    public static final DeferredItem<Item> FORTUNE_UPGRADE_TIER1 = ITEMS.register("fortune_upgrade_tier1", () -> new FortuneUpgrade(10));
+    public static final DeferredItem<Item> FORTUNE_UPGRADE_TIER2 = ITEMS.register("fortune_upgrade_tier2", () -> new FortuneUpgrade(25));
+    public static final DeferredItem<Item> FORTUNE_UPGRADE_TIER3 = ITEMS.register("fortune_upgrade_tier3", () -> new FortuneUpgrade(50));
+    public static final DeferredItem<Item> FORTUNE_UPGRADE_TIER4 = ITEMS.register("fortune_upgrade_tier4", () -> new FortuneUpgrade(100));
+    public static final DeferredItem<Item> AUTO_SMELTING_UPGRADE = ITEMS.register("auto_smelting_upgrade", () -> new UpgradeItem(){
+        @Override
+        public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+            tooltipComponents.add(Component.literal("§aSmelts items automatically"));
+            super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        }
+    });
 
     public static final DeferredItem<Item> CHEF_MODULE = ITEMS.register("chef_module", ModuleItem::new);
     public static final DeferredItem<Item> FARMER_MODULE = ITEMS.register("farmer_module", ModuleItem::new);

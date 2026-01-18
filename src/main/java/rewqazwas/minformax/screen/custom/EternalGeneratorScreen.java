@@ -22,7 +22,7 @@ import rewqazwas.minformax.custom.utility.Utils;
 
 
 public class EternalGeneratorScreen extends AbstractContainerScreen<EternalGeneratorMenu> {
-    private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/eternal_generator/eternal_generator.png");
+    private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/eternal_generator.png");
     private static final ResourceLocation PROGRESS_BAR = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/progress_bar.png");
     private static final ResourceLocation ENERGY_BAR = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/energy_bar.png");
     private static final ResourceLocation UPGRADES_TEXTURE = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/upgrades_bar.png");

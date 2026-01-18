@@ -23,7 +23,7 @@ import java.util.List;
 
 
 public class IndexLabScreen extends AbstractContainerScreen<IndexLabMenu> {
-    private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/index_lab/index_lab.png");
+    private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/index_lab.png");
     private static final ResourceLocation SCROLLER_SPRITE = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID,"widget/scroller");
     private static final ResourceLocation PROGRESS_BAR = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/progress_bar.png");
     private static final ResourceLocation HIGHLIGHTED_SLOT = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/highlighted_slot.png");
