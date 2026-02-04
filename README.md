@@ -81,8 +81,11 @@ Block replicator data is defined under the `block_replicator_data` key. Each ent
   "block_replicator_data": {
     "minecraft:cobblestone": {
       "duration": 100,
-      "energy_multiplier": 1,
-      "basic_amount_generated": 1
+      "energy_multiplier": 1
+    },
+    "#minecraft:logs": {
+      "duration": 200,
+      "energy_multiplier": 2
     }
   }
 }
@@ -90,7 +93,6 @@ Block replicator data is defined under the `block_replicator_data` key. Each ent
 
 -   `duration`: The base time it takes to replicate the block.
 -   `energy_multiplier`: A multiplier for the energy cost of replication.
--   `basic_amount_generated`: The base amount of the block generated per cycle.
 
 ### Fluid Replicator Data
 
