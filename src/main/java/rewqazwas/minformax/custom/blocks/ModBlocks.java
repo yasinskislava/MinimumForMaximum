@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 public class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MinForMax.MOD_ID);
 
-    public static final DeferredBlock<Block> INDEX_LAB = registerBlock("index_lab", () -> new IndexLabBlock(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops()));
+    public static final DeferredBlock<Block> INDEX_LAB = registerBlock("index_inscriber", () -> new IndexLabBlock(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops()));
     public static final DeferredBlock<Block> ETERNAL_GENERATOR_TIER1 = registerBlock("eternal_generator_tier1", () -> new EternalGeneratorBlock(1));
     public static final DeferredBlock<Block> ETERNAL_GENERATOR_TIER2 = registerBlock("eternal_generator_tier2", () -> new EternalGeneratorBlock(2));
     public static final DeferredBlock<Block> ETERNAL_GENERATOR_TIER3 = registerBlock("eternal_generator_tier3", () -> new EternalGeneratorBlock(3));

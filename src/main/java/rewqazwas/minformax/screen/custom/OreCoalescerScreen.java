@@ -16,7 +16,6 @@ public class OreCoalescerScreen extends AbstractContainerScreen<OreCoalescerMenu
     private static final ResourceLocation PROGRESS_BAR = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/progress_bar.png");
     private static final ResourceLocation ENERGY_BAR = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/energy_bar.png");
     private static final ResourceLocation UPGRADES_TEXTURE = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/upgrades_bar.png");
-    private static final ResourceLocation SLOT = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/slot.png");
     private static final ResourceLocation HIGHLIGHTED_SLOT = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/highlighted_slot.png");
 
     public OreCoalescerScreen(OreCoalescerMenu menu, Inventory playerInventory, Component title) {

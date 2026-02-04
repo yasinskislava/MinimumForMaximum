@@ -496,16 +496,12 @@ public class OreCoalescerBlockEntity extends BlockEntity implements MenuProvider
         }
 
         IItemHandler[] neighborHandlers = Utils.getItemHandlers(level, getBlockPos());
-        for (IItemHandler neighborHandler : neighborHandlers) {
-            if (neighborHandler != null) {
-                for (int i = 0; i < outputHandler.getSlots(); i++) {
-                    ItemStack stackInSlot = outputHandler.getStackInSlot(i);
-                    if (!stackInSlot.isEmpty()) {
-                        ItemStack toInsert = stackInSlot.copy();
-                        ItemStack remainder = ItemHandlerHelper.insertItem(neighborHandler, toInsert, false);
-                        outputHandler.setStackInSlot(i, remainder);
-                    }
-                }
+        for (int i = 0; i < outputHandler.getSlots(); i++) {
+            ItemStack stackInSlot = outputHandler.getStackInSlot(i);
+            if (!stackInSlot.isEmpty()) {
+                ItemStack toInsert = stackInSlot.copy();
+                ItemStack remainder = Utils.moveItem(neighborHandlers, toInsert);
+                outputHandler.setStackInSlot(i, remainder);
             }
         }
     }
@@ -550,7 +546,12 @@ public class OreCoalescerBlockEntity extends BlockEntity implements MenuProvider
 
                 int amountToProcess = Math.min(inputStack.getCount(), remainingProcessing);
 
-                int maxAffordable = energyHandler.getEnergyStored() / 1024;
+                int maxAffordable;
+                if (speedMultiplier == 9999) {
+                    maxAffordable = amountToProcess; // No energy limit
+                } else {
+                    maxAffordable = energyHandler.getEnergyStored() / 1024;
+                }
                 amountToProcess = Math.min(amountToProcess, maxAffordable);
 
                 if (amountToProcess <= 0) continue;
@@ -574,7 +575,7 @@ public class OreCoalescerBlockEntity extends BlockEntity implements MenuProvider
                         var recipe = level.getRecipeManager().getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(baseItem), level);
                         if (recipe.isPresent()) {
                             baseItem = recipe.get().value().getResultItem(level.registryAccess()).copy();
-                            baseCount = baseItem.getCount();
+                            baseCount *= baseItem.getCount();
                         }
                     }
 
@@ -633,6 +634,7 @@ public class OreCoalescerBlockEntity extends BlockEntity implements MenuProvider
                 // 3. Execute if we found a valid amount
                 if (validAmount > 0) {
                     int energyRequired = validAmount * 1024;
+                    if(speedMultiplier == 9999) energyRequired = 0;
                     energyHandler.extractEnergy(energyRequired, false);
 
                     for (ItemStack baseOutput : baseOutputs) {

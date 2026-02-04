@@ -16,6 +16,7 @@ import rewqazwas.minformax.custom.blocks.ModBlocks;
 import rewqazwas.minformax.custom.component.ModDataComponents;
 import rewqazwas.minformax.custom.items.MemoryShard;
 import rewqazwas.minformax.custom.items.ModItems;
+import rewqazwas.minformax.custom.items.upgrades.FortuneUpgrade;
 import rewqazwas.minformax.custom.items.upgrades.UpgradeItem;
 import rewqazwas.minformax.custom.utility.Utils;
 import rewqazwas.minformax.screen.ModMenuTypes;
@@ -131,7 +132,9 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
     @Override
     public boolean clickMenuButton(Player player, int id) {
         player.giveExperiencePoints(this.data.get(3));
+        var temp = this.data.get(4);
         this.data.set(3, 0);
+        this.data.set(4, temp);
         return super.clickMenuButton(player, id);
     }
 
@@ -207,7 +210,7 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
                 var currentStack = itemHandler.getStackInSlot(i);
                 pass = stack.getItem().getClass() == currentStack.getItem().getClass() || pass;
             }
-            return stack.getItem() instanceof UpgradeItem && !pass && !stack.is(ModItems.ULTIMATE_PROCESSING_UPGRADE);
+            return stack.getItem() instanceof UpgradeItem && !pass && !stack.is(ModItems.ULTIMATE_PROCESSING_UPGRADE) && !stack.is(ModItems.AUTO_SMELTING_UPGRADE) && !(stack.getItem() instanceof FortuneUpgrade);
         }
 
 

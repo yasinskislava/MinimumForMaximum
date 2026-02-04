@@ -15,7 +15,7 @@ public class ExtraDropUpgrade extends UpgradeItem{
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        tooltipComponents.add(Component.literal("§a" + percentage + "% chance for extra drop"));
+        tooltipComponents.add(Component.translatable("tooltip.minformax.extra_drop_upgrade", percentage).withColor(5635925));
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
     }
 

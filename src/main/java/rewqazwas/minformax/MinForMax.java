@@ -115,5 +115,6 @@ public class MinForMax {
 }
 
 //TODO
-//Jei extra
 //Fisher
+//Revamp module system
+//Boss system

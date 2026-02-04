@@ -2,9 +2,14 @@ package rewqazwas.minformax.custom.blocks;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -17,6 +22,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
 import rewqazwas.minformax.custom.ModBlockEntities;
+import rewqazwas.minformax.custom.index.BlockReplicatorData;
+import rewqazwas.minformax.custom.index.ModDataReloadListener;
+
+import java.util.Map;
 
 public class BlockReplicator extends BaseEntityBlock {
     protected BlockReplicator(Properties properties) {
@@ -50,15 +59,42 @@ public class BlockReplicator extends BaseEntityBlock {
                     }
                 } else {
                     // Insert into item handler
-                    ItemStack remainder = ItemHandlerHelper.insertItem(blockEntity.itemHandler, stack, false);
-                    if (remainder.getCount() < stack.getCount()) {
-                        player.setItemInHand(hand, remainder);
+                    if(isItemValid(stack)) {
+                        ItemStack remainder = ItemHandlerHelper.insertItem(blockEntity.itemHandler, stack, false);
+                        if (remainder.getCount() < stack.getCount()) {
+                            player.setItemInHand(hand, remainder);
+                        }
+                    } else {
+                        player.sendSystemMessage(Component.translatable("message.minformax.block_support"));
                     }
                 }
             }
         }
         return ItemInteractionResult.sidedSuccess(level.isClientSide());
 
+    }
+
+    private boolean isItemValid(ItemStack stack) {
+        if (!(stack.getItem() instanceof BlockItem)) return false;
+
+        // Check for direct block match
+        var key = BuiltInRegistries.BLOCK.getKey(((BlockItem) stack.getItem()).getBlock()).toString();
+        if (ModDataReloadListener.BLOCK_REPLICATOR_DATA.containsKey(key)) {
+            return true;
+        }
+
+        // Check for tag match
+        for (Map.Entry<String, BlockReplicatorData> entry : ModDataReloadListener.BLOCK_REPLICATOR_DATA.entrySet()) {
+            if (entry.getKey().startsWith("#")) {
+                var tagKey = TagKey.create(BuiltInRegistries.BLOCK.key(), ResourceLocation.parse(entry.getKey().substring(1)));
+                var block = ((BlockItem) stack.getItem()).getBlock();
+                var blockState = block.defaultBlockState();
+                if (blockState.is(tagKey)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override

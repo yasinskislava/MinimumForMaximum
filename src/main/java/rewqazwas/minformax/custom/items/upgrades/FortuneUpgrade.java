@@ -16,7 +16,7 @@ public class FortuneUpgrade extends UpgradeItem {
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        tooltipComponents.add(Component.literal("§aFortune " + level));
+        tooltipComponents.add(Component.translatable("tooltip.minformax.fortune_upgrade", level).withColor(5635925));
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
     }
 

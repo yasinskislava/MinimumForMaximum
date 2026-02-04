@@ -20,11 +20,16 @@ public class MemoryShard extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        var name = stack.get(ModDataComponents.MOB_INDEX);
-        name = name == null ? "Empty" : Utils.prettyName(name);
+        var rawName = stack.get(ModDataComponents.MOB_INDEX);
+        Component nameComponent;
+        if (rawName == null) {
+            nameComponent = Component.translatable("tooltip.minformax.empty");
+        } else {
+            nameComponent = Component.literal(Utils.prettyName(rawName));
+        }
 
-        tooltipComponents.add(Component.literal("§2" + name + "§r"));
-        if(!name.equals("Empty")) {
+        tooltipComponents.add(Component.literal("§2").append(nameComponent).append("§r"));
+        if(rawName != null) {
             tooltipComponents.add(Component.translatable("tooltip.minformax.memory_shard"));
         }
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);

@@ -10,12 +10,14 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.NotNull;
 import rewqazwas.minformax.custom.index.HolderClass;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class Utils {
     public static void warn(String text) {
@@ -88,6 +90,27 @@ public class Utils {
                 level.getCapability(Capabilities.EnergyStorage.BLOCK, blockPos.east(), Direction.WEST),
                 level.getCapability(Capabilities.EnergyStorage.BLOCK, blockPos.west(), Direction.EAST)
         };
+    }
+
+    public static ItemStack moveItem(Level level, BlockPos pos, ItemStack stack) {
+        return moveItem(getItemHandlers(level, pos), stack);
+    }
+
+    public static ItemStack moveItem(IItemHandler[] handlers, ItemStack stack) {
+        for (IItemHandler handler : handlers) {
+            if (handler == null) continue;
+            stack = ItemHandlerHelper.insertItemStacked(handler, stack, false);
+            if (stack.isEmpty()) return ItemStack.EMPTY;
+        }
+        return stack;
+    }
+
+    public static String simpleFluidDisplay(int amount) {
+        if (amount < 1000) {
+            return amount + "mb";
+        }
+        double amountInB = amount / 1000.0;
+        return String.format(Locale.US, "%.1fB", amountInB);
     }
 
     public static String simpleEnergyDisplay(int energy, int maxEnergy) {

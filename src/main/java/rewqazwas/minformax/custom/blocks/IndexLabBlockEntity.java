@@ -119,7 +119,7 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
         if(owner != null && !owner.equals(player.getScoreboardName())) {
-            player.sendSystemMessage(Component.literal("§cYou are not the owner of this Index Installer."));
+            player.sendSystemMessage(Component.translatable("message.minformax.owner_warning"));
             return null;
         }
         return new IndexLabMenu(containerId, playerInventory, this, this.data);

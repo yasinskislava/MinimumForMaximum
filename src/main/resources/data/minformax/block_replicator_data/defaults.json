@@ -1,132 +1,58 @@
 {
+  "#minecraft:base_stone_overworld": {
+    "duration": 20,
+    "energy_multiplier": 5
+  },
   "minecraft:cobblestone": {
-    "basic_amount_generated": 1,
     "duration": 20,
     "energy_multiplier": 5
   },
-  "minecraft:stone": {
-    "basic_amount_generated": 1,
-    "duration": 20,
-    "energy_multiplier": 5
-  },
-  "minecraft:granite": {
-    "basic_amount_generated": 1,
-    "duration": 20,
-    "energy_multiplier": 5
-  },
-  "minecraft:diorite": {
-    "basic_amount_generated": 1,
-    "duration": 20,
-    "energy_multiplier": 5
-  },
-  "minecraft:andesite": {
-    "basic_amount_generated": 1,
-    "duration": 20,
-    "energy_multiplier": 5
-  },
-  "minecraft:tuff": {
-    "basic_amount_generated": 1,
-    "duration": 20,
-    "energy_multiplier": 5
-  },
-  "minecraft:deepslate": {
-    "basic_amount_generated": 1,
-    "duration": 20,
-    "energy_multiplier": 5
-  },
-  "minecraft:coal_ore": {
-    "basic_amount_generated": 1,
-    "duration": 20,
-    "energy_multiplier": 5
-  },
-  "minecraft:deepslate_coal_ore": {
-    "basic_amount_generated": 1,
-    "duration": 20,
-    "energy_multiplier": 5
-  },
-  "minecraft:iron_ore": {
-    "basic_amount_generated": 1,
-    "duration": 100,
-    "energy_multiplier": 5
-  },
-  "minecraft:deepslate_iron_ore": {
-    "basic_amount_generated": 1,
-    "duration": 100,
-    "energy_multiplier": 5
-  },
-  "minecraft:copper_ore": {
-    "basic_amount_generated": 1,
-    "duration": 100,
-    "energy_multiplier": 5
-  },
-  "minecraft:deepslate_copper_ore": {
-    "basic_amount_generated": 1,
-    "duration": 100,
-    "energy_multiplier": 5
-  },
-  "minecraft:gold_ore": {
-    "basic_amount_generated": 1,
+  "#c:ores/xychorium": {
     "duration": 200,
     "energy_multiplier": 5
   },
-  "minecraft:deepslate_gold_ore": {
-    "basic_amount_generated": 1,
+  "#c:ores/coal": {
+    "duration": 20,
+    "energy_multiplier": 5
+  },
+  "#c:ores/iron": {
+    "duration": 100,
+    "energy_multiplier": 5
+  },
+  "#c:ores/copper": {
+    "duration": 100,
+    "energy_multiplier": 5
+  },
+  "#c:ores/gold": {
     "duration": 200,
     "energy_multiplier": 5
   },
-  "minecraft:redstone_ore": {
-    "basic_amount_generated": 1,
+  "#c:ores/redstone": {
     "duration": 200,
     "energy_multiplier": 5
   },
-  "minecraft:deepslate_redstone_ore": {
-    "basic_amount_generated": 1,
-    "duration": 200,
-    "energy_multiplier": 5
-  },
-  "minecraft:emerald_ore": {
-    "basic_amount_generated": 1,
+  "#c:ores/emerald": {
     "duration": 250,
     "energy_multiplier": 5
   },
-  "minecraft:deepslate_emerald_ore": {
-    "basic_amount_generated": 1,
-    "duration": 250,
-    "energy_multiplier": 5
-  },
-  "minecraft:lapis_ore": {
-    "basic_amount_generated": 1,
+  "#c:ores/lapis": {
     "duration": 100,
     "energy_multiplier": 5
   },
-  "minecraft:deepslate_lapis_ore": {
-    "basic_amount_generated": 1,
-    "duration": 100,
-    "energy_multiplier": 5
-  },
-  "minecraft:diamond_ore": {
-    "basic_amount_generated": 1,
+  "#c:ores/diamond": {
     "duration": 250,
-    "energy_multiplier": 5
-  },
-  "minecraft:deepslate_diamond_ore": {
-    "basic_amount_generated": 1,
-    "duration": 250,
-    "energy_multiplier": 5
-  },
-  "minecraft:nether_gold_ore": {
-    "basic_amount_generated": 1,
-    "duration": 200,
-    "energy_multiplier": 5
-  },
-  "minecraft:nether_quartz_ore": {
-    "basic_amount_generated": 1,
-    "duration": 200,
     "energy_multiplier": 5
   },
   "minecraft:ancient_debris": {
-    "basic_amount_generated": 1,
     "duration": 300,
+    "energy_multiplier": 5
+  },
+  "#minecraft:logs": {
+    "duration": 100,
+    "energy_multiplier": 5
+  },
+  "xycraft_world:kivi": {
+    "duration": 20,
     "energy_multiplier": 5
   }
 }

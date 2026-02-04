@@ -49,7 +49,7 @@ public class IndexLabScreen extends AbstractContainerScreen<IndexLabMenu> {
         int y = (height - imageHeight) / 2;
         guiGraphics.blit(GUI_TEXTURE, x, y, 0, 0, imageWidth, imageHeight, 512, 256);
         this.mobIndex = menu.getKey();
-        if(mobIndex >= 0){
+        if(mobIndex >= 0 && mobIndex < menu.indexList.size()){
             postButtonClick();
         }
         this.renderProgressBar(guiGraphics, x, y);
@@ -184,6 +184,16 @@ public class IndexLabScreen extends AbstractContainerScreen<IndexLabMenu> {
         return true;
     }
 
+    @Override
+    protected void renderSlotHighlight(GuiGraphics guiGraphics, Slot slot, int mouseX, int mouseY, float partialTick) {
+        if(slot.isHighlightable()){
+            guiGraphics.blit(HIGHLIGHTED_SLOT, slot.x - 1, slot.y - 1, 0, 0, 18, 18, 18, 18);
+        }
+    }
+
+    @Override
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {}
+
     class IndexButton extends Button {
         protected static final ResourceLocation BUTTON_OFF = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "widget/collect_button_off");
         protected static final ResourceLocation BUTTON_ON = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "widget/collect_button_on");
@@ -223,14 +233,4 @@ public class IndexLabScreen extends AbstractContainerScreen<IndexLabMenu> {
             this.renderString(guiGraphics, minecraft.font, i | Mth.ceil(this.alpha * 255.0F) << 24);
         }
     }
-
-    @Override
-    protected void renderSlotHighlight(GuiGraphics guiGraphics, Slot slot, int mouseX, int mouseY, float partialTick) {
-        if(slot.isHighlightable()){
-            guiGraphics.blit(HIGHLIGHTED_SLOT, slot.x - 1, slot.y - 1, 0, 0, 18, 18, 18, 18);
-        }
-    }
-
-    @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {}
 }

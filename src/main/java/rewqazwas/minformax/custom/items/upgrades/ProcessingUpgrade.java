@@ -15,7 +15,7 @@ public class ProcessingUpgrade extends UpgradeItem{
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        tooltipComponents.add(Component.literal("§a" + multiplier + "x operations"));
+        tooltipComponents.add(Component.translatable("tooltip.minformax.processing_upgrade", multiplier).withColor(5635925));
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
     }
 

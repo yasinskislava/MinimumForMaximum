@@ -32,5 +32,30 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.WITHER_MODULE.get())
                 .add(ModItems.WARDEN_MODULE.get());
 
+        tag(ModTags.SPEED_UPGRADES)
+                .add(ModItems.SPEED_UPGRADE_TIER1.get())
+                .add(ModItems.SPEED_UPGRADE_TIER2.get())
+                .add(ModItems.SPEED_UPGRADE_TIER3.get())
+                .add(ModItems.SPEED_UPGRADE_TIER4.get())
+                .add(ModItems.ULTIMATE_SPEED_UPGRADE.get());
+
+        tag(ModTags.PROCESSING_UPGRADES)
+                .add(ModItems.PROCESSING_UPGRADE_TIER1.get())
+                .add(ModItems.PROCESSING_UPGRADE_TIER2.get())
+                .add(ModItems.PROCESSING_UPGRADE_TIER3.get())
+                .add(ModItems.PROCESSING_UPGRADE_TIER4.get())
+                .add(ModItems.ULTIMATE_PROCESSING_UPGRADE.get());
+
+        tag(ModTags.EXTRA_DROP_UPGRADES)
+                .add(ModItems.EXTRA_DROP_UPGRADE_TIER1.get())
+                .add(ModItems.EXTRA_DROP_UPGRADE_TIER2.get())
+                .add(ModItems.EXTRA_DROP_UPGRADE_TIER3.get())
+                .add(ModItems.EXTRA_DROP_UPGRADE_TIER4.get());
+
+        tag(ModTags.FORTUNE_UPGRADES)
+                .add(ModItems.FORTUNE_UPGRADE_TIER1.get())
+                .add(ModItems.FORTUNE_UPGRADE_TIER2.get())
+                .add(ModItems.FORTUNE_UPGRADE_TIER3.get())
+                .add(ModItems.FORTUNE_UPGRADE_TIER4.get());
     }
 }

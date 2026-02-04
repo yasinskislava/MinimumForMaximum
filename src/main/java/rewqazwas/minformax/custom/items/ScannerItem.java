@@ -54,12 +54,12 @@ public class ScannerItem extends Item {
                         if (!PlayerIndex.contains(((ServerPlayer) player), key)) {
                             PlayerIndex.add(((ServerPlayer) player), key);
                             player.setData(ModAttachmentTypes.INDEX_SYNC, Utils.clearContent(PlayerIndex.getLocalIndex((ServerPlayer) player), level));
-                            player.sendSystemMessage(Component.literal("§aNew entry added to your index: §e" + Utils.prettyName(key)));
+                            player.sendSystemMessage(Component.translatable("message.minformax.scanner.new_entry", Utils.prettyName(key)));
                         } else {
-                            player.sendSystemMessage(Component.literal("§eEntry already exists in your index: §e" + Utils.prettyName(key)));
+                            player.sendSystemMessage(Component.translatable("message.minformax.scanner.exists", Utils.prettyName(key)));
                         }
                     } else {
-                        player.sendSystemMessage(Component.literal("§cThis entity cannot be scanned: §e" + Utils.prettyName(key)));
+                        player.sendSystemMessage(Component.translatable("message.minformax.scanner.cannot_scan", Utils.prettyName(key)));
                     }
                 }
             }

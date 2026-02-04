@@ -200,40 +200,38 @@ public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProv
             additionalDropProcessed.add(copy);
         }
 
-        List<IItemHandler> filteredSides = new ArrayList<>();
         if(isShard && modifiers.inverted) {
             var temp = mainDropProcessed;
             mainDropProcessed = additionalDropProcessed;
             additionalDropProcessed = temp;
         }
-        Arrays.stream(sides).filter(Objects::nonNull).forEach(filteredSides::add);
 
-        if(!filteredSides.isEmpty()) {
+        boolean hasValidSide = false;
+        for(IItemHandler side : sides) {
+            if(side != null) {
+                hasValidSide = true;
+                break;
+            }
+        }
+
+        if(hasValidSide) {
             for(ItemStack main: mainDropProcessed) {
-                ItemStack remaining = main;
-                for(IItemHandler side : filteredSides) {
-                    remaining = ItemHandlerHelper.insertItemStacked(side, remaining, false);
-                    if(remaining.isEmpty()) break;
-                }
-                overload += remaining.getCount();
+                ItemStack remaining = Utils.moveItem(sides, main);
+                overload = (int) Math.min((long) overload + remaining.getCount(), Integer.MAX_VALUE);
             }
             for(ItemStack extra: additionalDropProcessed) {
                 if(Math.random() * 100 < modifiers.extraDropPercentage){
-                    ItemStack remaining = extra;
-                    for(IItemHandler side : filteredSides) {
-                        remaining = ItemHandlerHelper.insertItemStacked(side, remaining, false);
-                        if(remaining.isEmpty()) break;
-                    }
-                    overload += remaining.getCount();
+                    ItemStack remaining = Utils.moveItem(sides, extra);
+                    overload = (int) Math.min((long) overload + remaining.getCount(), Integer.MAX_VALUE);
                 }
             }
         } else {
             for(ItemStack stack : mainDropProcessed) {
-                overload += stack.getCount();
+                overload = (int) Math.min((long) overload + stack.getCount(), Integer.MAX_VALUE);
             }
             for(ItemStack stack : additionalDropProcessed) {
                 if(Math.random() * 100 < modifiers.extraDropPercentage){
-                    overload += stack.getCount();
+                    overload = (int) Math.min((long) overload + stack.getCount(), Integer.MAX_VALUE);
                 }
             }
         }
@@ -325,7 +323,7 @@ public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProv
                     List<ItemStack> additionalDrop = List.of();
                     if(loaderItem instanceof ModuleItem) {
                         var identifier = ModuleDropsReloadListener.rulesForModule(loaderItem);
-                        this.totalXp += identifier.xp() * modifiers.operationMultiplier;
+                        this.totalXp = (int) Math.min((long) this.totalXp + (long) identifier.xp() * modifiers.operationMultiplier, Integer.MAX_VALUE);
                         mainDrop = ModuleDropsReloadListener.mainDropsFromModule(loaderItem);
                     } else if(loaderItem instanceof MemoryShard) {
                         var key = loader.get(ModDataComponents.MOB_INDEX);
@@ -334,7 +332,7 @@ public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProv
                             var loot = index.get(key);
                             mainDrop = List.of(loot.mainDrop());
                             additionalDrop = loot.additionalDrop();
-                            this.totalXp += loot.xp() * modifiers.operationMultiplier;
+                            this.totalXp = (int) Math.min((long) this.totalXp + (long) loot.xp() * modifiers.operationMultiplier, Integer.MAX_VALUE);
                             isShard = true;
                         }
                     }

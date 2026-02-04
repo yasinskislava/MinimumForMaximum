@@ -137,7 +137,7 @@ public class EternalGeneratorScreen extends AbstractContainerScreen<EternalGener
             guiGraphics.renderTooltip(this.font, Component.literal(overload + "/5120"), x, y);
         }
         if(Math.clamp(x , posX + 6, posX + 12) == x && Math.clamp(y, posY + 70, posY + 80) == y) {
-            guiGraphics.renderTooltip(this.font, Component.translatable("tooltip.minformax.quantum_foam"), x, y);
+            guiGraphics.renderTooltip(this.font, Component.translatable("tooltip.minformax.overload"), x, y);
         }
     }
 

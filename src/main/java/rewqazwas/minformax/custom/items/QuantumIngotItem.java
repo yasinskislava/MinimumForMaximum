@@ -1,13 +1,9 @@
 package rewqazwas.minformax.custom.items;
 
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import rewqazwas.minformax.custom.blocks.EternalGeneratorBlockEntity;
-import rewqazwas.minformax.custom.index.ModDataReloadListener;
 
 import java.util.List;
 
@@ -35,9 +31,5 @@ public class QuantumIngotItem extends Item {
         return super.useOn(context);
     }
 
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        tooltipComponents.add(Component.translatable("tooltip.minformax.quantum_ingot"));
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-    }
+
 }

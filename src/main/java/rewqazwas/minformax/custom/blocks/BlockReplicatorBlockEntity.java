@@ -7,6 +7,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.BlockItem;
@@ -20,10 +22,14 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 import rewqazwas.minformax.custom.ModBlockEntities;
+import rewqazwas.minformax.custom.index.BlockReplicatorData;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
 import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.items.upgrades.SpeedUpgrade;
 import rewqazwas.minformax.custom.items.upgrades.ProcessingUpgrade;
+import rewqazwas.minformax.custom.utility.Utils;
+
+import java.util.Map;
 
 import static rewqazwas.minformax.custom.utility.Utils.getItemHandlers;
 
@@ -64,8 +70,7 @@ public class BlockReplicatorBlockEntity extends BlockEntity {
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             if (!(stack.getItem() instanceof BlockItem)) return false;
-            var key = BuiltInRegistries.BLOCK.getKey(((BlockItem) stack.getItem()).getBlock()).toString();
-            return ModDataReloadListener.BLOCK_REPLICATOR_DATA.containsKey(key);
+            return getData(stack) != null;
         }
 
         @Override
@@ -141,15 +146,35 @@ public class BlockReplicatorBlockEntity extends BlockEntity {
         this.energyHandler.receiveEnergy(tag.getInt("block_replicator.energy"), false);
     }
 
+    private BlockReplicatorData getData(ItemStack stack) {
+        if (stack.isEmpty() || !(stack.getItem() instanceof BlockItem)) return null;
+
+        // Check for direct block match
+        var key = BuiltInRegistries.BLOCK.getKey(((BlockItem) stack.getItem()).getBlock()).toString();
+        if (ModDataReloadListener.BLOCK_REPLICATOR_DATA.containsKey(key)) {
+            return ModDataReloadListener.BLOCK_REPLICATOR_DATA.get(key);
+        }
+
+        // Check for tag match
+        for (Map.Entry<String, BlockReplicatorData> entry : ModDataReloadListener.BLOCK_REPLICATOR_DATA.entrySet()) {
+            if (entry.getKey().startsWith("#")) {
+                var tagKey = TagKey.create(BuiltInRegistries.BLOCK.key(), ResourceLocation.parse(entry.getKey().substring(1)));
+                var block = ((BlockItem) stack.getItem()).getBlock();
+                var blockState = block.defaultBlockState();
+                if (blockState.is(tagKey)) {
+                    return entry.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
     public void tick(Level level, BlockPos blockPos, BlockState blockState, BlockReplicatorBlockEntity blockEntity) {
         if(level.isClientSide()) return;
 
         var sourceStack = itemHandler.getStackInSlot(0);
-        if (sourceStack.isEmpty() || !(sourceStack.getItem() instanceof BlockItem)) return;
-
-        var key = BuiltInRegistries.BLOCK.getKey(((BlockItem) sourceStack.getItem()).getBlock()).toString();
-        if (!ModDataReloadListener.BLOCK_REPLICATOR_DATA.containsKey(key)) return;
-        var data = ModDataReloadListener.BLOCK_REPLICATOR_DATA.get(key);
+        var data = getData(sourceStack);
+        if (data == null) return;
 
         int speedModifier = 1;
         int stackMultiplier = 1;
@@ -175,18 +200,12 @@ public class BlockReplicatorBlockEntity extends BlockEntity {
         maxProcess = data.duration();
 
         if(process >= maxProcess / speedModifier) {
-            var amount = data.basicAmountGenerated() * stackMultiplier;
+            var amount = 1 * stackMultiplier; // Basic amount is always 1 now
             var toFill = new ItemStack(sourceStack.getItem());
 
             toFill.setCount(amount);
             
-            for(IItemHandler side : getItemHandlers(level, blockPos)) {
-                if(side != null) {
-                    var remainder = ItemHandlerHelper.insertItemStacked(side, toFill, false);
-                    toFill = remainder;
-                    if(toFill.isEmpty()) break;
-                }
-            }
+            Utils.moveItem(level, blockPos, toFill);
             process = 0;
         }
         setChanged(level, blockPos, blockState);

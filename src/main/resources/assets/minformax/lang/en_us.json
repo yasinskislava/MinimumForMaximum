@@ -1,7 +1,7 @@
 {
   "tab.minformax.items": "Minimum For Maximum",
 
-  "block.minformax.index_lab": "Index Inscriber",
+  "block.minformax.index_inscriber": "Index Inscriber",
   "block.minformax.creative_index_lab": "Creative Index Installer",
   "block.minformax.eternal_generator_tier1": "Eternal Generator Tier 1",
   "block.minformax.eternal_generator_tier2": "Eternal Generator Tier 2",
@@ -20,13 +20,25 @@
   "tooltip.minformax.scanner": "§aScan the entity to store it in inscriber.",
   "tooltip.minformax.memory_shard": "§bShift + Right Click §ato clear stored data.",
   "tooltip.minformax.boss_module_item": "§aRequires §dStrength Upgrade §ato work.",
-  "tooltip.minformax.quantum_ingot": "§bShift + Right Click §aon §eEternal Generator §ato obtain §dQuantum Foam. §cIt must have at least 5120 overload.",
-  "tooltip.minformax.quantum_foam": "§a1 Overload Point = 1 Excessive Item.",
+  "tooltip.minformax.quantum_foam": "§bShift + Right Click §awith §dQuantum Ingot §aon §eEternal Generator. §cIt must have at least 5120 overload.",
+  "tooltip.minformax.overload": "§a1 Overload Point = 1 Excessive Item.",
   "tooltip.minformax.ore_coalescer": "§aUltimate processing solution for the ores",
   "tooltip.minformax.ultimate_speed_upgrade": "§a0x energy consumption",
+  "tooltip.minformax.inverted_upgrade": "§aMain ↔ Additional",
+  "tooltip.minformax.strength_upgrade": "§aAllows to farm bosses.",
+  "tooltip.minformax.auto_smelting_upgrade": "§aSmelts items automatically",
+  "tooltip.minformax.extra_drop_upgrade": "%s%% chance for extra drop",
+  "tooltip.minformax.fortune_upgrade": "Fortune %s",
+  "tooltip.minformax.processing_upgrade": "%sx operations",
+  "tooltip.minformax.empty": "§aEmpty",
 
   "message.minformax.ore_coalescer.item_overflow": "§aCurrent block contains more than §c4096 items§a. §bHold Shift §ato break the block. ",
   "message.minformax.warning": "§cLarge amount of entities may cause lag spike!!!",
+  "message.minformax.owner_warning": "§cYou are not the owner of this Index Installer.",
+  "message.minformax.block_support": "§cThis block is not supported.",
+  "message.minformax.scanner.new_entry": "§aNew entry added to your index: §e%s",
+  "message.minformax.scanner.exists": "§eEntry already exists in your index: §e%s",
+  "message.minformax.scanner.cannot_scan": "§cThis entity cannot be scanned: §e%s",
 
   "item.minformax.scanner": "Scanner",
   "item.minformax.quantum_foam": "Quantum Foam",
@@ -60,5 +72,8 @@
   "item.minformax.chef_module": "Chef Module",
   "item.minformax.wither_module": "Wither Module",
   "item.minformax.ender_dragon_module": "Ender Dragon Module",
-  "item.minformax.warden_module": "Warden Module"
+  "item.minformax.warden_module": "Warden Module",
+
+  "jei.minformax.duration": "Duration: %s ticks",
+  "jei.minformax.energy": "Energy: %s FE/t"
 }
