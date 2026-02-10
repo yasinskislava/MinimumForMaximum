@@ -48,6 +48,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.WARDEN_MODULE.get());
         basicItem(ModItems.QUANTUM_FOAM.get());
         basicItem(ModItems.QUANTUM_INGOT.get());
+        basicItem(ModItems.ANALYZER.get());
     }
 
 

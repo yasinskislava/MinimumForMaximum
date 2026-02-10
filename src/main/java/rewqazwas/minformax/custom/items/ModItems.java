@@ -19,6 +19,7 @@ public class ModItems {
     public static final DeferredItem<Item> QUANTUM_INGOT = ITEMS.register("quantum_ingot", QuantumIngotItem::new);
 
     public static final DeferredItem<Item> SCANNER = ITEMS.register("scanner", () -> new ScannerItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> ANALYZER = ITEMS.register("analyzer", () -> new AnalyzerItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<Item> MEMORY_SHARD = ITEMS.register("memory_shard", () -> new MemoryShard(new Item.Properties().stacksTo(1)));
 
     public static final DeferredItem<Item> SPEED_UPGRADE_TIER1 = ITEMS.register("speed_upgrade_tier1", () -> new SpeedUpgrade(2));

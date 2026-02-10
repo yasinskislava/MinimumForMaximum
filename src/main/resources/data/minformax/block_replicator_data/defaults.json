@@ -1,58 +1,102 @@
 {
-  "#minecraft:base_stone_overworld": {
-    "duration": 20,
-    "energy_multiplier": 5
-  },
-  "minecraft:cobblestone": {
-    "duration": 20,
-    "energy_multiplier": 5
-  },
-  "#c:ores/xychorium": {
-    "duration": 200,
-    "energy_multiplier": 5
-  },
-  "#c:ores/coal": {
-    "duration": 20,
-    "energy_multiplier": 5
-  },
   "#c:ores/iron": {
     "duration": 100,
-    "energy_multiplier": 5
-  },
-  "#c:ores/copper": {
-    "duration": 100,
-    "energy_multiplier": 5
-  },
-  "#c:ores/gold": {
-    "duration": 200,
-    "energy_multiplier": 5
+    "energy_multiplier": 500
   },
   "#c:ores/redstone": {
     "duration": 200,
-    "energy_multiplier": 5
+    "energy_multiplier": 500
   },
-  "#c:ores/emerald": {
-    "duration": 250,
-    "energy_multiplier": 5
+  "#c:ores/coal": {
+    "duration": 50,
+    "energy_multiplier": 500
   },
-  "#c:ores/lapis": {
-    "duration": 100,
-    "energy_multiplier": 5
+  "pneumaticcraft:compressed_stone": {
+    "duration": 20,
+    "energy_multiplier": 100
   },
-  "#c:ores/diamond": {
-    "duration": 250,
-    "energy_multiplier": 5
+  "occultism:otherstone": {
+    "duration": 20,
+    "energy_multiplier": 100
+  },
+  "occultism:otherrock": {
+    "duration": 20,
+    "energy_multiplier": 100
+  },
+  "mysticalagriculture:soulstone_cobble": {
+    "duration": 20,
+    "energy_multiplier": 100
+  },
+  "ae2:sky_stone_block": {
+    "duration": 20,
+    "energy_multiplier": 100
   },
   "minecraft:ancient_debris": {
     "duration": 300,
-    "energy_multiplier": 5
+    "energy_multiplier": 5000
+  },
+  "minecraft:nether_quartz_ore": {
+    "duration": 200,
+    "energy_multiplier": 1500
+  },
+  "#c:ores/xychorium": {
+    "duration": 200,
+    "energy_multiplier": 500
+  },
+  "#minecraft:base_stone_overworld": {
+    "duration": 20,
+    "energy_multiplier": 100
+  },
+  "minecraft:cobblestone": {
+    "duration": 10,
+    "energy_multiplier": 50
+  },
+  "#c:sands": {
+    "duration": 40,
+    "energy_multiplier": 75
+  },
+  "#minecraft:leaves": {
+    "duration": 10,
+    "energy_multiplier": 50
+  },
+  "#c:ores/gold": {
+    "duration": 200,
+    "energy_multiplier": 1000
   },
   "#minecraft:logs": {
+    "duration": 10,
+    "energy_multiplier": 400
+  },
+  "#c:ores/lapis": {
     "duration": 100,
-    "energy_multiplier": 5
+    "energy_multiplier": 500
+  },
+  "#c:ores/diamond": {
+    "duration": 250,
+    "energy_multiplier": 3000
+  },
+  "#c:ores/copper": {
+    "duration": 100,
+    "energy_multiplier": 500
+  },
+  "#c:ores/aluminum": {
+    "duration": 150,
+    "energy_multiplier": 500
+  },
+  "#c:ores/lead": {
+    "duration": 150,
+    "energy_multiplier": 500
+  },
+  "#c:ores/tin": {
+    "duration": 150,
+    "energy_multiplier": 500
+  },
+  "#c:ores/emerald": {
+    "duration": 250,
+    "energy_multiplier": 3500
   },
   "xycraft_world:kivi": {
     "duration": 20,
-    "energy_multiplier": 5
+    "energy_multiplier": 100
   }
 }

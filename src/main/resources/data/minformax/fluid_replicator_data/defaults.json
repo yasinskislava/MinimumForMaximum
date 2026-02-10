@@ -1,17 +1,27 @@
 {
-  "minecraft:water": {
-    "basic_amount_generated": 100,
-    "duration": 20,
-    "energy_multiplier": 1
-  },
   "minecraft:lava": {
     "basic_amount_generated": 100,
     "duration": 40,
-    "energy_multiplier": 5
+    "energy_multiplier": 500
+  },
+  "minecraft:water": {
+    "basic_amount_generated": 100,
+    "duration": 20,
+    "energy_multiplier": 100
   },
   "minecraft:milk": {
     "basic_amount_generated": 100,
     "duration": 20,
-    "energy_multiplier": 2
+    "energy_multiplier": 200
+  },
+  "industrialforegoing:latex": {
+    "basic_amount_generated": 10,
+    "duration": 128,
+    "energy_multiplier": 800
+  },
+  "industrialforegoing:pink_slime": {
+    "basic_amount_generated": 10,
+    "duration": 256,
+    "energy_multiplier": 1200
   }
 }

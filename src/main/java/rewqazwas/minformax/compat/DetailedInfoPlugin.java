@@ -28,6 +28,7 @@ public class DetailedInfoPlugin implements IModPlugin {
     public void registerCategories(IRecipeCategoryRegistration registration) {
         registration.addRecipeCategories(new BlockReplicatorCategory(registration.getJeiHelpers().getGuiHelper()));
         registration.addRecipeCategories(new FluidReplicatorCategory(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new IndexInscriberCategory(registration.getJeiHelpers().getGuiHelper()));
     }
 
     @Override
@@ -68,11 +69,21 @@ public class DetailedInfoPlugin implements IModPlugin {
             }
         });
         registration.addRecipes(FluidReplicatorCategory.RECIPE_TYPE, fluidRecipes);
+
+        List<JeiIndexInscriberRecipe> indexRecipes = new ArrayList<>();
+        ModDataReloadListener.MOB_DROPS.forEach((key, data) -> {
+            var resourceLocation = ResourceLocation.parse(key);
+            if (BuiltInRegistries.ENTITY_TYPE.containsKey(resourceLocation)) {
+                indexRecipes.add(new JeiIndexInscriberRecipe(resourceLocation, data));
+            }
+        });
+        registration.addRecipes(IndexInscriberCategory.RECIPE_TYPE, indexRecipes);
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.BLOCK_REPLICATOR.get()), BlockReplicatorCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.FLUID_REPLICATOR.get()), FluidReplicatorCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.INDEX_LAB.get()), IndexInscriberCategory.RECIPE_TYPE);
     }
 }

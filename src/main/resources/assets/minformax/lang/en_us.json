@@ -14,6 +14,10 @@
 
   "minformax.jade.owner": "§aOwner: §c%s",
   "config.jade.plugin_minformax.owner": "Owner",
+  "jei.minformax.duration": "Duration: %s ticks",
+  "jei.minformax.energy": "Energy: %s FE/t",
+  "jei.minformax.xp": "XP: %s",
+
   "tooltip.minformax.owner": "§aOwner: %s",
   "tooltip.minformax.index_lab": "§aInscribes mob index on memory shards.",
   "tooltip.minformax.eternal_generator": "§aPut any valid storage next to it to generate resources. §cMemory shards are not consumed.",
@@ -73,7 +77,6 @@
   "item.minformax.wither_module": "Wither Module",
   "item.minformax.ender_dragon_module": "Ender Dragon Module",
   "item.minformax.warden_module": "Warden Module",
+  "item.minformax.analyzer": "Analyzer"
 
-  "jei.minformax.duration": "Duration: %s ticks",
-  "jei.minformax.energy": "Energy: %s FE/t"
 }

@@ -30,6 +30,8 @@ import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
+import net.neoforged.neoforge.items.wrapper.RangedWrapper;
 import rewqazwas.minformax.custom.ModBlockEntities;
 import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.items.upgrades.*;
@@ -313,6 +315,21 @@ public class OreCoalescerBlockEntity extends BlockEntity implements MenuProvider
             }
         }
     };
+
+    public final IItemHandler automationHandler = new CombinedInvWrapper(
+            new RangedWrapper(inventoryHandler, 0, 12) {
+                @Override
+                public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                    return ItemStack.EMPTY;
+                }
+            },
+            new RangedWrapper(outputHandler, 0, 8) {
+                @Override
+                public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+                    return stack;
+                }
+            }
+    );
 
     public final EnergyStorage energyHandler = new EnergyStorage(5000000) {
         @Override
