@@ -16,7 +16,7 @@
     "allowed_items": [],
     "prohibited_items": ["minecraft:torchflower_seeds"],
     "allowed_tags": ["c:seeds"],
-    "prohibited_tags": [],
+    "prohibited_tags": ["mysticalagriculture:seeds"],
     "xp": 0
   },
 

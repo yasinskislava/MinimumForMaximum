@@ -37,7 +37,6 @@ import rewqazwas.minformax.screen.custom.IndexLabScreen;
 import rewqazwas.minformax.screen.custom.OreCoalescerScreen;
 
 import static rewqazwas.minformax.custom.utility.Utils.clearContent;
-import static rewqazwas.minformax.custom.utility.Utils.warn;
 
 @Mod(MinForMax.MOD_ID)
 public class MinForMax {
@@ -90,6 +89,16 @@ public class MinForMax {
         public static void playerJoins(PlayerEvent.PlayerLoggedInEvent event) {
             var player = event.getEntity();
             player.setData(ModAttachmentTypes.INDEX_SYNC, clearContent(PlayerIndex.getLocalIndex((ServerPlayer) player), event.getEntity().level()));
+        }
+
+        @SubscribeEvent
+        public static void playerClone(PlayerEvent.Clone event) {
+            if (event.isWasDeath()) {
+                var oldIndex = event.getOriginal().getData(ModAttachmentTypes.INDEX_SYNC);
+                if (oldIndex != null) {
+                    event.getEntity().setData(ModAttachmentTypes.INDEX_SYNC, oldIndex);
+                }
+            }
         }
 
         @SubscribeEvent
