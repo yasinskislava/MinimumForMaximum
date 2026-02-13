@@ -12,6 +12,7 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 import rewqazwas.minformax.custom.blocks.ModBlocks;
 import rewqazwas.minformax.custom.blocks.OreCoalescerBlockEntity;
 import rewqazwas.minformax.custom.items.upgrades.UpgradeItem;
+import rewqazwas.minformax.custom.utility.Utils;
 import rewqazwas.minformax.screen.ModMenuTypes;
 
 public class OreCoalescerMenu extends AbstractContainerMenu {
@@ -209,12 +210,7 @@ public class OreCoalescerMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            var pass = false;
-            for(int i = 0; i < UPGRADE_SLOTS; i++) {
-                var currentStack = itemHandler.getStackInSlot(i);
-                pass = stack.getItem().getClass() == currentStack.getItem().getClass() || pass;
-            }
-            return stack.getItem() instanceof UpgradeItem && !pass;
+            return stack.getItem() instanceof UpgradeItem && !Utils.canPass(itemHandler, stack, UPGRADE_SLOTS);
         }
 
         @Override

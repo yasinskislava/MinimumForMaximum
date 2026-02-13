@@ -14,7 +14,7 @@ import java.util.*;
 
 public class PlayerIndex {
     private static final String TAG_KEY = "minformax_player_index";
-    private static final Codec<List<String>> LIST_CODEC = Codec.list(Codec.STRING);
+    private static final Codec<List<String>> LIST_CODEC = Codec.STRING.listOf();
 
     public static List<String> load(ServerPlayer player) {
         CompoundTag pd = player.getPersistentData();
@@ -40,7 +40,9 @@ public class PlayerIndex {
 
     public static void add(ServerPlayer player, String key) {
         List<String> indexList = new ArrayList<>(getLocalIndex(player));
-        indexList.add(key);
-        save(player, indexList);
+        if(!indexList.contains(key)) {
+            indexList.add(key);
+            save(player, indexList);
+        }
     }
 }

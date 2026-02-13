@@ -1,0 +1,79 @@
+package rewqazwas.minformax.network;
+
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import rewqazwas.minformax.MinForMax;
+import rewqazwas.minformax.compat.DetailedInfoPlugin;
+import rewqazwas.minformax.custom.index.BlockReplicatorData;
+import rewqazwas.minformax.custom.index.FluidReplicatorData;
+import rewqazwas.minformax.custom.index.HolderClass;
+import rewqazwas.minformax.custom.index.ModDataReloadListener;
+import rewqazwas.minformax.custom.index.ModuleData;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public record SyncJeiDataPacket(
+        Map<String, HolderClass> mobDrops,
+        Map<String, ModuleData> moduleDrops,
+        Map<String, FluidReplicatorData> fluidReplicatorData,
+        Map<String, BlockReplicatorData> blockReplicatorData
+) implements CustomPacketPayload {
+
+    public static final Type<SyncJeiDataPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "sync_jei_data"));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, SyncJeiDataPacket> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.map(
+                    HashMap::new,
+                    ByteBufCodecs.STRING_UTF8,
+                    HolderClass.STREAM_CODEC
+            ),
+            SyncJeiDataPacket::mobDrops,
+            ByteBufCodecs.map(
+                    HashMap::new,
+                    ByteBufCodecs.STRING_UTF8,
+                    ModuleData.STREAM_CODEC
+            ),
+            SyncJeiDataPacket::moduleDrops,
+            ByteBufCodecs.map(
+                    HashMap::new,
+                    ByteBufCodecs.STRING_UTF8,
+                    FluidReplicatorData.STREAM_CODEC
+            ),
+            SyncJeiDataPacket::fluidReplicatorData,
+            ByteBufCodecs.map(
+                    HashMap::new,
+                    ByteBufCodecs.STRING_UTF8,
+                    BlockReplicatorData.STREAM_CODEC
+            ),
+            SyncJeiDataPacket::blockReplicatorData,
+            SyncJeiDataPacket::new
+    );
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
+
+    public static void handle(SyncJeiDataPacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            MinForMax.LOGGER.info("Received JEI data sync packet on client");
+            MinForMax.LOGGER.info("Data sizes - Mob: {}, Module: {}, Fluid: {}, Block: {}",
+                packet.mobDrops.size(),
+                packet.moduleDrops.size(),
+                packet.fluidReplicatorData.size(),
+                packet.blockReplicatorData.size()
+            );
+            
+            ModDataReloadListener.MOB_DROPS = packet.mobDrops;
+            ModDataReloadListener.MODULE_DROPS = packet.moduleDrops;
+            ModDataReloadListener.FLUID_REPLICATOR_DATA = packet.fluidReplicatorData;
+            ModDataReloadListener.BLOCK_REPLICATOR_DATA = packet.blockReplicatorData;
+            DetailedInfoPlugin.refresh();
+        });
+    }
+}

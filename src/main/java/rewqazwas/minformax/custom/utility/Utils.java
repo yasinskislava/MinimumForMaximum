@@ -2,8 +2,6 @@ package rewqazwas.minformax.custom.utility;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -11,7 +9,7 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import rewqazwas.minformax.custom.index.HolderClass;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
 
@@ -157,4 +155,41 @@ public class Utils {
             return 9 * level - 158;
         }
     }
+
+    public static Class<?> getOriginalClass(Object obj) {
+        Class<?> cls = obj.getClass();
+        return cls.isAnonymousClass()
+                ? cls.getInterfaces().length == 0 ? cls.getSuperclass() : cls.getInterfaces()[0]
+                : cls;
+    }
+
+    public static boolean canPass(IItemHandler itemHandler, ItemStack stack) {
+        return canPass(itemHandler, stack, itemHandler.getSlots());
+    }
+
+    public static boolean canPass(IItemHandler itemHandler, ItemStack stack, int size) {
+        var pass = false;
+        for(int i = 0; i < size; i++) {
+            var currentStack = itemHandler.getStackInSlot(i);
+            pass = Utils.getOriginalClass(stack.getItem()) == Utils.getOriginalClass(currentStack.getItem()) || pass;
+        }
+        return pass;
+    }
+
+    public static boolean canInsertUpgrade(ItemStackHandler handler, ItemStack stack) {
+        var size = handler.getSlots();
+        for (int i = 0; i < size; i++) {
+            var existingStack = handler.getStackInSlot(i);
+            if (existingStack.isEmpty()) continue;
+
+            var existingItem = existingStack.getItem();
+            var newItem = stack.getItem();
+
+            if (getOriginalClass(existingItem) == getOriginalClass(newItem)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

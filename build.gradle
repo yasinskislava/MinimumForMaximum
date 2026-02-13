@@ -136,7 +136,7 @@ configurations {
 }
 
 dependencies {
-    runtimeOnly "mekanism:Mekanism:${mekanism_version}"
+    //runtimeOnly "mekanism:Mekanism:${mekanism_version}"
     implementation "maven.modrinth:jade:${project.jade_version}+neoforge"
     //implementation "team-twilight:twilightforest:${twilight_version}:universal"
     //implementation "org.appliedenergistics:appliedenergistics2:${ae2_version}"

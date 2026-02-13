@@ -9,6 +9,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
+import rewqazwas.minformax.MinForMax;
 import rewqazwas.minformax.custom.ModAttachmentTypes;
 import rewqazwas.minformax.custom.blocks.IndexLabBlockEntity;
 import rewqazwas.minformax.custom.blocks.ModBlocks;
@@ -86,7 +87,7 @@ public class IndexLabMenu extends AbstractContainerMenu {
                 return ItemStack.EMPTY;
             }
         } else {
-            System.out.println("Invalid slotIndex:" + index);
+            MinForMax.LOGGER.error("Invalid slotIndex:" + index);
             return ItemStack.EMPTY;
         }
         if(sourceStack.getCount() == 0) {
@@ -100,7 +101,7 @@ public class IndexLabMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.INDEX_LAB.get());
+        return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.INDEX_INSCRIBER.get());
     }
 
     @Override

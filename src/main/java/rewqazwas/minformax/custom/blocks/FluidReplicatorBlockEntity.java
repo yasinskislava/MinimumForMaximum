@@ -24,6 +24,7 @@ import rewqazwas.minformax.custom.index.ModDataReloadListener;
 import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.items.upgrades.SpeedUpgrade;
 import rewqazwas.minformax.custom.items.upgrades.ProcessingUpgrade;
+import rewqazwas.minformax.custom.utility.Utils;
 
 import static rewqazwas.minformax.custom.utility.Utils.getFluidHandlers;
 
@@ -58,18 +59,14 @@ public class FluidReplicatorBlockEntity extends BlockEntity {
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            var size = this.getSlots();
-            for (int i = 0; i < size; i++) {
-                var filter = this.getStackInSlot(i).getItem();
-                if(filter == stack.getItem()) {
-                    return stack;
-                }
+            if(Utils.canInsertUpgrade(this, stack)){
+                return stack;
             }
             return super.insertItem(slot, stack, simulate);
         }
     };
 
-    public final EnergyStorage energyHandler = new EnergyStorage(500000) {};
+    public final EnergyStorage energyHandler = new EnergyStorage(40_960_000) {};
 
     private int process = 0;
     private int maxProcess = 256;

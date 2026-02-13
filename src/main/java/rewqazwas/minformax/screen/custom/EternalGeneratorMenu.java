@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
+import rewqazwas.minformax.MinForMax;
 import rewqazwas.minformax.custom.ModTags;
 import rewqazwas.minformax.custom.blocks.EternalGeneratorBlockEntity;
 import rewqazwas.minformax.custom.blocks.ModBlocks;
@@ -154,7 +155,7 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
                 return ItemStack.EMPTY;
             }
         } else {
-            System.out.println("Invalid slotIndex:" + index);
+            MinForMax.LOGGER.error("Invalid slotIndex:" + index);
             return ItemStack.EMPTY;
         }
         if(sourceStack.getCount() == 0) {
@@ -203,16 +204,11 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
             super(itemHandler, index, xPosition, yPosition);
             this.itemHandler = itemHandler;
         }
+
         @Override
         public boolean mayPlace(ItemStack stack) {
-            var pass = false;
-            for(int i = 0; i < itemHandler.getSlots(); i++) {
-                var currentStack = itemHandler.getStackInSlot(i);
-                pass = stack.getItem().getClass() == currentStack.getItem().getClass() || pass;
-            }
-            return stack.getItem() instanceof UpgradeItem && !pass && !stack.is(ModItems.ULTIMATE_PROCESSING_UPGRADE) && !stack.is(ModItems.AUTO_SMELTING_UPGRADE) && !(stack.getItem() instanceof FortuneUpgrade);
+            return stack.getItem() instanceof UpgradeItem && !Utils.canPass(itemHandler, stack) && !stack.is(ModItems.ULTIMATE_PROCESSING_UPGRADE) && !stack.is(ModItems.AUTO_SMELTING_UPGRADE) && !(stack.getItem() instanceof FortuneUpgrade);
         }
-
 
         @Override
         public int getMaxStackSize(ItemStack stack) {

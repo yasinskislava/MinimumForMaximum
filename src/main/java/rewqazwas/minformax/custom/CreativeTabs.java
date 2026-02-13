@@ -19,7 +19,7 @@ public class CreativeTabs {
                 .icon(() -> new ItemStack(ModItems.SCANNER.get()))
                 .displayItems((params, output) -> {
                     output.accept(ModItems.SCANNER);
-                    output.accept(ModBlocks.INDEX_LAB);
+                    output.accept(ModBlocks.INDEX_INSCRIBER);
                     output.accept(ModBlocks.ETERNAL_GENERATOR_TIER1);
                     output.accept(ModBlocks.ETERNAL_GENERATOR_TIER2);
                     output.accept(ModBlocks.ETERNAL_GENERATOR_TIER3);

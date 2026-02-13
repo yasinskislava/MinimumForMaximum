@@ -10,10 +10,10 @@ import java.util.List;
 
 public record ModuleData(List<String> allowedItems, List<String> prohibitedItems, List<String> allowedTags, List<String> prohibitedTags, int xp) {
     public static final Codec<ModuleData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.list(Codec.STRING).fieldOf("allowed_items").forGetter(ModuleData::allowedItems),
-            Codec.list(Codec.STRING).fieldOf("prohibited_items").forGetter(ModuleData::prohibitedItems),
-            Codec.list(Codec.STRING).fieldOf("allowed_tags").forGetter(ModuleData::allowedTags),
-            Codec.list(Codec.STRING).fieldOf("prohibited_tags").forGetter(ModuleData::prohibitedTags),
+            Codec.STRING.listOf().fieldOf("allowed_items").forGetter(ModuleData::allowedItems),
+            Codec.STRING.listOf().fieldOf("prohibited_items").forGetter(ModuleData::prohibitedItems),
+            Codec.STRING.listOf().fieldOf("allowed_tags").forGetter(ModuleData::allowedTags),
+            Codec.STRING.listOf().fieldOf("prohibited_tags").forGetter(ModuleData::prohibitedTags),
             Codec.INT.fieldOf("xp").forGetter(ModuleData::xp)
     ).apply(instance, ModuleData::new));
 

@@ -17,7 +17,7 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
 
     @Override
     protected void generate() {
-        dropSelf(ModBlocks.INDEX_LAB.get());
+        dropSelf(ModBlocks.INDEX_INSCRIBER.get());
         dropSelf(ModBlocks.ETERNAL_GENERATOR_TIER1.get());
         dropSelf(ModBlocks.ETERNAL_GENERATOR_TIER2.get());
         dropSelf(ModBlocks.ETERNAL_GENERATOR_TIER3.get());

@@ -11,6 +11,7 @@ import rewqazwas.minformax.custom.blocks.BlockReplicatorBlockEntity;
 import rewqazwas.minformax.custom.blocks.EternalGeneratorBlockEntity;
 import rewqazwas.minformax.custom.blocks.FluidReplicatorBlockEntity;
 import rewqazwas.minformax.custom.blocks.OreCoalescerBlockEntity;
+import rewqazwas.minformax.custom.utility.Utils;
 
 public class UpgradeItem extends Item {
     public UpgradeItem() {
@@ -30,10 +31,12 @@ public class UpgradeItem extends Item {
             if (cap != null) {
                 for (int i = 0; i < cap.getSlots(); i++) {
                     var stackInSlot = cap.getStackInSlot(i);
-                    if (stackInSlot.getItem().getClass() == context.getItemInHand().getItem().getClass()) {
+                    var stackItem = stackInSlot.getItem();
+                    var contextItem = context.getItemInHand().getItem();
+                    if (Utils.getOriginalClass(stackItem) == Utils.getOriginalClass(contextItem)) {
                         // Found an upgrade of the same type
                         boolean isBetter = false;
-                        if (stackInSlot.getItem() instanceof SpeedUpgrade existingSpeed && context.getItemInHand().getItem() instanceof SpeedUpgrade newSpeed) {
+                        if (stackInSlot.getItem() instanceof SpeedUpgrade existingSpeed && contextItem instanceof SpeedUpgrade newSpeed) {
                             if (newSpeed.getModifier() > existingSpeed.getModifier()) {
                                 isBetter = true;
                             }

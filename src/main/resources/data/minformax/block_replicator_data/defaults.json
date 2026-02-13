@@ -51,6 +51,10 @@
     "duration": 10,
     "energy_multiplier": 50
   },
+  "minecraft:clay": {
+    "duration": 40,
+    "energy_multiplier": 75
+  },
   "#c:sands": {
     "duration": 40,
     "energy_multiplier": 75

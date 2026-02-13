@@ -54,11 +54,11 @@ public class FluidReplicatorCategory implements IRecipeCategory<JeiFluidReplicat
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, JeiFluidReplicatorRecipe recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 10, 10)
-                .addIngredient(NeoForgeTypes.FLUID_STACK, new FluidStack(recipe.fluid(), 1000));
+            builder.addSlot(RecipeIngredientRole.INPUT, 10, 10)
+                    .addIngredient(NeoForgeTypes.FLUID_STACK, new FluidStack(recipe.fluid(), 1000));
 
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 10, 10)
-                .addIngredient(NeoForgeTypes.FLUID_STACK, new FluidStack(recipe.fluid(), recipe.data().basicAmountGenerated()));
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 10, 10)
+                    .addIngredient(NeoForgeTypes.FLUID_STACK, new FluidStack(recipe.fluid(), recipe.data().basicAmountGenerated()));
     }
 
     @Override

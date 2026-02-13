@@ -19,14 +19,14 @@ public record HolderClass(ItemStack mainDrop, List<ItemStack> additionalDrop, in
 
     public static final Codec<HolderClass> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ITEM_STACK_CODEC.fieldOf("main_drop").forGetter(HolderClass::mainDrop),
-            Codec.list(ITEM_STACK_CODEC).fieldOf("additional_drop").forGetter(HolderClass::additionalDrop),
+            ITEM_STACK_CODEC.listOf().fieldOf("additional_drop").forGetter(HolderClass::additionalDrop),
             Codec.INT.fieldOf("xp").forGetter(HolderClass::xp),
             Codec.INT.fieldOf("duration").forGetter(HolderClass::duration)
     ).apply(instance, HolderClass::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, HolderClass> STREAM_CODEC = StreamCodec.composite(
-            ItemStack.STREAM_CODEC, HolderClass::mainDrop,
-            ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list(3)), HolderClass::additionalDrop,
+            ItemStack.OPTIONAL_STREAM_CODEC, HolderClass::mainDrop,
+            ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list(3)), HolderClass::additionalDrop,
             ByteBufCodecs.INT, HolderClass::xp,
             ByteBufCodecs.INT, HolderClass::duration,
             HolderClass::new

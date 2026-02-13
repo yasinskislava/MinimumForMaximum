@@ -1,7 +1,6 @@
 package rewqazwas.minformax.datagen;
 
 import net.minecraft.data.PackOutput;
-import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -23,7 +22,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         blockWithItem(ModBlocks.ETERNAL_GENERATOR_TIER2);
         blockWithItem(ModBlocks.ETERNAL_GENERATOR_TIER3);
         blockWithItem(ModBlocks.ETERNAL_GENERATOR_TIER4);
-        blockWithItem(ModBlocks.INDEX_LAB);
+        blockWithItem(ModBlocks.INDEX_INSCRIBER);
         blockWithItem(ModBlocks.CREATIVE_ENERGY);
         blockWithItem(ModBlocks.FLUID_REPLICATOR);
         blockWithItem(ModBlocks.BLOCK_REPLICATOR);

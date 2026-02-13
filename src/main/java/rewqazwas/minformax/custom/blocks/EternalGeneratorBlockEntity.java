@@ -1,7 +1,6 @@
 package rewqazwas.minformax.custom.blocks;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -17,10 +16,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 import rewqazwas.minformax.custom.ModBlockEntities;
@@ -36,9 +33,7 @@ import rewqazwas.minformax.custom.utility.Utils;
 import rewqazwas.minformax.screen.custom.EternalGeneratorMenu;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProvider {
 
@@ -64,12 +59,8 @@ public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProv
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            var size = this.getSlots();
-            for (int i = 0; i < size; i++) {
-                var filter = this.getStackInSlot(i).getItem();
-                if(filter == stack.getItem()) {
-                    return stack;
-                }
+            if(Utils.canInsertUpgrade(this, stack)){
+                return stack;
             }
             return super.insertItem(slot, stack, simulate);
         }

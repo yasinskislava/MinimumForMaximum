@@ -116,4 +116,6 @@ Fluid replicator data is defined under the `fluid_replicator_data` key. Each ent
 -   `energy_multiplier`: A multiplier for the energy cost of replication.
 -   `basic_amount_generated`: The base amount of the fluid generated per cycle (in millibuckets).
 
+**Note: There is a cap on energy_multiplier allowing 10_000 at max.**
+
 To customize the drops, simply modify the values in the `drops.json` file. The changes will be applied the next time the game is launched.

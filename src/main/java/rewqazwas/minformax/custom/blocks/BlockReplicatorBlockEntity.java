@@ -17,8 +17,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.energy.EnergyStorage;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 import rewqazwas.minformax.custom.ModBlockEntities;
@@ -30,8 +28,6 @@ import rewqazwas.minformax.custom.items.upgrades.ProcessingUpgrade;
 import rewqazwas.minformax.custom.utility.Utils;
 
 import java.util.Map;
-
-import static rewqazwas.minformax.custom.utility.Utils.getItemHandlers;
 
 public class BlockReplicatorBlockEntity extends BlockEntity {
     public final ItemStackHandler upgradeHandler = new ItemStackHandler(2) {
@@ -47,12 +43,8 @@ public class BlockReplicatorBlockEntity extends BlockEntity {
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            var size = this.getSlots();
-            for (int i = 0; i < size; i++) {
-                var filter = this.getStackInSlot(i).getItem();
-                if(filter == stack.getItem()) {
-                    return stack;
-                }
+            if(Utils.canInsertUpgrade(this, stack)){
+                return stack;
             }
             return super.insertItem(slot, stack, simulate);
         }
@@ -84,7 +76,7 @@ public class BlockReplicatorBlockEntity extends BlockEntity {
         }
     };
 
-    public final EnergyStorage energyHandler = new EnergyStorage(500000) {
+    public final EnergyStorage energyHandler = new EnergyStorage(40_960_000) {
         @Override
         public int receiveEnergy(int toReceive, boolean simulate) {
             setChanged();

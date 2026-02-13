@@ -106,10 +106,8 @@ public class OreCoalescerBlockEntity extends BlockEntity implements MenuProvider
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
             if (slot < 4) {
-                for (int i = 0; i < 4; i++) {
-                    if (this.getStackInSlot(i).getItem() == stack.getItem()) {
-                        return stack;
-                    }
+                if(Utils.canInsertUpgrade(this, stack)) {
+                    return stack;
                 }
                 return super.insertItem(slot, stack, simulate);
             }
@@ -320,6 +318,9 @@ public class OreCoalescerBlockEntity extends BlockEntity implements MenuProvider
             new RangedWrapper(inventoryHandler, 0, 12) {
                 @Override
                 public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                    if(slot < 4) {
+                        return super.extractItem(slot, amount, simulate);
+                    }
                     return ItemStack.EMPTY;
                 }
             },

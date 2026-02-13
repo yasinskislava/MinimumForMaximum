@@ -17,7 +17,9 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import rewqazwas.minformax.config.DataConfigs;
@@ -25,10 +27,12 @@ import rewqazwas.minformax.custom.CreativeTabs;
 import rewqazwas.minformax.custom.ModAttachmentTypes;
 import rewqazwas.minformax.custom.ModBlockEntities;
 import rewqazwas.minformax.custom.blocks.*;
+import rewqazwas.minformax.custom.command.IndexCommand;
 import rewqazwas.minformax.custom.component.ModDataComponents;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
 import rewqazwas.minformax.custom.index.PlayerIndex;
 import rewqazwas.minformax.custom.items.ModItems;
+import rewqazwas.minformax.network.SyncJeiDataPacket;
 import rewqazwas.minformax.renderer.BlockReplicatorRenderer;
 import rewqazwas.minformax.renderer.FluidReplicatorRenderer;
 import rewqazwas.minformax.screen.ModMenuTypes;
@@ -89,6 +93,21 @@ public class MinForMax {
         public static void playerJoins(PlayerEvent.PlayerLoggedInEvent event) {
             var player = event.getEntity();
             player.setData(ModAttachmentTypes.INDEX_SYNC, clearContent(PlayerIndex.getLocalIndex((ServerPlayer) player), event.getEntity().level()));
+            
+            MinForMax.LOGGER.info("Sending JEI data packet to player {}", player.getName().getString());
+            MinForMax.LOGGER.info("Data sizes - Mob: {}, Module: {}, Fluid: {}, Block: {}",
+                ModDataReloadListener.MOB_DROPS.size(),
+                ModDataReloadListener.MODULE_DROPS.size(),
+                ModDataReloadListener.FLUID_REPLICATOR_DATA.size(),
+                ModDataReloadListener.BLOCK_REPLICATOR_DATA.size()
+            );
+
+            PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncJeiDataPacket(
+                    ModDataReloadListener.MOB_DROPS,
+                    ModDataReloadListener.MODULE_DROPS,
+                    ModDataReloadListener.FLUID_REPLICATOR_DATA,
+                    ModDataReloadListener.BLOCK_REPLICATOR_DATA
+            ));
         }
 
         @SubscribeEvent
@@ -120,10 +139,16 @@ public class MinForMax {
         public static void onAddReloadListener(AddReloadListenerEvent event) {
             event.addListener(new ModDataReloadListener());
         }
+
+        @SubscribeEvent
+        public static void registerCommands(RegisterCommandsEvent event) {
+            IndexCommand.register(event.getDispatcher());
+        }
     }
 }
 
 //TODO
 //Fisher
+//Farmer
 //Revamp module system
 //Boss system

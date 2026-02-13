@@ -5,7 +5,6 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +13,6 @@ import rewqazwas.minformax.custom.component.ModDataComponents;
 import rewqazwas.minformax.custom.items.ModItems;
 
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ModRecipeProvider extends RecipeProvider {
@@ -330,7 +328,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_quantum_foam", has(ModItems.QUANTUM_FOAM))
                 .save(recipeOutput);
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.INDEX_LAB.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.INDEX_INSCRIBER.get())
                 .pattern("bdb")
                 .pattern("coc")
                 .pattern("did")
