@@ -117,16 +117,13 @@ public class IndexLabScreen extends AbstractContainerScreen<IndexLabMenu> {
 
             guiGraphics.drawString(this.font, "Extra Drop", i + 205, j + 45, 16777215, false);
             guiGraphics.blitSprite(SUB_BACKGROUND, i + 202, j + 59, 0, 61, 20);//▼
-            if(extraDrops.isEmpty()) {
-                guiGraphics.drawString(this.font, "None", i + 220, j + 66, 16777215, false);
-            } else {
-                for (ItemStack item : extraDrops) {
-                    guiGraphics.renderFakeItem(item, i + 205 + k, j + 61);
-                    if(mouseX >= i + 205 + k && mouseX <= i + 205 + k + 16 && mouseY >= j + 61 && mouseY <= j + 61 + 16) {
-                        guiGraphics.renderTooltip(this.font, item, mouseX, mouseY);
-                    }
-                    k += 19;
+
+            for (ItemStack item : extraDrops) {
+                guiGraphics.renderFakeItem(item, i + 205 + k, j + 61);
+                if(mouseX >= i + 205 + k && mouseX <= i + 205 + k + 16 && mouseY >= j + 61 && mouseY <= j + 61 + 16) {
+                    guiGraphics.renderTooltip(this.font, item, mouseX, mouseY);
                 }
+                k += 19;
             }
         }
     }

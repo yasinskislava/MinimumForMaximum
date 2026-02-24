@@ -186,16 +186,16 @@ public class BlockReplicatorBlockEntity extends BlockEntity {
             energyCost = 0;
         }
         if (energyHandler.getEnergyStored() < energyCost) return;
+        if (!Utils.canInsertAtLeastOne(level, blockPos, sourceStack)) return;
         energyHandler.extractEnergy(energyCost, false);
 
         process++;
         maxProcess = data.duration();
 
         if(process >= maxProcess / speedModifier) {
-            var amount = 1 * stackMultiplier; // Basic amount is always 1 now
             var toFill = new ItemStack(sourceStack.getItem());
 
-            toFill.setCount(amount);
+            toFill.setCount(stackMultiplier);
             
             Utils.moveItem(level, blockPos, toFill);
             process = 0;

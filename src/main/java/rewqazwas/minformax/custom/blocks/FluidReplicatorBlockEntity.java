@@ -143,6 +143,8 @@ public class FluidReplicatorBlockEntity extends BlockEntity {
             energyCost = 0;
         }
         if (energyHandler.getEnergyStored() < energyCost) return;
+        if (!Utils.canInsertAtLeastOne(level, blockPos, sourceStack)) return;
+
         energyHandler.extractEnergy(energyCost, false);
 
         process++;

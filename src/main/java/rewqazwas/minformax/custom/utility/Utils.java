@@ -6,6 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
@@ -101,6 +102,30 @@ public class Utils {
             if (stack.isEmpty()) return ItemStack.EMPTY;
         }
         return stack;
+    }
+
+    public static boolean canInsertAtLeastOne(Level level, BlockPos pos, ItemStack stack) {
+        var toInsert = stack.copy();
+        toInsert.setCount(1);
+        for (IItemHandler handler : getItemHandlers(level, pos)) {
+            if (handler == null) continue;
+            if (ItemHandlerHelper.insertItemStacked(handler, toInsert, true).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean canInsertAtLeastOne(Level level, BlockPos pos, FluidStack stack) {
+        var toInsert = stack.copy();
+        toInsert.setAmount(1);
+        for (IFluidHandler handler : getFluidHandlers(level, pos)) {
+            if (handler == null) continue;
+            if (handler.fill(toInsert, IFluidHandler.FluidAction.SIMULATE) > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static String simpleFluidDisplay(int amount) {

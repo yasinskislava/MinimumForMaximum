@@ -99,7 +99,8 @@
 
   "minformax:ender_dragon_module": {
     "allowed_items": [
-      "minecraft:dragon_egg"
+      "minecraft:dragon_egg",
+      "minecraft:dragon_breath"
     ],
     "prohibited_items": [],
     "allowed_tags": [],
@@ -119,7 +120,9 @@
 
   "minformax:warden_module": {
     "allowed_items": [
-      "minecraft:echo_shard"
+      "minecraft:echo_shard",
+      "apothic_enchanting:warden_tendril",
+      "minecraft:sculk_catalyst"
     ],
     "prohibited_items": [],
     "allowed_tags": [],
