@@ -60,6 +60,14 @@ public class CreativeTabs {
                     output.accept(ModItems.WITHER_MODULE);
                     output.accept(ModItems.WARDEN_MODULE);
                     output.accept(ModItems.ANALYZER);
+                    output.accept(ModItems.BLANK_MODULE_1);
+                    output.accept(ModItems.BLANK_MODULE_2);
+                    output.accept(ModItems.BLANK_MODULE_3);
+                    output.accept(ModItems.BLANK_MODULE_4);
+                    output.accept(ModItems.BLANK_MODULE_5);
+                    output.accept(ModItems.BLANK_MODULE_6);
+                    output.accept(ModItems.BLANK_MODULE_7);
+                    output.accept(ModItems.BLANK_MODULE_8);
                 })
                 .build();
     });

@@ -56,6 +56,15 @@ public class ModItems {
     public static final DeferredItem<Item> FISHER_MODULE = ITEMS.register("fisher_module", ModuleItem::new);
     public static final DeferredItem<Item> BUTCHER_MODULE = ITEMS.register("butcher_module", ModuleItem::new);
 
+    public static final DeferredItem<Item> BLANK_MODULE_1 = ITEMS.register("blank_module_1", ModuleItem::new);
+    public static final DeferredItem<Item> BLANK_MODULE_2 = ITEMS.register("blank_module_2", ModuleItem::new);
+    public static final DeferredItem<Item> BLANK_MODULE_3 = ITEMS.register("blank_module_3", ModuleItem::new);
+    public static final DeferredItem<Item> BLANK_MODULE_4 = ITEMS.register("blank_module_4", ModuleItem::new);
+    public static final DeferredItem<Item> BLANK_MODULE_5 = ITEMS.register("blank_module_5", ModuleItem::new);
+    public static final DeferredItem<Item> BLANK_MODULE_6 = ITEMS.register("blank_module_6", ModuleItem::new);
+    public static final DeferredItem<Item> BLANK_MODULE_7 = ITEMS.register("blank_module_7", ModuleItem::new);
+    public static final DeferredItem<Item> BLANK_MODULE_8 = ITEMS.register("blank_module_8", ModuleItem::new);
+
     public static final DeferredItem<Item> ENDER_DRAGON_MODULE = ITEMS.register("ender_dragon_module", BossModuleItem::new);
     public static final DeferredItem<Item> WITHER_MODULE = ITEMS.register("wither_module", BossModuleItem::new);
     public static final DeferredItem<Item> WARDEN_MODULE = ITEMS.register("warden_module", BossModuleItem::new);

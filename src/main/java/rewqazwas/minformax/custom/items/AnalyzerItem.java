@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import rewqazwas.minformax.custom.utility.Raycaster;
@@ -39,5 +40,9 @@ public class AnalyzerItem extends Item {
         return InteractionResultHolder.consume(itemstack);
     }
 
-
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        tooltipComponents.add(Component.translatable("tooltip.minformax.analyzer"));
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    }
 }

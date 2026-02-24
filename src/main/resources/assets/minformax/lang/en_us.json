@@ -35,6 +35,7 @@
   "tooltip.minformax.fortune_upgrade": "Fortune %s",
   "tooltip.minformax.processing_upgrade": "%sx operations",
   "tooltip.minformax.empty": "§aEmpty",
+  "tooltip.minformax.analyzer": "§aMimics scanner behaviour and outputs in chat mob's id",
 
   "message.minformax.ore_coalescer.item_overflow": "§aCurrent block contains more than §c4096 items§a. §bHold Shift §ato break the block. ",
   "message.minformax.warning": "§cLarge amount of entities may cause lag spike!!!",
@@ -77,6 +78,13 @@
   "item.minformax.wither_module": "Wither Module",
   "item.minformax.ender_dragon_module": "Ender Dragon Module",
   "item.minformax.warden_module": "Warden Module",
-  "item.minformax.analyzer": "Analyzer"
-
+  "item.minformax.analyzer": "Analyzer",
+  "item.minformax.blank_module_1": "Custom Module 1",
+  "item.minformax.blank_module_2": "Custom Module 2",
+  "item.minformax.blank_module_3": "Custom Module 3",
+  "item.minformax.blank_module_4": "Custom Module 4",
+  "item.minformax.blank_module_5": "Custom Module 5",
+  "item.minformax.blank_module_6": "Custom Module 6",
+  "item.minformax.blank_module_7": "Custom Module 7",
+  "item.minformax.blank_module_8": "Custom Module 8"
 }

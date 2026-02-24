@@ -51,6 +51,38 @@
     "xp": 0
   },
 
+  "minformax:blank_module_1": {
+    "allowed_items": [],
+    "prohibited_items": [],
+    "allowed_tags": [],
+    "prohibited_tags": [],
+    "xp": 0
+  },
+
+  "minformax:blank_module_2": {
+    "allowed_items": [],
+    "prohibited_items": [],
+    "allowed_tags": [],
+    "prohibited_tags": [],
+    "xp": 0
+  },
+
+  "minformax:blank_module_3": {
+    "allowed_items": [],
+    "prohibited_items": [],
+    "allowed_tags": [],
+    "prohibited_tags": [],
+    "xp": 0
+  },
+
+  "minformax:blank_module_4": {
+    "allowed_items": [],
+    "prohibited_items": [],
+    "allowed_tags": [],
+    "prohibited_tags": [],
+    "xp": 0
+  },
+
   "minformax:butcher_module": {
     "allowed_items": [
       "minecraft:beef",

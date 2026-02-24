@@ -49,6 +49,32 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.QUANTUM_FOAM.get());
         basicItem(ModItems.QUANTUM_INGOT.get());
         basicItem(ModItems.ANALYZER.get());
+
+        // Blank modules using the same texture
+        withExistingParent(ModItems.BLANK_MODULE_1.getId().getPath(),
+                ResourceLocation.parse("item/generated")).texture("layer0",
+                ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID,"item/blank_module"));
+        withExistingParent(ModItems.BLANK_MODULE_2.getId().getPath(),
+                ResourceLocation.parse("item/generated")).texture("layer0",
+                ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID,"item/blank_module"));
+        withExistingParent(ModItems.BLANK_MODULE_3.getId().getPath(),
+                ResourceLocation.parse("item/generated")).texture("layer0",
+                ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID,"item/blank_module"));
+        withExistingParent(ModItems.BLANK_MODULE_4.getId().getPath(),
+                ResourceLocation.parse("item/generated")).texture("layer0",
+                ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID,"item/blank_module"));
+        withExistingParent(ModItems.BLANK_MODULE_5.getId().getPath(),
+                ResourceLocation.parse("item/generated")).texture("layer0",
+                ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID,"item/blank_module"));
+        withExistingParent(ModItems.BLANK_MODULE_6.getId().getPath(),
+                ResourceLocation.parse("item/generated")).texture("layer0",
+                ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID,"item/blank_module"));
+        withExistingParent(ModItems.BLANK_MODULE_7.getId().getPath(),
+                ResourceLocation.parse("item/generated")).texture("layer0",
+                ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID,"item/blank_module"));
+        withExistingParent(ModItems.BLANK_MODULE_8.getId().getPath(),
+                ResourceLocation.parse("item/generated")).texture("layer0",
+                ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID,"item/blank_module"));
     }
 
 

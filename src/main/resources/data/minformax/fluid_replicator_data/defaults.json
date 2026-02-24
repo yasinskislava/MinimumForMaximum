@@ -23,5 +23,20 @@
     "basic_amount_generated": 10,
     "duration": 256,
     "energy_multiplier": 1200
+  },
+  "industrialforegoing:sludge": {
+    "basic_amount_generated": 10,
+    "duration": 256,
+    "energy_multiplier": 1500
+  },
+  "industrialforegoing:biofuel": {
+    "basic_amount_generated": 10,
+    "duration": 256,
+    "energy_multiplier": 2400
+  },
+  "industrialforegoing:ether_gas": {
+    "basic_amount_generated": 10,
+    "duration": 512,
+    "energy_multiplier": 3000
   }
 }
