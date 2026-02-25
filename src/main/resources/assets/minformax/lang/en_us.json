@@ -36,6 +36,7 @@
   "tooltip.minformax.processing_upgrade": "%sx operations",
   "tooltip.minformax.empty": "§aEmpty",
   "tooltip.minformax.analyzer": "§aMimics scanner behaviour and outputs in chat mob's id",
+  "tooltip.minformax.upgrade_item": "§bShift + Right Click §ato install upgrade on block.",
 
   "message.minformax.ore_coalescer.item_overflow": "§aCurrent block contains more than §c4096 items§a. §bHold Shift §ato break the block. ",
   "message.minformax.warning": "§cLarge amount of entities may cause lag spike!!!",

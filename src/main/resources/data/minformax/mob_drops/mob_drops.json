@@ -35,6 +35,29 @@
     "xp": 3,
     "duration": 256
   },
+  "entity.wetland_whimsy.crane": {
+    "main_drop": "minecraft:feather",
+    "additional_drop": [],
+    "xp": 3,
+    "duration": 256
+  },
+  "entity.upgrade_aquatic.great_thrasher": {
+    "main_drop": "upgrade_aquatic:thrasher_tooth",
+    "additional_drop": [
+      "upgrade_aquatic:disc_fragment_atlantis"
+    ],
+    "xp": 55,
+    "duration": 768
+  },
+  "entity.wetland_whimsy.infected_spider": {
+    "main_drop": "wetland_whimsy:fellcap_mushroom",
+    "additional_drop": [
+      "minecraft:fermented_spider_eye",
+      "minecraft:string"
+    ],
+    "xp": 5,
+    "duration": 512
+  },
   "entity.minecraft.bat": {
     "main_drop": "reliquary:bat_wing",
     "additional_drop": [],
@@ -48,6 +71,15 @@
     "duration": 1024
   },
   "entity.minecraft.spider": {
+    "main_drop": "minecraft:string",
+    "additional_drop": [
+      "minecraft:spider_eye",
+      "reliquary:chelicerae"
+    ],
+    "xp": 5,
+    "duration": 256
+  },
+  "entity.minecraft.cave_spider": {
     "main_drop": "minecraft:string",
     "additional_drop": [
       "minecraft:spider_eye",
@@ -141,9 +173,185 @@
     "xp": 5,
     "duration": 512
   },
+  "entity.forbidden_arcanus.lost_soul": {
+    "main_drop": "forbidden_arcanus:soul",
+    "additional_drop": [],
+    "xp": 0,
+    "duration": 256
+  },
+  "entity.forbidden_arcanus.corrupt_lost_soul": {
+    "main_drop": "forbidden_arcanus:corrupt_soul",
+    "additional_drop": [],
+    "xp": 0,
+    "duration": 512
+  },
+  "entity.forbidden_arcanus.enchanted_lost_soul": {
+    "main_drop": "forbidden_arcanus:enchanted_soul",
+    "additional_drop": [],
+    "xp": 0,
+    "duration": 768
+  },
+  "entity.iceandfire.hippocampus": {
+    "main_drop": "iceandfire:shiny_scales",
+    "additional_drop": [
+      "iceandfire:hippocampus_fin"
+    ],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.iceandfire.siren": {
+    "main_drop": "iceandfire:shiny_scales",
+    "additional_drop": [
+      "iceandfire:siren_tear",
+      "minecraft:prismarine_shard",
+      "minecraft:prismarine_crystals"
+    ],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.iceandfire.cyclops": {
+    "main_drop": "minecraft:leather",
+    "additional_drop": [
+      "iceandfire:cyclops_eye",
+      "minecraft:mutton",
+      "minecraft:white_wool"
+    ],
+    "xp": 8,
+    "duration": 768
+  },
+  "entity.iceandfire.hippogryph": {
+    "main_drop": "minecraft:feather",
+    "additional_drop": [
+      "iceandfire:hippogryph_talon",
+      "minecraft:leather"
+    ],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.iceandfire.stymphalian_bird": {
+    "main_drop": "iceandfire:stymphalian_bird_feather",
+    "additional_drop": [
+      "iceandfire:copper_nugger",
+      "minecraft:iron_ingot",
+      "minecraft:copper_ingot"
+    ],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.iceandfire.amphithere": {
+    "main_drop": "iceandfire:amphithere_feather",
+    "additional_drop": [],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.iceandfire.ghost": {
+    "main_drop": "iceandfire:ectoplasm",
+    "additional_drop": [
+      "iceandfire:ghost_ingot"
+    ],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.iceandfire.hydra": {
+    "main_drop": "iceandfire:hydra_fang",
+    "additional_drop": [
+      "iceandfire:hydra_heart",
+      "minecraft:rotten_flesh"
+    ],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.iceandfire.dread_scuttler": {
+    "main_drop": "minecraft:rotten_flesh",
+    "additional_drop": [
+      "minecraft:spider_eye"
+    ],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.iceandfire.dread_ghoul": {
+    "main_drop": "iceandfire:dread_shard",
+    "additional_drop": [
+      "minecraft:bone",
+      "minecraft:rotten_flesh"
+    ],
+    "xp": 5,
+  "duration": 512
+  },
+  "entity.iceandfire.dread_lich": {
+    "main_drop": "iceandfire:dread_shard",
+    "additional_drop": [
+      "minecraft:bone",
+      "iceandfire:dread_key"
+    ],
+    "xp": 5,
+  "duration": 512
+  },
+  "entity.iceandfire.dread_beast": {
+    "main_drop": "iceandfire:dread_shard",
+    "additional_drop": [
+      "minecraft:bone",
+      "minecraft:rotten_flesh"
+    ],
+    "xp": 5,
+  "duration": 512
+  },
+  "entity.iceandfire.dread_knight": {
+    "main_drop": "iceandfire:dread_shard",
+    "additional_drop": [
+      "minecraft:bone",
+      "minecraft:iron_ingot"
+    ],
+    "xp": 5,
+  "duration": 512
+  },
+  "entity.iceandfire.dread_thrall": {
+    "main_drop": "iceandfire:dread_shard",
+    "additional_drop": [
+      "minecraft:bone"
+    ],
+    "xp": 5,
+  "duration": 512
+  },
+  "entity.iceandfire.deathworm": {
+    "main_drop": "iceandfire:deathworm_tounge",
+    "additional_drop": [
+      "iceandfire:deathworm_chitin_yellow",
+      "iceandfire:deathworm_chitin_white",
+      "iceandfire:deathworm_chitin_red"
+    ],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.iceandfire.troll": {
+    "main_drop": "iceandfire:troll_tusk",
+    "additional_drop": [
+      "iceandfire:troll_leather_forest",
+      "iceandfire:troll_leather_mountain",
+      "iceandfire:troll_leather_frost"
+    ],
+    "xp": 5,
+    "duration": 768
+  },
+  "entity.iceandfire.sea_serpent": {
+    "main_drop": "iceandfire:sea_serpent_fang",
+    "additional_drop": [
+      "iceandfire:sea_serpent_scales_red",
+      "iceandfire:sea_serpent_scales_green",
+      "iceandfire:sea_serpent_scales_blue"
+    ],
+    "xp": 5,
+    "duration": 768
+  },
   "entity.minecraft.cow": {
     "main_drop": "minecraft:beef",
     "additional_drop": ["minecraft:leather"],
+    "xp": 3,
+    "duration": 256
+  },
+  "entity.minecraft.armadillo": {
+    "main_drop": "minecraft:armadillo_scute",
+    "additional_drop": [],
     "xp": 3,
     "duration": 256
   },
@@ -221,6 +429,14 @@
     "xp": 5,
     "duration": 256
   },
+  "entity.stellaris.alien_zombie": {
+    "main_drop": "stellaris:moon_fruit",
+    "additional_drop": [
+      "stellaris:ice_shard"
+    ],
+    "xp": 5,
+    "duration": 512
+  },
   "entity.minecraft.snow_golem": {
     "main_drop": "minecraft:snowball",
     "additional_drop": [
@@ -256,6 +472,14 @@
     "additional_drop": [
       "minecraft:gunpowder",
       "reliquary:catalyzing_gland"
+    ],
+    "xp": 5,
+    "duration": 512
+  },
+  "entity.minecraft.bogged": {
+    "main_drop": "minecraft:bone",
+    "additional_drop": [
+      "minecraft:arrow"
     ],
     "xp": 5,
     "duration": 512

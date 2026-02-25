@@ -150,7 +150,11 @@ public class IndexLabScreen extends AbstractContainerScreen<IndexLabMenu> {
         for(Object key : this.menu.indexList) {
             if (!this.canScroll(size) || i1 >= this.scrollOff && i1 < 7 + this.scrollOff) {
                 int topPadding = (20 - this.font.lineHeight) / 2;
-                guiGraphics.drawString(this.font, Utils.prettyName((String) key), i + 10, k + topPadding - 7, 16777215, false);
+                String name = Utils.prettyName((String) key);
+                if (name.length() > 13) {
+                    name = name.substring(0, 13) + "...";
+                }
+                guiGraphics.drawString(this.font, name, i + 10, k + topPadding - 7, 16777215, false);
                 k += 20;
             }
             ++i1;

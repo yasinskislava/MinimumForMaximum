@@ -1,9 +1,13 @@
 package rewqazwas.minformax;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -15,7 +19,9 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -32,6 +38,8 @@ import rewqazwas.minformax.custom.component.ModDataComponents;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
 import rewqazwas.minformax.custom.index.PlayerIndex;
 import rewqazwas.minformax.custom.items.ModItems;
+import rewqazwas.minformax.custom.items.upgrades.UpgradeItem;
+import rewqazwas.minformax.custom.utility.UpgradeHud;
 import rewqazwas.minformax.network.SyncJeiDataPacket;
 import rewqazwas.minformax.renderer.BlockReplicatorRenderer;
 import rewqazwas.minformax.renderer.FluidReplicatorRenderer;
@@ -84,6 +92,24 @@ public class MinForMax {
             event.registerBlockEntityRenderer(ModBlockEntities.FLUID_REPLICATOR_BE.get(), FluidReplicatorRenderer::new);
         }
 
+        @SubscribeEvent
+        public static void registerGuiLayers(RegisterGuiLayersEvent event) {
+            event.registerAbove(VanillaGuiLayers.CROSSHAIR, ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "upgrade_hud"), (guiGraphics, deltaTracker) -> {
+                Minecraft mc = Minecraft.getInstance();
+                if (mc.player == null || mc.level == null) return;
+
+                if (mc.player.getMainHandItem().getItem() instanceof UpgradeItem || mc.player.getOffhandItem().getItem() instanceof UpgradeItem) {
+                    HitResult hitResult = mc.hitResult;
+                    if (hitResult instanceof BlockHitResult blockHitResult) {
+                        BlockEntity be = mc.level.getBlockEntity(blockHitResult.getBlockPos());
+                        if (be != null && UpgradeHud.isBlockValid(be)) {
+                            UpgradeHud.render(guiGraphics, mc, be);
+                        }
+                    }
+                }
+            });
+        }
+
     }
 
     @EventBusSubscriber
@@ -113,10 +139,11 @@ public class MinForMax {
         @SubscribeEvent
         public static void playerClone(PlayerEvent.Clone event) {
             if (event.isWasDeath()) {
-                var oldIndex = event.getOriginal().getData(ModAttachmentTypes.INDEX_SYNC);
-                if (oldIndex != null) {
-                    event.getEntity().setData(ModAttachmentTypes.INDEX_SYNC, oldIndex);
-                }
+                var original = event.getOriginal();
+                var player = event.getEntity();
+                var originalIndex = PlayerIndex.getLocalIndex((ServerPlayer) original);
+                PlayerIndex.save((ServerPlayer) player, originalIndex);
+                player.setData(ModAttachmentTypes.INDEX_SYNC, clearContent(originalIndex, event.getEntity().level()));
             }
         }
 

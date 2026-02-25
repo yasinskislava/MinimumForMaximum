@@ -11,7 +11,6 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -29,7 +28,7 @@ import rewqazwas.minformax.custom.utility.Utils;
 import static rewqazwas.minformax.custom.utility.Utils.getFluidHandlers;
 
 
-public class FluidReplicatorBlockEntity extends BlockEntity {
+public class FluidReplicatorBlockEntity extends MachineBase {
     public final FluidTank fluidHandler = new FluidTank(1000) {
         @Override
         protected void onContentsChanged() {

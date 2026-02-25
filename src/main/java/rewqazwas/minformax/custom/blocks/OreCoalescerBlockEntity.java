@@ -20,7 +20,6 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -42,7 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class OreCoalescerBlockEntity extends BlockEntity implements MenuProvider {
+public class OreCoalescerBlockEntity extends MachineBase implements MenuProvider {
     public final ItemStackHandler inventoryHandler = new ItemStackHandler(12) {
         private final int[] bigStackCounts = new int[8]; // For slots 4-11
 

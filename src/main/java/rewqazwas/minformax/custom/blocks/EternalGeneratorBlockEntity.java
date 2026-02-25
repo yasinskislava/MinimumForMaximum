@@ -2,19 +2,21 @@ package rewqazwas.minformax.custom.blocks;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -35,7 +37,7 @@ import rewqazwas.minformax.screen.custom.EternalGeneratorMenu;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProvider {
+public class EternalGeneratorBlockEntity extends MachineBase implements MenuProvider {
 
     public ItemStackHandler itemHandler = new ItemStackHandler(8) {
         @Override
@@ -310,23 +312,29 @@ public class EternalGeneratorBlockEntity extends BlockEntity implements MenuProv
                 var isShard = false;
                 for(var loader: loaders) {
                     var loaderItem = loader.getItem();
-                    List<ItemStack> mainDrop = List.of();
-                    List<ItemStack> additionalDrop = List.of();
+                    List<ItemStack> mainDrop = new ArrayList<>();
+                    List<ItemStack> additionalDrop = new ArrayList<>();
                     if(loaderItem instanceof ModuleItem) {
                         var identifier = ModuleDropsReloadListener.rulesForModule(loaderItem);
                         this.totalXp = (int) Math.min((long) this.totalXp + (long) identifier.xp() * modifiers.operationMultiplier, Integer.MAX_VALUE);
-                        mainDrop = ModuleDropsReloadListener.mainDropsFromModule(loaderItem);
+                        mainDrop.addAll(ModuleDropsReloadListener.mainDropsFromModule(loaderItem));
                     } else if(loaderItem instanceof MemoryShard) {
                         var key = loader.get(ModDataComponents.MOB_INDEX);
                         var index = ModDataReloadListener.MOB_DROPS;
                         if(index.containsKey(key)) {
                             var loot = index.get(key);
-                            mainDrop = List.of(loot.mainDrop());
-                            additionalDrop = loot.additionalDrop();
+                            mainDrop.add(loot.mainDrop());
+                            additionalDrop.addAll(loot.additionalDrop());
                             this.totalXp = (int) Math.min((long) this.totalXp + (long) loot.xp() * modifiers.operationMultiplier, Integer.MAX_VALUE);
                             isShard = true;
                         }
+                        ResourceLocation inferiumEssenceRL = ResourceLocation.parse("mysticalagriculture:inferium_essence");
+                        if (BuiltInRegistries.ITEM.containsKey(inferiumEssenceRL)) {
+                            Item inferiumEssenceItem = BuiltInRegistries.ITEM.get(inferiumEssenceRL);
+                            mainDrop.add(new ItemStack(inferiumEssenceItem, modifiers.operationMultiplier));
+                        }
                     }
+
                     var sides = Utils.getItemHandlers(level, blockPos);
                     moveItems(sides, modifiers, mainDrop, additionalDrop, isShard);
                     setChanged(level, blockPos, blockState);

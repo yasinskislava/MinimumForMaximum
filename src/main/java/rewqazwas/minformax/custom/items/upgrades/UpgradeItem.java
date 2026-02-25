@@ -1,17 +1,20 @@
 package rewqazwas.minformax.custom.items.upgrades;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
-import rewqazwas.minformax.custom.blocks.BlockReplicatorBlockEntity;
-import rewqazwas.minformax.custom.blocks.EternalGeneratorBlockEntity;
-import rewqazwas.minformax.custom.blocks.FluidReplicatorBlockEntity;
-import rewqazwas.minformax.custom.blocks.OreCoalescerBlockEntity;
+import rewqazwas.minformax.custom.blocks.MachineBase;
 import rewqazwas.minformax.custom.utility.Utils;
+
+import java.util.List;
 
 public class UpgradeItem extends Item {
     public UpgradeItem() {
@@ -19,7 +22,13 @@ public class UpgradeItem extends Item {
     }
 
     private boolean isBlockValid(BlockEntity blockEntity) {
-        return blockEntity instanceof EternalGeneratorBlockEntity || blockEntity instanceof FluidReplicatorBlockEntity || blockEntity instanceof BlockReplicatorBlockEntity || blockEntity instanceof OreCoalescerBlockEntity;
+        return blockEntity instanceof MachineBase;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag isAdvanced) {
+        super.appendHoverText(stack, context, tooltipComponents, isAdvanced);
+        tooltipComponents.add(Component.translatable("tooltip.minformax.upgrade_item").withStyle(ChatFormatting.GRAY));
     }
 
     @Override
