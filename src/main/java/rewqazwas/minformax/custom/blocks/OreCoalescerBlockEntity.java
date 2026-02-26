@@ -314,12 +314,9 @@ public class OreCoalescerBlockEntity extends MachineBase implements MenuProvider
     };
 
     public final IItemHandler automationHandler = new CombinedInvWrapper(
-            new RangedWrapper(inventoryHandler, 0, 12) {
+            new RangedWrapper(inventoryHandler, 4, 12) {
                 @Override
                 public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                    if(slot < 4) {
-                        return super.extractItem(slot, amount, simulate);
-                    }
                     return ItemStack.EMPTY;
                 }
             },

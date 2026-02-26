@@ -22,6 +22,7 @@ public class DetailedInfoPlugin implements IModPlugin {
     private static IJeiRuntime jeiRuntime;
     private static List<JeiBlockReplicatorRecipe> currentBlockRecipes = new ArrayList<>();
     private static List<JeiFluidReplicatorRecipe> currentFluidRecipes = new ArrayList<>();
+    private static List<JeiIndexInscriberRecipe> currentIndexInscriberRecipes = new ArrayList<>();
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -32,12 +33,14 @@ public class DetailedInfoPlugin implements IModPlugin {
     public void registerCategories(IRecipeCategoryRegistration registration) {
         registration.addRecipeCategories(new BlockReplicatorCategory(registration.getJeiHelpers().getGuiHelper()));
         registration.addRecipeCategories(new FluidReplicatorCategory(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new IndexInscriberCategory(registration.getJeiHelpers().getGuiHelper()));
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.BLOCK_REPLICATOR.get()), BlockReplicatorCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.FLUID_REPLICATOR.get()), FluidReplicatorCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.INDEX_INSCRIBER.get()), IndexInscriberCategory.RECIPE_TYPE);
     }
 
     @Override
@@ -50,7 +53,9 @@ public class DetailedInfoPlugin implements IModPlugin {
         if (jeiRuntime == null) return;
 
         try {
-            //jeiRuntime.getRecipeManager().hideRecipes(FluidReplicatorCategory.RECIPE_TYPE, currentFluidRecipes);
+            if (!currentFluidRecipes.isEmpty()) {
+                jeiRuntime.getRecipeManager().hideRecipes(FluidReplicatorCategory.RECIPE_TYPE, currentFluidRecipes);
+            }
             currentFluidRecipes = getFluidRecipes();
             jeiRuntime.getRecipeManager().addRecipes(FluidReplicatorCategory.RECIPE_TYPE, currentFluidRecipes);
             MinForMax.LOGGER.info("Refreshed {} fluid recipes", currentFluidRecipes.size());
@@ -59,12 +64,25 @@ public class DetailedInfoPlugin implements IModPlugin {
         }
 
         try {
-            //jeiRuntime.getRecipeManager().hideRecipes(BlockReplicatorCategory.RECIPE_TYPE, currentBlockRecipes);
+            if (!currentBlockRecipes.isEmpty()) {
+                jeiRuntime.getRecipeManager().hideRecipes(BlockReplicatorCategory.RECIPE_TYPE, currentBlockRecipes);
+            }
             currentBlockRecipes = getBlockRecipes();
             jeiRuntime.getRecipeManager().addRecipes(BlockReplicatorCategory.RECIPE_TYPE, currentBlockRecipes);
             MinForMax.LOGGER.info("Refreshed {} block recipes", currentBlockRecipes.size());
         } catch (Exception e) {
             MinForMax.LOGGER.error("Failed to refresh block recipes", e);
+        }
+
+        try {
+            if (!currentIndexInscriberRecipes.isEmpty()) {
+                jeiRuntime.getRecipeManager().hideRecipes(IndexInscriberCategory.RECIPE_TYPE, currentIndexInscriberRecipes);
+            }
+            currentIndexInscriberRecipes = getIndexInscriberRecipes();
+            jeiRuntime.getRecipeManager().addRecipes(IndexInscriberCategory.RECIPE_TYPE, currentIndexInscriberRecipes);
+            MinForMax.LOGGER.info("Refreshed {} Index Inscriber recipes", currentIndexInscriberRecipes.size());
+        } catch (Exception e) {
+            MinForMax.LOGGER.error("Failed to refresh Index Inscriber recipes", e);
         }
     }
 
@@ -107,9 +125,7 @@ public class DetailedInfoPlugin implements IModPlugin {
                 var resourceLocation = ResourceLocation.parse(key);
                 if (BuiltInRegistries.FLUID.containsKey(resourceLocation)) {
                     var fluid = BuiltInRegistries.FLUID.get(resourceLocation);
-                    if (fluid != null) {
-                        recipes.add(new JeiFluidReplicatorRecipe(fluid, data));
-                    }
+                    recipes.add(new JeiFluidReplicatorRecipe(fluid, data));
                 } else {
                     MinForMax.LOGGER.warn("Fluid not found for key: {}", key);
                 }
@@ -118,6 +134,34 @@ public class DetailedInfoPlugin implements IModPlugin {
             }
         });
         MinForMax.LOGGER.info("Loaded {} fluid recipes", recipes.size());
+        return recipes;
+    }
+
+    private static List<JeiIndexInscriberRecipe> getIndexInscriberRecipes() {
+        List<JeiIndexInscriberRecipe> recipes = new ArrayList<>();
+        ModDataReloadListener.MOB_DROPS.forEach((mobIdString, data) -> {
+            try {
+                ResourceLocation mobId;
+                if (mobIdString.contains(":")) {
+                    mobId = ResourceLocation.parse(mobIdString);
+                } else {
+                    String processedMobIdString = mobIdString;
+                    if (processedMobIdString.startsWith("entity.")) {
+                        processedMobIdString = processedMobIdString.substring("entity.".length());
+                    }
+                    processedMobIdString = processedMobIdString.replaceFirst("\\.", ":");
+                    mobId = ResourceLocation.parse(processedMobIdString);
+                }
+                if (BuiltInRegistries.ENTITY_TYPE.containsKey(mobId)) {
+                    recipes.add(new JeiIndexInscriberRecipe(mobId, data));
+                } else {
+                    MinForMax.LOGGER.warn("Mob not found for ID: " + mobIdString + " (parsed as " + mobId + ")");
+                }
+            } catch (Exception e) {
+                MinForMax.LOGGER.error("Error processing Index Inscriber recipe for mob ID: " + mobIdString, e);
+            }
+        });
+        MinForMax.LOGGER.info("Loaded {} Index Inscriber recipes", recipes.size());
         return recipes;
     }
 }

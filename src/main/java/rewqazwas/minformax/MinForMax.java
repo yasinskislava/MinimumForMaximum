@@ -179,3 +179,4 @@ public class MinForMax {
 //Farmer
 //Revamp module system
 //Boss system
+//Void tower

@@ -17,6 +17,8 @@
   "jei.minformax.duration": "Duration: %s ticks",
   "jei.minformax.energy": "Energy: %s FE/t",
   "jei.minformax.xp": "XP: %s",
+  "jei.minformax.main_drop": "Main Drop: ",
+  "jei.minformax.additional_drops": "Additional: ",
 
   "tooltip.minformax.owner": "§aOwner: %s",
   "tooltip.minformax.index_lab": "§aInscribes mob index on memory shards.",
