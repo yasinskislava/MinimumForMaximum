@@ -26,6 +26,7 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(ModBlocks.FLUID_REPLICATOR.get());
         dropSelf(ModBlocks.BLOCK_REPLICATOR.get());
         dropSelf(ModBlocks.ORE_COALESCER.get());
+        dropSelf(ModBlocks.FARMER.get());
     }
 
 

@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import rewqazwas.minformax.custom.ModAttachmentTypes;
 import rewqazwas.minformax.custom.ModBlockEntities;
 import rewqazwas.minformax.custom.component.ModDataComponents;
+import rewqazwas.minformax.custom.index.HolderClass;
 import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.screen.custom.IndexLabMenu;
 
@@ -44,6 +45,8 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
     protected final ContainerData data;
     private int mobKey = -1;
     private int process = 0;
+    private String keyName = null;
+    private HolderClass holder = null;
     public String owner;
 
 
@@ -139,19 +142,29 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
 
     public void tick(Level level, BlockPos blockPos, BlockState blockState, IndexLabBlockEntity blockEntity) {
         ItemStack loader = blockEntity.itemHandler.getStackInSlot(0);
-        if (!loader.isEmpty() && loader.getItem() == ModItems.MEMORY_SHARD.get() && loader.get(ModDataComponents.MOB_INDEX) == null) {
+        if (!loader.isEmpty() && (loader.getItem() == ModItems.MEMORY_SHARD.get() || loader.getItem() == ModItems.CHAOS_SHARD.get()) && loader.get(ModDataComponents.MOB_INDEX) == null) {
             if(mobKey > -1) {
-                process++;
-                setChanged(level, blockPos, blockState);
-                if (process >= 1200) {
-                    String keyName = null;
+                if(process == 0){
+                    keyName = null;
+                    holder = null;
                     var playerList = level.players();
                     for(Player player : playerList) {
                         if(player.getScoreboardName().equals(owner) && !level.isClientSide()){
-                            keyName = new TreeMap<>(player.getData(ModAttachmentTypes.INDEX_SYNC)).keySet().toArray(new String[0])[mobKey];
+                            var map = new TreeMap<>(player.getData(ModAttachmentTypes.INDEX_SYNC));
+                            keyName = map.keySet().toArray(new String[0])[mobKey];
+                            holder = map.get(keyName);
+                            System.out.println(keyName);
+                            System.out.println(holder);
                             break;
                         }
                     }
+                }
+                if(holder == null) return;
+                var condition = !holder.isBoss() && loader.getItem() == ModItems.CHAOS_SHARD.get() || holder.isBoss() && loader.getItem() == ModItems.MEMORY_SHARD.get();
+                if(condition) return;
+                process++;
+                setChanged(level, blockPos, blockState);
+                if (process >= 1200) {
                     loader.set(ModDataComponents.MOB_INDEX, keyName);
                     resetProcess();
                     this.mobKey = -1;
@@ -164,5 +177,3 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
     }
 
 }
-
-

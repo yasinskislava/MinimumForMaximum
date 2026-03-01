@@ -20,7 +20,8 @@ public class ModItems {
 
     public static final DeferredItem<Item> SCANNER = ITEMS.register("scanner", () -> new ScannerItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<Item> ANALYZER = ITEMS.register("analyzer", () -> new AnalyzerItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<Item> MEMORY_SHARD = ITEMS.register("memory_shard", () -> new MemoryShard(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MEMORY_SHARD = ITEMS.register("memory_shard", () -> new AccShard(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> CHAOS_SHARD = ITEMS.register("chaos_shard", () -> new AccShard(new Item.Properties().stacksTo(1)));
 
     public static final DeferredItem<Item> SPEED_UPGRADE_TIER1 = ITEMS.register("speed_upgrade_tier1", () -> new SpeedUpgrade(2));
     public static final DeferredItem<Item> SPEED_UPGRADE_TIER2 = ITEMS.register("speed_upgrade_tier2", () -> new SpeedUpgrade(4));
@@ -43,12 +44,13 @@ public class ModItems {
     public static final DeferredItem<Item> EXTRA_DROP_UPGRADE_TIER3 = ITEMS.register("extra_drop_upgrade_tier3", () -> new ExtraDropUpgrade(75));
     public static final DeferredItem<Item> EXTRA_DROP_UPGRADE_TIER4 = ITEMS.register("extra_drop_upgrade_tier4", () -> new ExtraDropUpgrade(100));
     public static final DeferredItem<Item> INVERTED_UPGRADE = registerUpgradeWithTooltip("inverted_upgrade", "tooltip.minformax.inverted_upgrade");
-    public static final DeferredItem<Item> STRENGTH_UPGRADE = registerUpgradeWithTooltip("strength_upgrade", "tooltip.minformax.strength_upgrade");
     public static final DeferredItem<Item> FORTUNE_UPGRADE_TIER1 = ITEMS.register("fortune_upgrade_tier1", () -> new FortuneUpgrade(10));
     public static final DeferredItem<Item> FORTUNE_UPGRADE_TIER2 = ITEMS.register("fortune_upgrade_tier2", () -> new FortuneUpgrade(25));
     public static final DeferredItem<Item> FORTUNE_UPGRADE_TIER3 = ITEMS.register("fortune_upgrade_tier3", () -> new FortuneUpgrade(50));
     public static final DeferredItem<Item> FORTUNE_UPGRADE_TIER4 = ITEMS.register("fortune_upgrade_tier4", () -> new FortuneUpgrade(100));
     public static final DeferredItem<Item> AUTO_SMELTING_UPGRADE = registerUpgradeWithTooltip("auto_smelting_upgrade", "tooltip.minformax.auto_smelting_upgrade");
+    public static final DeferredItem<Item> WATERING_UPGRADE = registerUpgradeWithTooltip("watering_upgrade", "tooltip.minformax.watering_upgrade");
+
 
     public static final DeferredItem<Item> CHEF_MODULE = ITEMS.register("chef_module", ModuleItem::new);
     public static final DeferredItem<Item> FARMER_MODULE = ITEMS.register("farmer_module", ModuleItem::new);
@@ -65,9 +67,6 @@ public class ModItems {
     public static final DeferredItem<Item> BLANK_MODULE_7 = ITEMS.register("blank_module_7", ModuleItem::new);
     public static final DeferredItem<Item> BLANK_MODULE_8 = ITEMS.register("blank_module_8", ModuleItem::new);
 
-    public static final DeferredItem<Item> ENDER_DRAGON_MODULE = ITEMS.register("ender_dragon_module", BossModuleItem::new);
-    public static final DeferredItem<Item> WITHER_MODULE = ITEMS.register("wither_module", BossModuleItem::new);
-    public static final DeferredItem<Item> WARDEN_MODULE = ITEMS.register("warden_module", BossModuleItem::new);
 
     private static DeferredItem<Item> registerUpgradeWithTooltip(String name, String tooltipKey) {
         return ITEMS.register(name, () -> new UpgradeItem() {

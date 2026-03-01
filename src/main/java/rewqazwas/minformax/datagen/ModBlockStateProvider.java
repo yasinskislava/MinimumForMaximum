@@ -27,6 +27,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         blockWithItem(ModBlocks.FLUID_REPLICATOR);
         blockWithItem(ModBlocks.BLOCK_REPLICATOR);
         blockWithItem(ModBlocks.ORE_COALESCER);
+        blockWithItem(ModBlocks.FARMER);
     }
 
 

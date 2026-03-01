@@ -11,7 +11,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
-import rewqazwas.minformax.custom.blocks.MachineBase;
+import rewqazwas.minformax.custom.blocks.MachineBaseEntity;
 import rewqazwas.minformax.custom.utility.Utils;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class UpgradeItem extends Item {
     }
 
     private boolean isBlockValid(BlockEntity blockEntity) {
-        return blockEntity instanceof MachineBase;
+        return blockEntity instanceof MachineBaseEntity;
     }
 
     @Override

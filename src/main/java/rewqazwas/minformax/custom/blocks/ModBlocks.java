@@ -23,7 +23,7 @@ public class ModBlocks {
     public static final DeferredBlock<Block> FLUID_REPLICATOR = registerBlock("fluid_replicator", () -> new FluidReplicator(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops().noOcclusion()));
     public static final DeferredBlock<Block> BLOCK_REPLICATOR = registerBlock("block_replicator", () -> new BlockReplicator(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops().noOcclusion()));
     public static final DeferredBlock<Block> ORE_COALESCER = registerBlock("ore_coalescer", () -> new OreCoalescerBlock(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops().noOcclusion()));
-
+    public static final DeferredBlock<Block> FARMER = registerBlock("farmer", () -> new FarmerBlock(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops().noOcclusion()));
 
     //Automated register for block item
     private static <T extends Block> DeferredBlock<T> registerBlock(String name, Supplier<? extends T> block) {

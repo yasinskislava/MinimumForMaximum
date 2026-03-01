@@ -1,4 +1,92 @@
 {
+  "entity.minecraft.wither": {
+    "main_drop": "minecraft:nether_star",
+    "additional_drop": [
+      "mysticalagradditions:withering_soul",
+      "bhc:yellow_heart"
+    ],
+    "xp": 70,
+    "duration": 2048,
+    "is_boss": true
+  },
+  "entity.minecraft.warden": {
+    "main_drop": "minecraft:echo_shard",
+    "additional_drop": [
+      "apothic_enchanting:warden_tendril",
+      "minecraft:sculk_catalyst",
+      "bhc:blue_heart"
+    ],
+    "xp": 90,
+    "duration": 3072,
+    "is_boss": true
+  },
+  "entity.minecraft.ender_dragon": {
+    "main_drop": "minecraft:dragon_egg",
+    "additional_drop": [
+      "minecraft:dragon_breath"
+    ],
+    "xp": 100,
+    "duration": 4096,
+    "is_boss": true
+  },
+  "entity.cataclysm.scylla": {
+    "main_drop": "cataclysm:lacrima",
+    "additional_drop": [
+      "cataclysm:essence_of_the_storm",
+      "bhc:yellow_heart"
+    ],
+    "xp": 500,
+    "duration": 4096,
+    "is_boss": true
+  },
+  "entity.cataclysm.maledictus": {
+    "main_drop": "cataclysm:cursium_ingot",
+    "additional_drop": [
+      "bhc:yellow_heart"
+    ],
+    "xp": 500,
+    "duration": 4096,
+    "is_boss": true
+  },
+  "entity.cataclysm.ancient_remnant": {
+    "main_drop": "cataclysm:ancient_metal_block",
+    "additional_drop": [
+      "bhc:yellow_heart",
+      "cataclysm:sandstorm_in_a_bottle"
+    ],
+    "xp": 500,
+    "duration": 4096,
+    "is_boss": true
+  },
+  "entity.cataclysm.the_harbinger": {
+    "main_drop": "cataclysm:witherite_block",
+    "additional_drop": [
+      "bhc:yellow_heart",
+      "cataclysm:cloud_in_a_bottle"
+    ],
+    "xp": 500,
+    "duration": 4096,
+    "is_boss": true
+  },
+  "entity.cataclysm.netherite_monstrosity": {
+    "main_drop": "cataclysm:lava_power_cell",
+    "additional_drop": [
+      "bhc:yellow_heart",
+      "cataclysm:monstrous_horn"
+    ],
+    "xp": 500,
+    "duration": 4096,
+    "is_boss": true
+  },
+  "entity.cataclysm.ignis": {
+    "main_drop": "cataclysm:ignitium_ingot",
+    "additional_drop": [
+      "bhc:yellow_heart"
+    ],
+    "xp": 500,
+    "duration": 4096,
+    "is_boss": true
+  },
   "entity.minecraft.slime": {
     "main_drop": "minecraft:slime_ball",
     "additional_drop": [

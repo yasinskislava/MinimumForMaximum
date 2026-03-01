@@ -25,7 +25,7 @@ import rewqazwas.minformax.custom.ModBlockEntities;
 
 import java.util.List;
 
-public class EternalGeneratorBlock extends BaseEntityBlock {
+public class EternalGeneratorBlock extends MachineBase {
     public static final MapCodec<EternalGeneratorBlock> CODEC = simpleCodec(EternalGeneratorBlock::new);
     public int tier;
 
@@ -73,6 +73,7 @@ public class EternalGeneratorBlock extends BaseEntityBlock {
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if(!level.isClientSide()) {
+            if(player.isCrouching() && stack.isEmpty()) return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if(blockEntity instanceof EternalGeneratorBlockEntity eternalGeneratorBlockEntity) {
                 ((ServerPlayer) player).openMenu(new SimpleMenuProvider(eternalGeneratorBlockEntity, Component.translatable("block.minformax.eternal_generator")), pos);

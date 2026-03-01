@@ -9,7 +9,7 @@ import java.util.List;
 public class DataConfigs {
     public static final ModConfigSpec COMMON;
 
-    public static final  ModConfigSpec.BooleanValue shouldRender;
+    public static final ModConfigSpec.BooleanValue shouldRender;
 
     static {
         final var common = new ModConfigSpec.Builder();

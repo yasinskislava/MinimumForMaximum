@@ -10,7 +10,6 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -27,7 +26,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
 import net.neoforged.neoforge.items.wrapper.RangedWrapper;
@@ -41,7 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class OreCoalescerBlockEntity extends MachineBase implements MenuProvider {
+public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuProvider {
     public final ItemStackHandler inventoryHandler = new ItemStackHandler(12) {
         private final int[] bigStackCounts = new int[8]; // For slots 4-11
 
@@ -105,7 +103,7 @@ public class OreCoalescerBlockEntity extends MachineBase implements MenuProvider
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
             if (slot < 4) {
-                if(Utils.canInsertUpgrade(this, stack)) {
+                if(Utils.canPass(this, stack)) {
                     return stack;
                 }
                 return super.insertItem(slot, stack, simulate);
@@ -314,9 +312,12 @@ public class OreCoalescerBlockEntity extends MachineBase implements MenuProvider
     };
 
     public final IItemHandler automationHandler = new CombinedInvWrapper(
-            new RangedWrapper(inventoryHandler, 4, 12) {
+            new RangedWrapper(inventoryHandler, 0, 12) {
                 @Override
                 public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                    if(slot < 4) {
+                        return super.extractItem(slot, amount, simulate);
+                    }
                     return ItemStack.EMPTY;
                 }
             },

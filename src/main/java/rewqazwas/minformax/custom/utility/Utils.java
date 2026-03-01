@@ -2,15 +2,18 @@ package rewqazwas.minformax.custom.utility;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import rewqazwas.minformax.custom.blocks.MachineBaseEntity;
 import rewqazwas.minformax.custom.index.HolderClass;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
 
@@ -128,6 +131,15 @@ public class Utils {
         return false;
     }
 
+    public static boolean canInsertAtLeastOneComplex(Level level, BlockPos pos, List<ItemStack> stacks) {
+        for (ItemStack stack : stacks) {
+            if (canInsertAtLeastOne(level, pos, stack)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static String simpleFluidDisplay(int amount) {
         if (amount < 1000) {
             return amount + "mb";
@@ -193,28 +205,13 @@ public class Utils {
     }
 
     public static boolean canPass(IItemHandler itemHandler, ItemStack stack, int size) {
-        var pass = false;
         for(int i = 0; i < size; i++) {
             var currentStack = itemHandler.getStackInSlot(i);
-            pass = Utils.getOriginalClass(stack.getItem()) == Utils.getOriginalClass(currentStack.getItem()) || pass;
-        }
-        return pass;
-    }
-
-    public static boolean canInsertUpgrade(ItemStackHandler handler, ItemStack stack) {
-        var size = handler.getSlots();
-        for (int i = 0; i < size; i++) {
-            var existingStack = handler.getStackInSlot(i);
-            if (existingStack.isEmpty()) continue;
-
-            var existingItem = existingStack.getItem();
-            var newItem = stack.getItem();
-
-            if (getOriginalClass(existingItem) == getOriginalClass(newItem)) {
+            if (currentStack.isEmpty()) continue;
+            if (Utils.getOriginalClass(stack.getItem()) == Utils.getOriginalClass(currentStack.getItem())) {
                 return true;
             }
         }
         return false;
     }
-
 }

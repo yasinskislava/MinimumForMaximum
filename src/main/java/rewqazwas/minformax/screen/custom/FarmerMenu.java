@@ -4,15 +4,21 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 import rewqazwas.minformax.MinForMax;
 import rewqazwas.minformax.custom.ModTags;
 import rewqazwas.minformax.custom.blocks.EternalGeneratorBlockEntity;
+import rewqazwas.minformax.custom.blocks.FarmerBlockEntity;
 import rewqazwas.minformax.custom.blocks.ModBlocks;
 import rewqazwas.minformax.custom.component.ModDataComponents;
 import rewqazwas.minformax.custom.items.AccShard;
@@ -22,76 +28,39 @@ import rewqazwas.minformax.custom.items.upgrades.UpgradeItem;
 import rewqazwas.minformax.custom.utility.Utils;
 import rewqazwas.minformax.screen.ModMenuTypes;
 
-public class EternalGeneratorMenu extends AbstractContainerMenu {
-    public final EternalGeneratorBlockEntity blockEntity;
+public class FarmerMenu extends AbstractContainerMenu {
+    public final FarmerBlockEntity blockEntity;
     private final Level level;
     public final int containerId;
     public final ContainerData data;
     public final Player player;
-    public final int tier;
-    private final Block correctBlock;
 
     private static final int VANILLA_SLOT_COUNT = 36;
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
-    private static int CUSTOM_INVENTORY_COUNT = 4;
+    private static int CUSTOM_INVENTORY_COUNT = 5;
     private static final int CUSTOM_INVENTORY_FIRST_SLOT_INDEX = VANILLA_SLOT_COUNT;
 
-    public EternalGeneratorMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
+    public FarmerMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
         this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(5));
     }
 
-    public EternalGeneratorMenu(int containerId, Inventory inv, BlockEntity blockEntity, ContainerData data) {
-        super(ModMenuTypes.ETERNAL_GENERATOR_MENU.get(), containerId);
-        this.blockEntity = ((EternalGeneratorBlockEntity) blockEntity);
+    public FarmerMenu(int containerId, Inventory inv, BlockEntity blockEntity, ContainerData data) {
+        super(ModMenuTypes.FARMER_MENU.get(), containerId);
+        this.blockEntity = ((FarmerBlockEntity) blockEntity);
         this.player = inv.player;
         this.level = player.level();
         this.containerId = containerId;
         this.data = data;
-        this.tier = this.blockEntity.tier;
-        CUSTOM_INVENTORY_COUNT = 4 + (int) Math.pow(2, this.tier - 1);
-        this.correctBlock = switch (this.tier) {
-            case 1 -> ModBlocks.ETERNAL_GENERATOR_TIER1.get();
-            case 2 -> ModBlocks.ETERNAL_GENERATOR_TIER2.get();
-            case 3 -> ModBlocks.ETERNAL_GENERATOR_TIER3.get();
-            case 4 -> ModBlocks.ETERNAL_GENERATOR_TIER4.get();
-            default -> null;
-        };
 
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        addSlots();
+        this.addSlot(new SupplierSlot(this.blockEntity.itemHandler, 0, 80, 31));
 
         for (int i = 0; i < 4; i++) {
             this.addSlot(new UpgradeSlot(this.blockEntity.upgradeHandler, i, -19, i * 18 + 7));
         }
         addDataSlots(data);
-    }
-
-    private void addSlots() {
-        int centerX = 80;
-        int centerY = 31;
-        int[] xOffsets;
-        int[] yOffsets;
-
-        switch (tier) {
-            case 1 -> { xOffsets = new int[]{0};               yOffsets = new int[]{0}; }
-            case 2 -> { xOffsets = new int[]{-18, 18};         yOffsets = new int[]{0}; }
-            case 3 -> { xOffsets = new int[]{-54, -18, 18, 54}; yOffsets = new int[]{0}; }
-            case 4 -> { xOffsets = new int[]{-54, -18, 18, 54}; yOffsets = new int[]{-18, 18}; }
-            default -> { xOffsets = new int[0]; yOffsets = new int[0]; }
-        }
-
-        int index = 0;
-        for (int yOff : yOffsets) {
-            for (int xOff : xOffsets) {
-                int yAdjust = 0;
-                if (tier == 4) {
-                    yAdjust = (index < 4) ? 1 : -1;
-                }
-                this.addSlot(new SupplierSlot(this.blockEntity.itemHandler, index++, centerX + xOff, centerY + yOff + yAdjust));
-            }
-        }
     }
 
     public int getProgress() {
@@ -101,27 +70,10 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
         return Math.round((process / (float)maxProcess) * progressBarWidth);
     }
 
-    public int getXPProgress() {
-        int xp = this.data.get(3);
-        var res = Utils.calculateLevel(xp);
-        return Math.round((res[1] / (float)res[2]) * 102);
-    }
-
-    public int getXPLevel() {
-        int xp = this.data.get(3);
-        var res = Utils.calculateLevel(xp);
-        return res[0];
-    }
-
     public int getEnergyLevel() {
         int energy = this.data.get(2);
         int maxEnergy = this.blockEntity.energyHandler.getMaxEnergyStored();
         return Math.round((energy / (float)maxEnergy) * 55);
-    }
-
-    public int getOverloadLevel() {
-        int overload = this.data.get(4);
-        return Math.min(Math.round((overload / (float)5120) * 55), 55);
     }
 
     public int getPercentage() {
@@ -129,16 +81,6 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
         int maxProcess = this.data.get(1);
         return Math.round((process / (float)maxProcess) * 100);
     }
-
-    @Override
-    public boolean clickMenuButton(Player player, int id) {
-        player.giveExperiencePoints(this.data.get(3));
-        var temp = this.data.get(4);
-        this.data.set(3, 0);
-        this.data.set(4, temp);
-        return super.clickMenuButton(player, id);
-    }
-
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
@@ -169,7 +111,7 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, correctBlock);
+        return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.FARMER.get());
     }
 
     private void addPlayerInventory(Inventory playerInventory) {
@@ -193,8 +135,8 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            var pass = !(stack.getItem() instanceof AccShard) || stack.get(ModDataComponents.MOB_INDEX) != null;
-            return stack.is(ModTags.SUPPLIER_ITEMS) && pass;
+            Block cropBlock = stack.getItem() instanceof BlockItem blockItem ? blockItem.getBlock() : null;
+            return stack.is(Tags.Items.SEEDS) || stack.is(Tags.Items.CROPS) || stack.is(ModTags.FARMER_SELF_SUSTAINING) || cropBlock instanceof FlowerBlock || cropBlock instanceof SaplingBlock;
         }
     }
 
@@ -211,8 +153,8 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
                     && !Utils.canPass(itemHandler, stack)
                     && (stack.is(ModTags.PROCESSING_UPGRADES) && !stack.is(ModItems.ULTIMATE_PROCESSING_UPGRADE)
                     || stack.is(ModTags.SPEED_UPGRADES)
-                    || stack.is(ModTags.EXTRA_DROP_UPGRADES)
-                    || stack.is(ModItems.INVERTED_UPGRADE));
+                    || stack.is(ModItems.WATERING_UPGRADE)
+                    || stack.is(ModTags.FORTUNE_UPGRADES));
         }
 
         @Override

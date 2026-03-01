@@ -189,7 +189,8 @@ public class ModDataReloadListener implements ResourceManagerReloadListener {
             });
             emptyConfig.add("block_replicator_data", blockReplicatorJson);
 
-            GSON.toJson(emptyConfig, writer);
+            Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+            gson.toJson(emptyConfig, writer);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -13,8 +13,8 @@ import rewqazwas.minformax.custom.utility.Utils;
 
 import java.util.List;
 
-public class MemoryShard extends Item {
-    public MemoryShard(Properties properties) {
+public class AccShard extends Item {
+    public AccShard(Properties properties) {
         super(properties);
     }
 
@@ -25,11 +25,16 @@ public class MemoryShard extends Item {
         if (rawName == null) {
             nameComponent = Component.translatable("tooltip.minformax.empty");
         } else {
-            nameComponent = Component.literal(Utils.prettyName(rawName));
+            nameComponent = Component.translatable(rawName);
         }
 
-        tooltipComponents.add(Component.literal("§2").append(nameComponent).append("§r"));
+        tooltipComponents.add(nameComponent);
         if(rawName != null) {
+            tooltipComponents.add(Component.translatable("tooltip.minformax.acc_shard"));
+        }
+        if(stack.getItem() == ModItems.CHAOS_SHARD.get()){
+            tooltipComponents.add(Component.translatable("tooltip.minformax.chaos_shard"));
+        } else {
             tooltipComponents.add(Component.translatable("tooltip.minformax.memory_shard"));
         }
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);

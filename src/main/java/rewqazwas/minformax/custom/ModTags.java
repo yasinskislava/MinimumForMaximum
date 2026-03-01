@@ -13,6 +13,8 @@ public class ModTags {
     public static final TagKey<Item> PROCESSING_UPGRADES = createTag("processing_upgrades");
     public static final TagKey<Item> EXTRA_DROP_UPGRADES = createTag("extra_drop_upgrades");
     public static final TagKey<Item> FORTUNE_UPGRADES = createTag("fortune_upgrades");
+    public static final TagKey<Item> FARMER_SELF_SUSTAINING = createTag("farmer_self_sustaining");
+    public static final TagKey<Item> MYSTICAL_AGRICULTURE_SEEDS = ItemTags.create(ResourceLocation.fromNamespaceAndPath("mysticalagriculture", "seeds"));
 
     private static TagKey<Item> createTag(String name) {
         return ItemTags.create(ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, name));

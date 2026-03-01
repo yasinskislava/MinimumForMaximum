@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
-public record HolderClass(ItemStack mainDrop, List<ItemStack> additionalDrop, int xp, int duration) {
+public record HolderClass(ItemStack mainDrop, List<ItemStack> additionalDrop, int xp, int duration, boolean isBoss) {
     private static final Codec<ItemStack> ITEM_STACK_CODEC = Codec.STRING.xmap(
             s -> new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(s))),
             itemStack -> BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString()
@@ -21,7 +21,8 @@ public record HolderClass(ItemStack mainDrop, List<ItemStack> additionalDrop, in
             ITEM_STACK_CODEC.fieldOf("main_drop").forGetter(HolderClass::mainDrop),
             ITEM_STACK_CODEC.listOf().fieldOf("additional_drop").forGetter(HolderClass::additionalDrop),
             Codec.INT.fieldOf("xp").forGetter(HolderClass::xp),
-            Codec.INT.fieldOf("duration").forGetter(HolderClass::duration)
+            Codec.INT.fieldOf("duration").forGetter(HolderClass::duration),
+            Codec.BOOL.optionalFieldOf("is_boss", false).forGetter(HolderClass::isBoss)
     ).apply(instance, HolderClass::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, HolderClass> STREAM_CODEC = StreamCodec.composite(
@@ -29,6 +30,7 @@ public record HolderClass(ItemStack mainDrop, List<ItemStack> additionalDrop, in
             ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list(3)), HolderClass::additionalDrop,
             ByteBufCodecs.INT, HolderClass::xp,
             ByteBufCodecs.INT, HolderClass::duration,
+            ByteBufCodecs.BOOL, HolderClass::isBoss,
             HolderClass::new
     );
 }

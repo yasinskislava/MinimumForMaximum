@@ -27,7 +27,7 @@ import rewqazwas.minformax.custom.index.ModDataReloadListener;
 
 import java.util.Map;
 
-public class BlockReplicator extends BaseEntityBlock {
+public class BlockReplicator extends MachineBase {
     protected BlockReplicator(Properties properties) {
         super(properties);
     }
@@ -51,12 +51,14 @@ public class BlockReplicator extends BaseEntityBlock {
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if(!level.isClientSide()) {
             if (level.getBlockEntity(pos) instanceof BlockReplicatorBlockEntity blockEntity) {
-                if (stack.isEmpty()) {
+                if (stack.isEmpty() && !player.isCrouching()) {
                     // Extract from item handler
                     ItemStack extracted = blockEntity.itemHandler.extractItem(0, 1, false);
                     if (!extracted.isEmpty()) {
                         player.setItemInHand(hand, extracted);
                     }
+                } else if(stack.isEmpty() && player.isCrouching()) {
+                    return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
                 } else {
                     // Insert into item handler
                     if(isItemValid(stack)) {
@@ -71,7 +73,6 @@ public class BlockReplicator extends BaseEntityBlock {
             }
         }
         return ItemInteractionResult.sidedSuccess(level.isClientSide());
-
     }
 
     private boolean isItemValid(ItemStack stack) {

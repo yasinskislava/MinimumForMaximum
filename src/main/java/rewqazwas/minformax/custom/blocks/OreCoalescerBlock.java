@@ -23,7 +23,7 @@ import rewqazwas.minformax.custom.ModBlockEntities;
 
 import java.util.List;
 
-public class OreCoalescerBlock extends BaseEntityBlock {
+public class OreCoalescerBlock extends MachineBase {
     protected OreCoalescerBlock(Properties properties) {
         super(properties);
     }
@@ -76,6 +76,7 @@ public class OreCoalescerBlock extends BaseEntityBlock {
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if(!level.isClientSide()) {
+            if(player.isCrouching() && stack.isEmpty()) return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if(blockEntity instanceof OreCoalescerBlockEntity oreCoalescerBlockEntity) {
                 ((ServerPlayer) player).openMenu(oreCoalescerBlockEntity, pos);

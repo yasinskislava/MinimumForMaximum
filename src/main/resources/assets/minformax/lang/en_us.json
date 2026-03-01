@@ -2,7 +2,6 @@
   "tab.minformax.items": "Minimum For Maximum",
 
   "block.minformax.index_inscriber": "Index Inscriber",
-  "block.minformax.creative_index_lab": "Creative Index Installer",
   "block.minformax.eternal_generator_tier1": "Eternal Generator Tier 1",
   "block.minformax.eternal_generator_tier2": "Eternal Generator Tier 2",
   "block.minformax.eternal_generator_tier3": "Eternal Generator Tier 3",
@@ -11,6 +10,7 @@
   "block.minformax.fluid_replicator": "Fluid Replicator",
   "block.minformax.block_replicator": "Block Replicator",
   "block.minformax.ore_coalescer": "Ore Coalescer",
+  "block.minformax.farmer": "Farmer",
 
   "minformax.jade.owner": "§aOwner: §c%s",
   "config.jade.plugin_minformax.owner": "Owner",
@@ -24,8 +24,9 @@
   "tooltip.minformax.index_lab": "§aInscribes mob index on memory shards.",
   "tooltip.minformax.eternal_generator": "§aPut any valid storage next to it to generate resources. §cMemory shards are not consumed.",
   "tooltip.minformax.scanner": "§aScan the entity to store it in inscriber.",
-  "tooltip.minformax.memory_shard": "§bShift + Right Click §ato clear stored data.",
-  "tooltip.minformax.boss_module_item": "§aRequires §dStrength Upgrade §ato work.",
+  "tooltip.minformax.acc_shard": "§bShift + Right Click §ato clear stored data.",
+  "tooltip.minformax.memory_shard": "§cOnly for usual mobs.",
+  "tooltip.minformax.chaos_shard": "§cOnly for bosses.",
   "tooltip.minformax.quantum_foam": "§bShift + Right Click §awith §dQuantum Ingot §aon §eEternal Generator. §cIt must have at least 5120 overload.",
   "tooltip.minformax.overload": "§a1 Overload Point = 1 Excessive Item.",
   "tooltip.minformax.ore_coalescer": "§aUltimate processing solution for the ores",
@@ -38,7 +39,9 @@
   "tooltip.minformax.processing_upgrade": "%sx operations",
   "tooltip.minformax.empty": "§aEmpty",
   "tooltip.minformax.analyzer": "§aMimics scanner behaviour and outputs in chat mob's id",
-  "tooltip.minformax.upgrade_item": "§bShift + Right Click §ato install upgrade on block.",
+  "tooltip.minformax.upgrade_item": "§bShift + Right Click §ato insert/extract upgrade.",
+  "tooltip.minformax.farmer": "§aYour whole farm in 1 block!!",
+  "tooltip.minformax.watering_upgrade": "§aSpeeds up the growth.",
 
   "message.minformax.ore_coalescer.item_overflow": "§aCurrent block contains more than §c4096 items§a. §bHold Shift §ato break the block. ",
   "message.minformax.warning": "§cLarge amount of entities may cause lag spike!!!",
@@ -52,6 +55,7 @@
   "item.minformax.quantum_foam": "Quantum Foam",
   "item.minformax.quantum_ingot": "Quantum Ingot",
   "item.minformax.memory_shard": "Memory Shard",
+  "item.minformax.chaos_shard": "Chaos Shard",
   "item.minformax.speed_upgrade_tier1": "Speed Upgrade Tier 1",
   "item.minformax.speed_upgrade_tier2": "Speed Upgrade Tier 2",
   "item.minformax.speed_upgrade_tier3": "Speed Upgrade Tier 3",
@@ -72,7 +76,6 @@
   "item.minformax.fortune_upgrade_tier4": "Fortune Upgrade Tier 4",
   "item.minformax.auto_smelting_upgrade": "Auto Smelting Upgrade",
   "item.minformax.inverted_upgrade": "Inversion Upgrade",
-  "item.minformax.strength_upgrade": "Strength Upgrade",
   "item.minformax.farmer_module": "Farmer Module",
   "item.minformax.fisher_module": "Fisher Module",
   "item.minformax.gatherer_module": "Gatherer Module",
@@ -89,5 +92,6 @@
   "item.minformax.blank_module_5": "Custom Module 5",
   "item.minformax.blank_module_6": "Custom Module 6",
   "item.minformax.blank_module_7": "Custom Module 7",
-  "item.minformax.blank_module_8": "Custom Module 8"
+  "item.minformax.blank_module_8": "Custom Module 8",
+  "item.minformax.watering_upgrade": "Watering Upgrade"
 }

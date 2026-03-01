@@ -3,29 +3,25 @@ package rewqazwas.minformax.screen.custom;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.WidgetSprites;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import rewqazwas.minformax.MinForMax;
 import rewqazwas.minformax.custom.utility.Utils;
 
 
 public class EternalGeneratorScreen extends AbstractContainerScreen<EternalGeneratorMenu> {
-    private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/eternal_generator.png");
+    private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/template.png");
     private static final ResourceLocation PROGRESS_BAR = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/progress_bar.png");
     private static final ResourceLocation ENERGY_BAR = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/energy_bar.png");
-    private static final ResourceLocation UPGRADES_TEXTURE = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/upgrades_bar.png");
+    private static final ResourceLocation EMPTY_BAR = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/empty_bar.png");
+    private static final ResourceLocation UPGRADES_BAR = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/upgrades_bar.png");
     private static final ResourceLocation SLOT = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/slot.png");
     private static final ResourceLocation HIGHLIGHTED_SLOT = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/highlighted_slot.png");
     private static final ResourceLocation XP_MENU = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/xp_menu.png");
@@ -57,7 +53,7 @@ public class EternalGeneratorScreen extends AbstractContainerScreen<EternalGener
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
         guiGraphics.blit(GUI_TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
-        guiGraphics.blit(UPGRADES_TEXTURE, x - 23, y + 3, 0, 0, 23, 78, 23, 78);
+        guiGraphics.blit(UPGRADES_BAR, x - 23, y + 3, 0, 0, 23, 78, 23, 78);
         guiGraphics.blit(XP_MENU, x, y - 21, 0, 0, 176, 24, 176, 24);
         renderSlots(guiGraphics, x, y);
         var barHeight = 55;
@@ -66,6 +62,7 @@ public class EternalGeneratorScreen extends AbstractContainerScreen<EternalGener
         guiGraphics.blit(ENERGY_BAR, x + 163, y + 13 + energyDiff, 0, energyDiff, 7, energyLevel, 7, barHeight);
         var overloadLevel = this.menu.getOverloadLevel();
         var overloadDiff = barHeight - overloadLevel;
+        guiGraphics.blit(EMPTY_BAR, x + 6, y + 13, 0, 0, 7, 55, 7, 55);
         guiGraphics.blit(OVERLOAD_BAR, x + 6, y + 13 + overloadDiff, 0, overloadDiff, 7, overloadLevel, 7, barHeight);
         guiGraphics.drawString(this.font, "?", x + 7, y + 71, 16777215, true);
         guiGraphics.blit(XP_BAR, x + 31, y - 15, 0, 0, this.menu.getXPProgress(), 12, 102, 12);

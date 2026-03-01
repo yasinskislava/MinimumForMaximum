@@ -23,11 +23,11 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 import rewqazwas.minformax.custom.ModBlockEntities;
+import rewqazwas.minformax.custom.ModTags;
 import rewqazwas.minformax.custom.component.ModDataComponents;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
 import rewqazwas.minformax.custom.index.ModuleDropsReloadListener;
-import rewqazwas.minformax.custom.items.BossModuleItem;
-import rewqazwas.minformax.custom.items.MemoryShard;
+import rewqazwas.minformax.custom.items.AccShard;
 import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.items.ModuleItem;
 import rewqazwas.minformax.custom.items.upgrades.*;
@@ -37,7 +37,7 @@ import rewqazwas.minformax.screen.custom.EternalGeneratorMenu;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EternalGeneratorBlockEntity extends MachineBase implements MenuProvider {
+public class EternalGeneratorBlockEntity extends MachineBaseEntity implements MenuProvider {
 
     public ItemStackHandler itemHandler = new ItemStackHandler(8) {
         @Override
@@ -53,15 +53,17 @@ public class EternalGeneratorBlockEntity extends MachineBase implements MenuProv
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return stack.getItem() instanceof UpgradeItem &&
-                   !(stack.getItem() instanceof FortuneUpgrade) &&
-                   !(stack.is(ModItems.AUTO_SMELTING_UPGRADE)) &&
-                   !(stack.getItem() == ModItems.ULTIMATE_PROCESSING_UPGRADE.get());
+            return stack.getItem() instanceof UpgradeItem
+                    && !Utils.canPass(itemHandler, stack)
+                    && (stack.is(ModTags.PROCESSING_UPGRADES) && !stack.is(ModItems.ULTIMATE_PROCESSING_UPGRADE)
+                    || stack.is(ModTags.SPEED_UPGRADES)
+                    || stack.is(ModTags.EXTRA_DROP_UPGRADES)
+                    || stack.is(ModItems.INVERTED_UPGRADE));
         }
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if(Utils.canInsertUpgrade(this, stack)){
+            if(Utils.canPass(this, stack)){
                 return stack;
             }
             return super.insertItem(slot, stack, simulate);
@@ -235,7 +237,6 @@ public class EternalGeneratorBlockEntity extends MachineBase implements MenuProv
         int stackMultiplier = 1;
         int percentage = 0;
         boolean inverted = false;
-        boolean isStrong = false;
         for(int i = 0; i < upgradeHandler.getSlots(); i++) {
             var stack = upgradeHandler.getStackInSlot(i);
             var upgrade = stack.getItem();
@@ -248,11 +249,9 @@ public class EternalGeneratorBlockEntity extends MachineBase implements MenuProv
                 percentage = extraDropUpgrade.getPercentage();
             } else if(stack.is(ModItems.INVERTED_UPGRADE)) {
                 inverted = true;
-            } else if(stack.is(ModItems.STRENGTH_UPGRADE)) {
-                isStrong = true;
             }
         }
-        return new ModifierData(speedModifier, stackMultiplier, percentage, inverted, isStrong);
+        return new ModifierData(speedModifier, stackMultiplier, percentage, inverted);
     }
 
     public void consumeOverload() {
@@ -270,26 +269,22 @@ public class EternalGeneratorBlockEntity extends MachineBase implements MenuProv
         var modifiers = getModifier();
         List<ItemStack> loaders = new ArrayList<>();
         var duration = 0;
-        var pass = modifiers.isStrong();
 
+        //Gather data from all loaders
         for(int i = 0; i < Math.pow(2, tier - 1); i++) {
             var currentLoader = blockEntity.itemHandler.getStackInSlot(i);
             if(!currentLoader.isEmpty()) {
                 if(currentLoader.getItem() instanceof ModuleItem) {
                     duration += 1024;
-                } else if(currentLoader.getItem() instanceof MemoryShard) {
+                } else if(currentLoader.getItem() instanceof AccShard) {
                     var key = currentLoader.get(ModDataComponents.MOB_INDEX);
                     var index = ModDataReloadListener.MOB_DROPS;
                     if(index.containsKey(key)) {
                         var loot = index.get(key);
                         duration += loot.duration();
                     }
-                } else if(currentLoader.getItem() instanceof BossModuleItem && pass) {
-                    duration += 2048;
                 }
-                if(pass || !(currentLoader.getItem() instanceof BossModuleItem)) {
-                    loaders.add(currentLoader);
-                }
+                loaders.add(currentLoader);
             }
         }
 
@@ -318,7 +313,7 @@ public class EternalGeneratorBlockEntity extends MachineBase implements MenuProv
                         var identifier = ModuleDropsReloadListener.rulesForModule(loaderItem);
                         this.totalXp = (int) Math.min((long) this.totalXp + (long) identifier.xp() * modifiers.operationMultiplier, Integer.MAX_VALUE);
                         mainDrop.addAll(ModuleDropsReloadListener.mainDropsFromModule(loaderItem));
-                    } else if(loaderItem instanceof MemoryShard) {
+                    } else if(loaderItem instanceof AccShard) {
                         var key = loader.get(ModDataComponents.MOB_INDEX);
                         var index = ModDataReloadListener.MOB_DROPS;
                         if(index.containsKey(key)) {
@@ -347,5 +342,5 @@ public class EternalGeneratorBlockEntity extends MachineBase implements MenuProv
         setChanged(level, blockPos, blockState);
     }
 
-    private record ModifierData(int speedModifier, int operationMultiplier, int extraDropPercentage, boolean inverted, boolean isStrong) {}
+    private record ModifierData(int speedModifier, int operationMultiplier, int extraDropPercentage, boolean inverted) {}
 }

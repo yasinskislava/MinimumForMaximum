@@ -27,6 +27,7 @@ public class ModBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.INDEX_INSCRIBER.get())
                 .add(ModBlocks.ORE_COALESCER.get())
                 .add(ModBlocks.FLUID_REPLICATOR.get())
-                .add(ModBlocks.BLOCK_REPLICATOR.get());
+                .add(ModBlocks.BLOCK_REPLICATOR.get())
+                .add(ModBlocks.FARMER.get());
     }
 }

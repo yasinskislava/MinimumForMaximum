@@ -33,6 +33,16 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_redstone_block", has(Items.REDSTONE_BLOCK))
                 .save(recipeOutput);
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CHAOS_SHARD.get())
+                .pattern(" rc")
+                .pattern("rdr")
+                .pattern("cr ")
+                .define('r', Ingredient.of(Items.REDSTONE_BLOCK))
+                .define('d', Items.NETHERITE_BLOCK)
+                .define('c', Items.BLACK_CONCRETE_POWDER)
+                .unlockedBy("has_redstone_block", has(Items.REDSTONE_BLOCK))
+                .save(recipeOutput);
+
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.QUANTUM_INGOT.get())
                 .pattern("rqr")
                 .pattern("gni")
@@ -43,40 +53,6 @@ public class ModRecipeProvider extends RecipeProvider {
                 .define('i', Items.IRON_INGOT)
                 .define('n', Items.COPPER_INGOT)
                 .unlockedBy("has_diamond", has(Items.DIAMOND))
-                .save(recipeOutput);
-
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.WITHER_MODULE.get())
-                .pattern("www")
-                .pattern("nqn")
-                .pattern("sns")
-                .define('w', Ingredient.of(Items.WITHER_SKELETON_SKULL))
-                .define('s', Ingredient.of(Items.WITHER_ROSE))
-                .define('n', Ingredient.of(Items.NETHER_STAR))
-                .define('q', Ingredient.of(ModItems.QUANTUM_FOAM))
-                .unlockedBy("has_quantum_foam", has(ModItems.QUANTUM_FOAM))
-                .save(recipeOutput);
-
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.ENDER_DRAGON_MODULE.get())
-                .pattern("n  ")
-                .pattern("nqh")
-                .pattern(" e ")
-                .define('h', Ingredient.of(Items.DRAGON_HEAD))
-                .define('e', Ingredient.of(Items.DRAGON_EGG))
-                .define('n', Ingredient.of(Items.NETHERITE_INGOT))
-                .define('q', Ingredient.of(ModItems.QUANTUM_FOAM))
-                .unlockedBy("has_quantum_foam", has(ModItems.QUANTUM_FOAM))
-                .save(recipeOutput);
-
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.WARDEN_MODULE.get())
-                .pattern("chc")
-                .pattern("eqe")
-                .pattern("csc")
-                .define('s', Ingredient.of(Items.SCULK_CATALYST))
-                .define('h', Ingredient.of(Items.SCULK_SHRIEKER))
-                .define('e', Ingredient.of(Items.ECHO_SHARD))
-                .define('c', Ingredient.of(Items.SCULK))
-                .define('q', Ingredient.of(ModItems.QUANTUM_FOAM))
-                .unlockedBy("has_quantum_foam", has(ModItems.QUANTUM_FOAM))
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CHEF_MODULE.get())
@@ -145,15 +121,6 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         //SPECIAL
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.STRENGTH_UPGRADE.get())
-                .pattern("iii")
-                .pattern("ihi")
-                .pattern("iii")
-                .define('i', Ingredient.of(ModItems.QUANTUM_INGOT))
-                .define('h', Ingredient.of(Items.HEAVY_CORE))
-                .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
-                .save(recipeOutput);
-
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.INVERTED_UPGRADE.get())
                 .pattern("qgq")
                 .pattern("gdg")
@@ -161,6 +128,27 @@ public class ModRecipeProvider extends RecipeProvider {
                 .define('d', Ingredient.of(ModItems.EXTRA_DROP_UPGRADE_TIER4))
                 .define('g', Ingredient.of(Items.PINK_STAINED_GLASS))
                 .define('q', Ingredient.of(ModItems.QUANTUM_INGOT))
+                .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.AUTO_SMELTING_UPGRADE.get())
+                .pattern("ibi")
+                .pattern("lfl")
+                .pattern("ibi")
+                .define('i', Ingredient.of(ModItems.QUANTUM_INGOT))
+                .define('f', Ingredient.of(ModBlocks.FLUID_REPLICATOR))
+                .define('l', Ingredient.of(Items.LAVA_BUCKET))
+                .define('b', Ingredient.of(Items.BLAZE_ROD))
+                .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.WATERING_UPGRADE.get())
+                .pattern("iwi")
+                .pattern("wsw")
+                .pattern("iwi")
+                .define('i', Ingredient.of(ModItems.QUANTUM_INGOT))
+                .define('w', Ingredient.of(Items.WATER_BUCKET))
+                .define('s', Ingredient.of(Items.SUGAR))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 
@@ -380,15 +368,13 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_netherite", has(Items.NETHERITE_INGOT))
                 .save(recipeOutput);
 
-        //AutoSmelting
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.AUTO_SMELTING_UPGRADE.get())
-                .pattern("ibi")
-                .pattern("lfl")
-                .pattern("ibi")
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FARMER.get())
+                .pattern("iri")
+                .pattern("rnr")
+                .pattern("iri")
                 .define('i', Ingredient.of(ModItems.QUANTUM_INGOT))
-                .define('f', Ingredient.of(ModBlocks.FLUID_REPLICATOR))
-                .define('l', Ingredient.of(Items.LAVA_BUCKET))
-                .define('b', Ingredient.of(Items.BLAZE_ROD))
+                .define('r', Ingredient.of(Blocks.REDSTONE_BLOCK))
+                .define('n', Ingredient.of(Items.NETHERITE_HOE))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 

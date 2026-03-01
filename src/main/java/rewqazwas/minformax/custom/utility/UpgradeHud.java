@@ -5,7 +5,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.IItemHandler;
-import rewqazwas.minformax.custom.blocks.MachineBase;
+import rewqazwas.minformax.custom.blocks.MachineBaseEntity;
 import rewqazwas.minformax.custom.items.ModItems;
 
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.List;
 
 public class UpgradeHud {
     public static void render(GuiGraphics gui, Minecraft mc, BlockEntity be) {
-        if (!(be instanceof MachineBase machine)) {
+        if (!(be instanceof MachineBaseEntity machine)) {
             return;
         }
 
@@ -74,11 +74,11 @@ public class UpgradeHud {
         if (isSupported(upgradeHandler, new ItemStack(ModItems.INVERTED_UPGRADE.get()))) {
             displayGroups.add(List.of(new ItemStack(ModItems.INVERTED_UPGRADE.get())));
         }
-        if (isSupported(upgradeHandler, new ItemStack(ModItems.STRENGTH_UPGRADE.get()))) {
-            displayGroups.add(List.of(new ItemStack(ModItems.STRENGTH_UPGRADE.get())));
-        }
         if (isSupported(upgradeHandler, new ItemStack(ModItems.AUTO_SMELTING_UPGRADE.get()))) {
             displayGroups.add(List.of(new ItemStack(ModItems.AUTO_SMELTING_UPGRADE.get())));
+        }
+        if (isSupported(upgradeHandler, new ItemStack(ModItems.WATERING_UPGRADE.get()))) {
+            displayGroups.add(List.of(new ItemStack(ModItems.WATERING_UPGRADE.get())));
         }
 
 
@@ -117,6 +117,6 @@ public class UpgradeHud {
     }
 
     public static boolean isBlockValid(BlockEntity blockEntity) {
-        return blockEntity instanceof MachineBase;
+        return blockEntity instanceof MachineBaseEntity;
     }
 }

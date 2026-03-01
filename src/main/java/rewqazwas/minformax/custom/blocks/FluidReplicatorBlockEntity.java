@@ -28,7 +28,7 @@ import rewqazwas.minformax.custom.utility.Utils;
 import static rewqazwas.minformax.custom.utility.Utils.getFluidHandlers;
 
 
-public class FluidReplicatorBlockEntity extends MachineBase {
+public class FluidReplicatorBlockEntity extends MachineBaseEntity {
     public final FluidTank fluidHandler = new FluidTank(1000) {
         @Override
         protected void onContentsChanged() {
@@ -58,7 +58,7 @@ public class FluidReplicatorBlockEntity extends MachineBase {
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if(Utils.canInsertUpgrade(this, stack)){
+            if(Utils.canPass(this, stack)){
                 return stack;
             }
             return super.insertItem(slot, stack, simulate);

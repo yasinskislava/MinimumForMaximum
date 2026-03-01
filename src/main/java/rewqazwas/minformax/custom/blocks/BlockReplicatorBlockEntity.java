@@ -28,7 +28,7 @@ import rewqazwas.minformax.custom.utility.Utils;
 
 import java.util.Map;
 
-public class BlockReplicatorBlockEntity extends MachineBase {
+public class BlockReplicatorBlockEntity extends MachineBaseEntity {
     public final ItemStackHandler upgradeHandler = new ItemStackHandler(2) {
         @Override
         public int getSlotLimit(int slot) {
@@ -42,7 +42,7 @@ public class BlockReplicatorBlockEntity extends MachineBase {
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if(Utils.canInsertUpgrade(this, stack)){
+            if(Utils.canPass(this, stack)){
                 return stack;
             }
             return super.insertItem(slot, stack, simulate);

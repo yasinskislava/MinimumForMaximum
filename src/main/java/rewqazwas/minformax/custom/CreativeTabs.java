@@ -24,13 +24,14 @@ public class CreativeTabs {
                     output.accept(ModBlocks.ETERNAL_GENERATOR_TIER2);
                     output.accept(ModBlocks.ETERNAL_GENERATOR_TIER3);
                     output.accept(ModBlocks.ETERNAL_GENERATOR_TIER4);
+                    output.accept(ModBlocks.FARMER);
                     output.accept(ModBlocks.FLUID_REPLICATOR);
                     output.accept(ModBlocks.BLOCK_REPLICATOR);
                     output.accept(ModBlocks.ORE_COALESCER);
                     output.accept(ModItems.MEMORY_SHARD);
+                    output.accept(ModItems.CHAOS_SHARD);
                     output.accept(ModItems.QUANTUM_FOAM);
                     output.accept(ModItems.QUANTUM_INGOT);
-                    output.accept(ModItems.INVERTED_UPGRADE);
                     output.accept(ModItems.SPEED_UPGRADE_TIER1);
                     output.accept(ModItems.SPEED_UPGRADE_TIER2);
                     output.accept(ModItems.SPEED_UPGRADE_TIER3);
@@ -49,17 +50,14 @@ public class CreativeTabs {
                     output.accept(ModItems.FORTUNE_UPGRADE_TIER2);
                     output.accept(ModItems.FORTUNE_UPGRADE_TIER3);
                     output.accept(ModItems.FORTUNE_UPGRADE_TIER4);
-                    output.accept(ModItems.STRENGTH_UPGRADE);
+                    output.accept(ModItems.INVERTED_UPGRADE);
                     output.accept(ModItems.AUTO_SMELTING_UPGRADE);
+                    output.accept(ModItems.WATERING_UPGRADE);
                     output.accept(ModItems.CHEF_MODULE);
                     output.accept(ModItems.FARMER_MODULE);
                     output.accept(ModItems.GATHERER_MODULE);
                     output.accept(ModItems.FISHER_MODULE);
                     output.accept(ModItems.BUTCHER_MODULE);
-                    output.accept(ModItems.ENDER_DRAGON_MODULE);
-                    output.accept(ModItems.WITHER_MODULE);
-                    output.accept(ModItems.WARDEN_MODULE);
-                    output.accept(ModItems.ANALYZER);
                     output.accept(ModItems.BLANK_MODULE_1);
                     output.accept(ModItems.BLANK_MODULE_2);
                     output.accept(ModItems.BLANK_MODULE_3);
@@ -68,6 +66,7 @@ public class CreativeTabs {
                     output.accept(ModItems.BLANK_MODULE_6);
                     output.accept(ModItems.BLANK_MODULE_7);
                     output.accept(ModItems.BLANK_MODULE_8);
+                    output.accept(ModItems.ANALYZER);
                 })
                 .build();
     });

@@ -9,8 +9,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
+import rewqazwas.minformax.custom.ModTags;
 import rewqazwas.minformax.custom.blocks.ModBlocks;
 import rewqazwas.minformax.custom.blocks.OreCoalescerBlockEntity;
+import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.items.upgrades.UpgradeItem;
 import rewqazwas.minformax.custom.utility.Utils;
 import rewqazwas.minformax.screen.ModMenuTypes;
@@ -210,7 +212,12 @@ public class OreCoalescerMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            return stack.getItem() instanceof UpgradeItem && !Utils.canPass(itemHandler, stack, UPGRADE_SLOTS);
+            return stack.getItem() instanceof UpgradeItem
+                    && !Utils.canPass(itemHandler, stack, UPGRADE_SLOTS)
+                    && (stack.is(ModTags.SPEED_UPGRADES)
+                    || stack.is(ModTags.PROCESSING_UPGRADES)
+                    || stack.is(ModItems.AUTO_SMELTING_UPGRADE)
+                    || stack.is(ModTags.FORTUNE_UPGRADES));
         }
 
         @Override

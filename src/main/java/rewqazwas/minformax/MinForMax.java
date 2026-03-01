@@ -45,6 +45,7 @@ import rewqazwas.minformax.renderer.BlockReplicatorRenderer;
 import rewqazwas.minformax.renderer.FluidReplicatorRenderer;
 import rewqazwas.minformax.screen.ModMenuTypes;
 import rewqazwas.minformax.screen.custom.EternalGeneratorScreen;
+import rewqazwas.minformax.screen.custom.FarmerScreen;
 import rewqazwas.minformax.screen.custom.IndexLabScreen;
 import rewqazwas.minformax.screen.custom.OreCoalescerScreen;
 
@@ -64,7 +65,6 @@ public class MinForMax {
         ModMenuTypes.MENUS.register(eventBus);
         ModDataComponents.DATA_COMPONENT_TYPES.register(eventBus);
         ModAttachmentTypes.ATTACHMENT_TYPES.register(eventBus);
-
         modContainer.registerConfig(ModConfig.Type.COMMON, DataConfigs.COMMON);
     }
 
@@ -76,6 +76,8 @@ public class MinForMax {
             event.enqueueWork(() -> {
                 ItemProperties.register(ModItems.MEMORY_SHARD.get(), ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "storage"),
                         ((stack, level, entity, seed) -> stack.get(ModDataComponents.MOB_INDEX) != null ? 1.0f : 0.0f));
+                ItemProperties.register(ModItems.CHAOS_SHARD.get(), ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "storage"),
+                        ((stack, level, entity, seed) -> stack.get(ModDataComponents.MOB_INDEX) != null ? 1.0f : 0.0f));
             });
         }
 
@@ -84,6 +86,7 @@ public class MinForMax {
             event.register(ModMenuTypes.INDEX_LAB_MENU.get(), IndexLabScreen::new);
             event.register(ModMenuTypes.ETERNAL_GENERATOR_MENU.get(), EternalGeneratorScreen::new);
             event.register(ModMenuTypes.ORE_COALESCER_MENU.get(), OreCoalescerScreen::new);
+            event.register(ModMenuTypes.FARMER_MENU.get(), FarmerScreen::new);
         }
 
         @SubscribeEvent
@@ -156,8 +159,9 @@ public class MinForMax {
             event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.FLUID_REPLICATOR_BE.get(), (FluidReplicatorBlockEntity be, Direction context) -> be.fluidHandler);
             event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.FLUID_REPLICATOR_BE.get(), (FluidReplicatorBlockEntity be, Direction context) -> be.energyHandler);
             event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.BLOCK_REPLICATOR_BE.get(), (BlockReplicatorBlockEntity be, Direction context) -> be.upgradeHandler);
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.BLOCK_REPLICATOR_BE.get(), (BlockReplicatorBlockEntity be, Direction context) -> be.itemHandler);
             event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.BLOCK_REPLICATOR_BE.get(), (BlockReplicatorBlockEntity be, Direction context) -> be.energyHandler);
+            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.FARMER_BE.get(), (FarmerBlockEntity be, Direction context) -> be.upgradeHandler);
+            event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.FARMER_BE.get(), (FarmerBlockEntity be, Direction context) -> be.energyHandler);
             event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.ORE_COALESCER_BE.get(), (OreCoalescerBlockEntity be, Direction context) -> be.automationHandler);
             event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.ORE_COALESCER_BE.get(), (OreCoalescerBlockEntity be, Direction context) -> be.energyHandler);
          }
@@ -176,7 +180,7 @@ public class MinForMax {
 
 //TODO
 //Fisher
-//Farmer
 //Revamp module system
-//Boss system
 //Void tower
+
+//Upgrade

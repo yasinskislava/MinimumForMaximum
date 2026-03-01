@@ -4,7 +4,10 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 import rewqazwas.minformax.MinForMax;
@@ -23,14 +26,12 @@ public class ModItemTagProvider extends ItemTagsProvider {
     protected void addTags(HolderLookup.Provider provider) {
         tag(ModTags.SUPPLIER_ITEMS)
                 .add(ModItems.MEMORY_SHARD.get())
+                .add(ModItems.CHAOS_SHARD.get())
                 .add(ModItems.FISHER_MODULE.get())
                 .add(ModItems.FARMER_MODULE.get())
                 .add(ModItems.GATHERER_MODULE.get())
                 .add(ModItems.CHEF_MODULE.get())
                 .add(ModItems.BUTCHER_MODULE.get())
-                .add(ModItems.ENDER_DRAGON_MODULE.get())
-                .add(ModItems.WITHER_MODULE.get())
-                .add(ModItems.WARDEN_MODULE.get())
                 .add(ModItems.BLANK_MODULE_1.get())
                 .add(ModItems.BLANK_MODULE_2.get())
                 .add(ModItems.BLANK_MODULE_3.get())
@@ -65,5 +66,16 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.FORTUNE_UPGRADE_TIER2.get())
                 .add(ModItems.FORTUNE_UPGRADE_TIER3.get())
                 .add(ModItems.FORTUNE_UPGRADE_TIER4.get());
+
+        tag(ModTags.FARMER_SELF_SUSTAINING)
+                .addTag(Tags.Items.MUSHROOMS)
+                .add(Items.GLOW_BERRIES)
+                .add(Items.SWEET_BERRIES)
+                .add(Items.KELP)
+                .add(Items.SEA_PICKLE)
+                .add(Items.BAMBOO)
+                .add(Items.WEEPING_VINES)
+                .add(Items.TWISTING_VINES)
+                .add(Items.VINE);
     }
 }

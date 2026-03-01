@@ -132,7 +132,7 @@ public class IndexLabMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            return stack.getItem() == ModItems.MEMORY_SHARD.get() && stack.get(ModDataComponents.MOB_INDEX) == null;
+            return (stack.getItem() == ModItems.MEMORY_SHARD.get() || stack.getItem() == ModItems.CHAOS_SHARD.get()) && stack.get(ModDataComponents.MOB_INDEX) == null;
         }
     }
 }
