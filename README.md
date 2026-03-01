@@ -31,7 +31,8 @@ Mob drops are defined under the `mob_drops` key. Each entry consists of a mob's 
         "minecraft:leather"
       ],
       "xp": 3,
-      "duration": 256
+      "duration": 256,
+      "is_boss": false
     }
   }
 }
@@ -41,6 +42,7 @@ Mob drops are defined under the `mob_drops` key. Each entry consists of a mob's 
 -   `additional_drop`: A list of additional items that may be produced. 
 -   `xp`: The amount of experience points produced.
 -   `duration`: The time it takes to generate the loot.
+-   `is_boss`: Determines if the mob requires `Chaos Shard` for resources production.
 
 **Note: There is a limit of maximum 3 items for additional drops.**
 
