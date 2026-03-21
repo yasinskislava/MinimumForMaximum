@@ -120,4 +120,31 @@ Fluid replicator data is defined under the `fluid_replicator_data` key. Each ent
 
 **Note: There is a cap on energy_multiplier allowing 10_000 at max.**
 
-To customize the drops, simply modify the values in the `drops.json` file. The changes will be applied the next time the game is launched.
+### Farmer Data
+
+Farmer data is defined under the `farmer_data` key. It specifies which items and tags are allowed or prohibited for the **Farmer**.
+
+**Example:**
+
+```json
+{
+  "farmer_data": {
+    "default": {
+      "allowed_items": [],
+      "prohibited_items": [],
+      "allowed_tags": [
+        "minecraft:crops",
+        "minecraft:saplings"
+      ],
+      "prohibited_tags": []
+    }
+  }
+}
+```
+
+-   `allowed_items`: A list of specific item IDs that the farmer can plant/harvest.
+-   `prohibited_items`: A list of specific item IDs that the farmer cannot plant/harvest.
+-   `allowed_tags`: A list of item tags that the farmer can plant/harvest.
+-   `prohibited_tags`: A list of item tags that the farmer cannot plant/harvest.
+
+To customize the drops, simply modify the values in the corresponding JSON files located in `config/minformax/`. The changes will be applied the next time the game is launched.

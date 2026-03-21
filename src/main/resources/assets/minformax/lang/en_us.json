@@ -46,6 +46,7 @@
   "tooltip.minformax.watering_upgrade": "§aSpeeds up the growth.",
   "tooltip.minformax.collect_xp": "§aCollect",
   "tooltip.minformax.linker": "§aCollects overload every minute.",
+  "tooltip.minformax.pandora_box": "Ultimate solution for energy generation",
 
   "message.minformax.ore_coalescer.item_overflow": "§aCurrent block contains more than §c4096 items§a. §bHold Shift §ato break the block. ",
   "message.minformax.warning": "§cLarge amount of entities may cause lag spike!!!",

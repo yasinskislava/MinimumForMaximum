@@ -233,6 +233,16 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.ULTIMATE_SPEED_UPGRADE.get())
+                .pattern("psp")
+                .pattern("php")
+                .pattern("psp")
+                .define('p', Ingredient.of(ModItems.ULTIMATE_PROCESSING_UPGRADE))
+                .define('s', Ingredient.of(ModItems.SPEED_UPGRADE_TIER4))
+                .define('h', Ingredient.of(ModItems.FROZEN_CORE))
+                .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
+                .save(recipeOutput);
+
         //PROCESSES
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.PROCESSING_UPGRADE_TIER1.get())
                 .pattern("qrq")

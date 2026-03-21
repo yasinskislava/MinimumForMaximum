@@ -45,8 +45,9 @@
   "tooltip.minformax.farmer": "§aВаша ціла ферма у 1 блоці!!",
   "tooltip.minformax.watering_upgrade": "§aПришвидшує ріст рослин.",
   "tooltip.minformax.collect_xp": "§aОтримати",
-  "tooltip.minformax.linker": "§aПоглинає перевантаження кожну хвилину.",
-,
+  "tooltip.minformax.linker": "§aПоглинає перевантаження кожну хвилину",
+  "tooltip.minformax.pandora_box": "Ідеальне рішення для генерації енергії",
+
   "message.minformax.ore_coalescer.item_overflow": "§aБлок містить понад §c4096 предметів§a. §bУтримуйте Shift§a, щоб зламати блок.",
   "message.minformax.warning": "§cВелика кількість істот може спричинити лаги!!!",
   "message.minformax.owner_warning": "§cВи не є власником цього індексатора.",
