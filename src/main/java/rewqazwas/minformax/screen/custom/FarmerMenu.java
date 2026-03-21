@@ -1,6 +1,9 @@
 package rewqazwas.minformax.screen.custom;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
@@ -21,6 +24,8 @@ import rewqazwas.minformax.custom.blocks.EternalGeneratorBlockEntity;
 import rewqazwas.minformax.custom.blocks.FarmerBlockEntity;
 import rewqazwas.minformax.custom.blocks.ModBlocks;
 import rewqazwas.minformax.custom.component.ModDataComponents;
+import rewqazwas.minformax.custom.index.FarmerData;
+import rewqazwas.minformax.custom.index.ModDataReloadListener;
 import rewqazwas.minformax.custom.items.AccShard;
 import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.items.upgrades.FortuneUpgrade;
@@ -135,32 +140,42 @@ public class FarmerMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            Block cropBlock = stack.getItem() instanceof BlockItem blockItem ? blockItem.getBlock() : null;
-            return stack.is(Tags.Items.SEEDS) || stack.is(Tags.Items.CROPS) || stack.is(ModTags.FARMER_SELF_SUSTAINING) || cropBlock instanceof FlowerBlock || cropBlock instanceof SaplingBlock;
+            String itemString = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+
+            for (FarmerData data : ModDataReloadListener.FARMER_DATA.values()) {
+                // Prohibited check takes priority
+                if (data.prohibitedItems().contains(itemString)) return false;
+                for (String tag : data.prohibitedTags()) {
+                    if (stack.is(TagKey.create(BuiltInRegistries.ITEM.key(), ResourceLocation.parse(tag)))) return false;
+                }
+
+                // Allowed check
+                if (data.allowedItems().contains(itemString)) return true;
+                for (String tag : data.allowedTags()) {
+                    if (stack.is(TagKey.create(BuiltInRegistries.ITEM.key(), ResourceLocation.parse(tag)))) return true;
+                }
+            }
+            return false; // Only allow items found in config
         }
     }
 
     class UpgradeSlot extends SlotItemHandler {
-        private IItemHandler itemHandler;
         public UpgradeSlot(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
             super(itemHandler, index, xPosition, yPosition);
-            this.itemHandler = itemHandler;
+        }
+
+        @Override
+        public int getMaxStackSize() {
+            return 1;
         }
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            return stack.getItem() instanceof UpgradeItem
-                    && !Utils.canPass(itemHandler, stack)
-                    && (stack.is(ModTags.PROCESSING_UPGRADES) && !stack.is(ModItems.ULTIMATE_PROCESSING_UPGRADE)
-                    || stack.is(ModTags.SPEED_UPGRADES)
+            return !Utils.canPass(this.getItemHandler(), stack)
+                    && (stack.is(ModTags.FORTUNE_UPGRADES)
                     || stack.is(ModItems.WATERING_UPGRADE)
-                    || stack.is(ModTags.FORTUNE_UPGRADES));
+                    || stack.is(ModTags.SPEED_UPGRADES)
+                    || (stack.is(ModTags.PROCESSING_UPGRADES) && !(stack.getItem() == ModItems.ULTIMATE_PROCESSING_UPGRADE.get())));
         }
-
-        @Override
-        public int getMaxStackSize(ItemStack stack) {
-            return 1;
-        }
-
     }
 }

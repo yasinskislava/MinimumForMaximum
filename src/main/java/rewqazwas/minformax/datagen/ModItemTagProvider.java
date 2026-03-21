@@ -66,16 +66,5 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.FORTUNE_UPGRADE_TIER2.get())
                 .add(ModItems.FORTUNE_UPGRADE_TIER3.get())
                 .add(ModItems.FORTUNE_UPGRADE_TIER4.get());
-
-        tag(ModTags.FARMER_SELF_SUSTAINING)
-                .addTag(Tags.Items.MUSHROOMS)
-                .add(Items.GLOW_BERRIES)
-                .add(Items.SWEET_BERRIES)
-                .add(Items.KELP)
-                .add(Items.SEA_PICKLE)
-                .add(Items.BAMBOO)
-                .add(Items.WEEPING_VINES)
-                .add(Items.TWISTING_VINES)
-                .add(Items.VINE);
     }
 }

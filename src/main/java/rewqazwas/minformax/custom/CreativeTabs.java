@@ -67,6 +67,10 @@ public class CreativeTabs {
                     output.accept(ModItems.BLANK_MODULE_7);
                     output.accept(ModItems.BLANK_MODULE_8);
                     output.accept(ModItems.ANALYZER);
+                    output.accept(ModBlocks.PANDORA_BOX_CORE);
+                    output.accept(ModItems.FROZEN_CRYSTAL);
+                    output.accept(ModItems.FROZEN_CORE);
+                    output.accept(ModItems.LINKER);
                 })
                 .build();
     });

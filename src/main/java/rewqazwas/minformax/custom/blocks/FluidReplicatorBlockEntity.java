@@ -9,26 +9,26 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 import rewqazwas.minformax.custom.ModBlockEntities;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
-import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.items.upgrades.SpeedUpgrade;
 import rewqazwas.minformax.custom.items.upgrades.ProcessingUpgrade;
 import rewqazwas.minformax.custom.utility.Utils;
 
-import static rewqazwas.minformax.custom.utility.Utils.getFluidHandlers;
-
 
 public class FluidReplicatorBlockEntity extends MachineBaseEntity {
+    public FluidReplicatorBlockEntity(BlockPos pos, BlockState blockState) {
+        super(ModBlockEntities.FLUID_REPLICATOR_BE.get(), pos, blockState);
+    }
+    //Handlers
+
     public final FluidTank fluidHandler = new FluidTank(1000) {
         @Override
         protected void onContentsChanged() {
@@ -45,35 +45,15 @@ public class FluidReplicatorBlockEntity extends MachineBaseEntity {
         }
     };
 
-    public final ItemStackHandler upgradeHandler = new ItemStackHandler(2) {
-        @Override
-        public int getSlotLimit(int slot) {
-            return 1;
-        }
+    public final Utils.UpgradeItemHandler upgradeHandler = new Utils.UpgradeItemHandler(2);
 
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            return stack.getItem() instanceof SpeedUpgrade || (stack.getItem() instanceof ProcessingUpgrade && !(stack.getItem() == ModItems.ULTIMATE_PROCESSING_UPGRADE.get()));
-        }
+    public final EnergyStorage energyHandler = new EnergyStorage(40_960_000);
 
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if(Utils.canPass(this, stack)){
-                return stack;
-            }
-            return super.insertItem(slot, stack, simulate);
-        }
-    };
-
-    public final EnergyStorage energyHandler = new EnergyStorage(40_960_000) {};
-
+    //Variables
     private int process = 0;
     private int maxProcess = 256;
 
-    public FluidReplicatorBlockEntity(BlockPos pos, BlockState blockState) {
-        super(ModBlockEntities.FLUID_REPLICATOR_BE.get(), pos, blockState);
-    }
-
+    //Extra
     @Override
     public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
@@ -112,6 +92,7 @@ public class FluidReplicatorBlockEntity extends MachineBaseEntity {
         this.energyHandler.receiveEnergy(tag.getInt("fluid_replicator.energy"), false);
     }
 
+    //Main
     public void tick(Level level, BlockPos blockPos, BlockState blockState, FluidReplicatorBlockEntity blockEntity) {
         if(level.isClientSide()) return;
 
@@ -149,16 +130,9 @@ public class FluidReplicatorBlockEntity extends MachineBaseEntity {
         process++;
         maxProcess = data.duration();
 
-        if(process >= maxProcess / speedModifier) {
-            var amount = data.basicAmountGenerated() * stackMultiplier;
-            var toFill = sourceStack.copy();
-            for(IFluidHandler side : getFluidHandlers(level, blockPos)) {
-                if(side != null) {
-                    toFill.setAmount(Math.min(amount, sourceStack.getAmount()));
-                    amount -= side.fill(toFill, IFluidHandler.FluidAction.EXECUTE);
-                    if(amount <= 0) break;
-                }
-            }
+        if (process >= maxProcess / speedModifier) {
+            int totalToGenerate = data.basicAmountGenerated() * stackMultiplier;
+            int leftovers = Utils.moveFluid(level, blockPos, sourceStack, totalToGenerate);
             process = 0;
         }
         setChanged(level, blockPos, blockState);

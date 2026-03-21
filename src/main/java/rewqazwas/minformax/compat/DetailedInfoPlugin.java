@@ -5,17 +5,23 @@ import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.SaplingBlock;
 import rewqazwas.minformax.MinForMax;
 import rewqazwas.minformax.custom.blocks.ModBlocks;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
+import rewqazwas.minformax.custom.utility.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @JeiPlugin
 public class DetailedInfoPlugin implements IModPlugin {
@@ -23,6 +29,7 @@ public class DetailedInfoPlugin implements IModPlugin {
     private static List<JeiBlockReplicatorRecipe> currentBlockRecipes = new ArrayList<>();
     private static List<JeiFluidReplicatorRecipe> currentFluidRecipes = new ArrayList<>();
     private static List<JeiIndexInscriberRecipe> currentIndexInscriberRecipes = new ArrayList<>();
+    private static List<JeiFarmerRecipe> currentFarmerRecipes = new ArrayList<>();
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -34,6 +41,7 @@ public class DetailedInfoPlugin implements IModPlugin {
         registration.addRecipeCategories(new BlockReplicatorCategory(registration.getJeiHelpers().getGuiHelper()));
         registration.addRecipeCategories(new FluidReplicatorCategory(registration.getJeiHelpers().getGuiHelper()));
         registration.addRecipeCategories(new IndexInscriberCategory(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new FarmerCategory(registration.getJeiHelpers().getGuiHelper()));
     }
 
     @Override
@@ -41,6 +49,7 @@ public class DetailedInfoPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.BLOCK_REPLICATOR.get()), BlockReplicatorCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.FLUID_REPLICATOR.get()), FluidReplicatorCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.INDEX_INSCRIBER.get()), IndexInscriberCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.FARMER.get()), FarmerCategory.RECIPE_TYPE);
     }
 
     @Override
@@ -83,6 +92,17 @@ public class DetailedInfoPlugin implements IModPlugin {
             MinForMax.LOGGER.info("Refreshed {} Index Inscriber recipes", currentIndexInscriberRecipes.size());
         } catch (Exception e) {
             MinForMax.LOGGER.error("Failed to refresh Index Inscriber recipes", e);
+        }
+
+        try {
+            if (!currentFarmerRecipes.isEmpty()) {
+                jeiRuntime.getRecipeManager().hideRecipes(FarmerCategory.RECIPE_TYPE, currentFarmerRecipes);
+            }
+            currentFarmerRecipes = getFarmerRecipes();
+            jeiRuntime.getRecipeManager().addRecipes(FarmerCategory.RECIPE_TYPE, currentFarmerRecipes);
+            MinForMax.LOGGER.info("Refreshed {} Farmer recipes", currentFarmerRecipes.size());
+        } catch (Exception e) {
+            MinForMax.LOGGER.error("Failed to refresh Farmer recipes", e);
         }
     }
 
@@ -163,5 +183,56 @@ public class DetailedInfoPlugin implements IModPlugin {
         });
         MinForMax.LOGGER.info("Loaded {} Index Inscriber recipes", recipes.size());
         return recipes;
+    }
+
+    private static List<JeiFarmerRecipe> getFarmerRecipes() {
+        List<JeiFarmerRecipe> recipes = new ArrayList<>();
+
+        ModDataReloadListener.FARMER_DATA.forEach((id, data) -> {
+            Set<Item> seedItems = new java.util.HashSet<>();
+
+            // 1. Resolve Allowed Items & Tags
+            for (String itemName : data.allowedItems()) {
+                Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemName));
+                if (item != Items.AIR) seedItems.add(item);
+            }
+            for (String tagName : data.allowedTags()) {
+                TagKey<Item> tagKey = TagKey.create(BuiltInRegistries.ITEM.key(), ResourceLocation.parse(tagName));
+                BuiltInRegistries.ITEM.getTag(tagKey).ifPresent(tag -> tag.forEach(h -> seedItems.add(h.value())));
+            }
+
+            // 2. Filter Prohibited Items & Tags
+            for (String itemName : data.prohibitedItems()) {
+                seedItems.remove(BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemName)));
+            }
+            for (String tagName : data.prohibitedTags()) {
+                TagKey<Item> tagKey = TagKey.create(BuiltInRegistries.ITEM.key(), ResourceLocation.parse(tagName));
+                BuiltInRegistries.ITEM.getTag(tagKey).ifPresent(tag -> tag.forEach(h -> seedItems.remove(h.value())));
+            }
+
+            // 3. Create individual recipes for each unique seed
+            for (Item item : seedItems) {
+                ItemStack input = new ItemStack(item);
+                // We use a specialized JEI-safe method from Utils
+                List<ItemStack> outputs = calculateOutputs(input);
+                recipes.add(new JeiFarmerRecipe(input, outputs, data));
+            }
+        });
+
+        return recipes;
+    }
+
+
+
+    private static List<ItemStack> calculateOutputs(ItemStack seedStack) {
+        Minecraft mc = Minecraft.getInstance();
+        List<ItemStack> drops = Utils.getFarmerDrops(mc.level, seedStack);
+
+        for (ItemStack s : drops) {
+            if (seedStack.getItem() instanceof BlockItem bi && bi.getBlock() instanceof SaplingBlock) {
+                if (s.getItem().toString().contains("log")) s.setCount(1);
+            }
+        }
+        return drops;
     }
 }

@@ -16,6 +16,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import rewqazwas.minformax.MinForMax;
+import rewqazwas.minformax.config.DataConfigs;
 import rewqazwas.minformax.custom.index.HolderClass;
 import rewqazwas.minformax.custom.utility.Utils;
 
@@ -105,7 +106,7 @@ public class IndexLabScreen extends AbstractContainerScreen<IndexLabMenu> {
             List<ItemStack> extraDrops = this.mobData.additionalDrop();
 
             guiGraphics.drawString(this.font, "Duration: " + this.mobData.duration(), i + 106, j + 10, 16777215, false);
-            guiGraphics.drawString(this.font, "FE/Cycle: " + Utils.simpleEnergyDisplay(this.mobData.duration() * 4), i + 106, j + 28, 16777215, false);
+            guiGraphics.drawString(this.font, "FE/Cycle: " + Utils.simpleEnergyDisplay(this.mobData.duration() * DataConfigs.mobCoefficient.get()), i + 106, j + 28, 16777215, false);
 
             guiGraphics.drawString(this.font, "Main Drop", i + 208, j + 10, 16777215, false);
             guiGraphics.blitSprite(SUB_BACKGROUND, i + 202, j + 21, 0, 61, 20);

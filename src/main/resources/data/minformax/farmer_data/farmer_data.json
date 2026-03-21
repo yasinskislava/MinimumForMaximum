@@ -1,0 +1,30 @@
+{
+  "default_seeds": {
+    "allowed_items": [
+      "minecraft:weeping_vines",
+      "minecraft:twisting_vines",
+      "minecraft:vine",
+      "minecraft:sea_pickle",
+      "minecraft:kelp",
+      "minecraft:bamboo",
+      "minecraft:red_mushroom",
+      "minecraft:brown_mushroom"
+    ],
+    "prohibited_items": [
+      "minecraft:wheat",
+      "minecraft:beetroot",
+      "minecraft:melon",
+      "minecraft:pumpkin"
+    ],
+    "allowed_tags": [
+      "c:seeds",
+      "c:crops",
+      "c:fruits",
+      "c:vegetables",
+      "minecraft:saplings",
+      "c:foods/berry",
+      "minecraft:flowers"
+    ],
+    "prohibited_tags": []
+  }
+}

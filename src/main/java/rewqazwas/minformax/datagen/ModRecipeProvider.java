@@ -55,6 +55,46 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_diamond", has(Items.DIAMOND))
                 .save(recipeOutput);
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.FROZEN_CRYSTAL.get())
+                .pattern(" dp")
+                .pattern("dld")
+                .pattern("pd ")
+                .define('d', Items.DIAMOND_BLOCK)
+                .define('p', Items.PACKED_ICE)
+                .define('l', Items.SEA_LANTERN)
+                .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.FROZEN_CORE.get())
+                .pattern("ccc")
+                .pattern("csc")
+                .pattern("ccc")
+                .define('c', ModItems.FROZEN_CRYSTAL)
+                .define('s', Items.NETHER_STAR)
+                .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.LINKER.get())
+                .pattern(" pl")
+                .pattern(" ri")
+                .pattern(" ii")
+                .define('i', Items.IRON_INGOT)
+                .define('r', Items.REDSTONE_BLOCK)
+                .define('p', Items.HEAVY_WEIGHTED_PRESSURE_PLATE)
+                .define('l', Items.LIGHTNING_ROD)
+                .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.PANDORA_BOX_CORE.get())
+                .pattern("non")
+                .pattern("ncn")
+                .pattern("non")
+                .define('c', ModItems.FROZEN_CORE)
+                .define('n', Items.NETHERITE_BLOCK)
+                .define('o', Items.OBSIDIAN)
+                .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .save(recipeOutput);
+
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CHEF_MODULE.get())
                 .pattern("gag")
                 .pattern("bqc")

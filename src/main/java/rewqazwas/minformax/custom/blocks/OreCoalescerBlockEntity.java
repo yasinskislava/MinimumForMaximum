@@ -30,6 +30,7 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
 import net.neoforged.neoforge.items.wrapper.RangedWrapper;
 import rewqazwas.minformax.custom.ModBlockEntities;
+import rewqazwas.minformax.custom.ModTags;
 import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.items.upgrades.*;
 import rewqazwas.minformax.custom.utility.Utils;
@@ -40,6 +41,11 @@ import java.util.List;
 
 
 public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuProvider {
+    public OreCoalescerBlockEntity(BlockPos pos, BlockState blockState) {
+        super(ModBlockEntities.ORE_COALESCER_BE.get(), pos, blockState);
+    }
+    //Handlers
+
     public final ItemStackHandler inventoryHandler = new ItemStackHandler(12) {
         private final int[] bigStackCounts = new int[8]; // For slots 4-11
 
@@ -64,9 +70,9 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             if (slot < 4) {
-                return stack.getItem() instanceof ProcessingUpgrade ||
-                        stack.getItem() instanceof SpeedUpgrade ||
-                        stack.getItem() instanceof FortuneUpgrade ||
+                return stack.is(ModTags.PROCESSING_UPGRADES) ||
+                        stack.is(ModTags.SPEED_UPGRADES) ||
+                        stack.is(ModTags.FORTUNE_UPGRADES) ||
                         stack.is(ModItems.AUTO_SMELTING_UPGRADE);
             }
             return stack.is(Tags.Items.ORES);
@@ -369,13 +375,11 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
         }
     };
 
+    //Variables
     private int process = 0;
     private int maxProcess = 512;
 
-    public OreCoalescerBlockEntity(BlockPos pos, BlockState blockState) {
-        super(ModBlockEntities.ORE_COALESCER_BE.get(), pos, blockState);
-    }
-
+    //Extra
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
@@ -424,17 +428,6 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
         }
     }
 
-    public int getTotalItemCount() {
-        int count = 0;
-        for (int i = 0; i < inventoryHandler.getSlots(); i++) {
-            count += inventoryHandler.getStackInSlot(i).getCount();
-        }
-        for (int i = 0; i < outputHandler.getSlots(); i++) {
-            count += outputHandler.getStackInSlot(i).getCount();
-        }
-        return count;
-    }
-
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         tag.put("inventory", inventoryHandler.serializeNBT(registries));
@@ -453,6 +446,18 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
         this.process = tag.getInt("ore_coalescer.process");
         this.maxProcess = tag.getInt("ore_coalescer.max_process");
         this.energyHandler.receiveEnergy(tag.getInt("ore_coalescer.energy"), false);
+    }
+
+    //Utility
+    public int getTotalItemCount() {
+        int count = 0;
+        for (int i = 0; i < inventoryHandler.getSlots(); i++) {
+            count += inventoryHandler.getStackInSlot(i).getCount();
+        }
+        for (int i = 0; i < outputHandler.getSlots(); i++) {
+            count += outputHandler.getStackInSlot(i).getCount();
+        }
+        return count;
     }
 
     private ItemStack forceInsertItemStacked(ItemStackHandler handler, ItemStack stack) {
@@ -510,17 +515,23 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
             return;
         }
 
-        IItemHandler[] neighborHandlers = Utils.getItemHandlers(level, getBlockPos());
+        // Iterate through all slots in the output handler
         for (int i = 0; i < outputHandler.getSlots(); i++) {
             ItemStack stackInSlot = outputHandler.getStackInSlot(i);
+
             if (!stackInSlot.isEmpty()) {
-                ItemStack toInsert = stackInSlot.copy();
-                ItemStack remainder = Utils.moveItem(neighborHandlers, toInsert);
-                outputHandler.setStackInSlot(i, remainder);
+                ItemStack remainder = Utils.moveItem(level, getBlockPos(), stackInSlot.copy());
+
+                // If the remainder is different from the original, something was moved
+                if (remainder.getCount() != stackInSlot.getCount()) {
+                    outputHandler.setStackInSlot(i, remainder);
+                    setChanged();
+                }
             }
         }
     }
 
+    //Main
     public void tick(Level level, BlockPos blockPos, BlockState blockState, OreCoalescerBlockEntity blockEntity) {
         if(level.isClientSide()) return;
 

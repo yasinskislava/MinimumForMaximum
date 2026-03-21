@@ -8,10 +8,7 @@ import net.neoforged.neoforge.network.IContainerFactory;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import rewqazwas.minformax.MinForMax;
-import rewqazwas.minformax.screen.custom.EternalGeneratorMenu;
-import rewqazwas.minformax.screen.custom.FarmerMenu;
-import rewqazwas.minformax.screen.custom.IndexLabMenu;
-import rewqazwas.minformax.screen.custom.OreCoalescerMenu;
+import rewqazwas.minformax.screen.custom.*;
 
 
 public class ModMenuTypes {
@@ -21,7 +18,7 @@ public class ModMenuTypes {
     public static final DeferredHolder<MenuType<?>, MenuType<EternalGeneratorMenu>> ETERNAL_GENERATOR_MENU = registerMenuType("eternal_generator_menu", EternalGeneratorMenu::new);
     public static final DeferredHolder<MenuType<?>, MenuType<OreCoalescerMenu>> ORE_COALESCER_MENU = registerMenuType("ore_coalescer_menu", OreCoalescerMenu::new);
     public static final DeferredHolder<MenuType<?>, MenuType<FarmerMenu>> FARMER_MENU = registerMenuType("farmer_menu", FarmerMenu::new);
-
+    public static final DeferredHolder<MenuType<?>, MenuType<PandoraBoxMenu>> PANDORA_MENU = registerMenuType("pandora_box_menu", PandoraBoxMenu::new);
 
     private static <T extends AbstractContainerMenu>DeferredHolder<MenuType<?>, MenuType<T>> registerMenuType(String name, IContainerFactory<T> factory) {
         return MENUS.register(name, () -> IMenuTypeExtension.create(factory));

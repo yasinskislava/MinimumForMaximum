@@ -29,35 +29,14 @@ import rewqazwas.minformax.custom.utility.Utils;
 import java.util.Map;
 
 public class BlockReplicatorBlockEntity extends MachineBaseEntity {
-    public final ItemStackHandler upgradeHandler = new ItemStackHandler(2) {
-        @Override
-        public int getSlotLimit(int slot) {
-            return 1;
-        }
+    public BlockReplicatorBlockEntity(BlockPos pos, BlockState blockState) {
+        super(ModBlockEntities.BLOCK_REPLICATOR_BE.get(), pos, blockState);
+    }
+    //Handlers
 
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            return stack.getItem() instanceof SpeedUpgrade || (stack.getItem() instanceof ProcessingUpgrade && !(stack.getItem() == ModItems.ULTIMATE_PROCESSING_UPGRADE.get()));
-        }
+    public final Utils.UpgradeItemHandler upgradeHandler = new Utils.UpgradeItemHandler(2);
 
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if(Utils.canPass(this, stack)){
-                return stack;
-            }
-            return super.insertItem(slot, stack, simulate);
-        }
-    };
-
-    public final ItemStackHandler itemHandler = new ItemStackHandler(1) {
-        @Override
-        protected void onContentsChanged(int slot) {
-            setChanged();
-            if(!level.isClientSide()) {
-                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
-            }
-        }
-
+    public final Utils.SingleItemHandler itemHandler = new Utils.SingleItemHandler(1) {
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             if (!(stack.getItem() instanceof BlockItem)) return false;
@@ -65,37 +44,21 @@ public class BlockReplicatorBlockEntity extends MachineBaseEntity {
         }
 
         @Override
-        public int getSlotLimit(int slot) {
-            return 1;
-        }
-
-        @Override
-        protected int getStackLimit(int slot, ItemStack stack) {
-            return 1;
+        protected void onContentsChanged(int slot) {
+            setChanged();
+            if (level != null && !level.isClientSide) {
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+            }
         }
     };
 
-    public final EnergyStorage energyHandler = new EnergyStorage(40_960_000) {
-        @Override
-        public int receiveEnergy(int toReceive, boolean simulate) {
-            setChanged();
-            return super.receiveEnergy(toReceive, simulate);
-        }
+    public final EnergyStorage energyHandler = new EnergyStorage(40_960_000);
 
-        @Override
-        public int extractEnergy(int toExtract, boolean simulate) {
-            setChanged();
-            return super.extractEnergy(toExtract, simulate);
-        }
-    };
-
+    //Variables
     private int process = 0;
     private int maxProcess = 256;
 
-    public BlockReplicatorBlockEntity(BlockPos pos, BlockState blockState) {
-        super(ModBlockEntities.BLOCK_REPLICATOR_BE.get(), pos, blockState);
-    }
-
+    //Extra
     @Override
     public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
@@ -104,17 +67,6 @@ public class BlockReplicatorBlockEntity extends MachineBaseEntity {
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         return saveWithoutMetadata(registries);
-    }
-
-    public void drops() {
-        SimpleContainer inv = new SimpleContainer(upgradeHandler.getSlots() + itemHandler.getSlots());
-        for(int i = 0; i < upgradeHandler.getSlots(); i++){
-            inv.setItem(i, upgradeHandler.getStackInSlot(i));
-        }
-        for(int i = 0; i < itemHandler.getSlots(); i++){
-            inv.setItem(i + upgradeHandler.getSlots(), itemHandler.getStackInSlot(i));
-        }
-        Containers.dropContents(this.level, this.worldPosition, inv);
     }
 
     @Override
@@ -137,6 +89,18 @@ public class BlockReplicatorBlockEntity extends MachineBaseEntity {
         this.energyHandler.receiveEnergy(tag.getInt("block_replicator.energy"), false);
     }
 
+    public void drops() {
+        SimpleContainer inv = new SimpleContainer(upgradeHandler.getSlots() + itemHandler.getSlots());
+        for(int i = 0; i < upgradeHandler.getSlots(); i++){
+            inv.setItem(i, upgradeHandler.getStackInSlot(i));
+        }
+        for(int i = 0; i < itemHandler.getSlots(); i++){
+            inv.setItem(i + upgradeHandler.getSlots(), itemHandler.getStackInSlot(i));
+        }
+        Containers.dropContents(this.level, this.worldPosition, inv);
+    }
+
+    //Utility
     private BlockReplicatorData getData(ItemStack stack) {
         if (stack.isEmpty() || !(stack.getItem() instanceof BlockItem)) return null;
 
@@ -160,6 +124,7 @@ public class BlockReplicatorBlockEntity extends MachineBaseEntity {
         return null;
     }
 
+    //Main
     public void tick(Level level, BlockPos blockPos, BlockState blockState, BlockReplicatorBlockEntity blockEntity) {
         if(level.isClientSide()) return;
 

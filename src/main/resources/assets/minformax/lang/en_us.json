@@ -11,6 +11,7 @@
   "block.minformax.block_replicator": "Block Replicator",
   "block.minformax.ore_coalescer": "Ore Coalescer",
   "block.minformax.farmer": "Farmer",
+  "block.minformax.pandora_box": "Pandora Box",
 
   "minformax.jade.owner": "§aOwner: §c%s",
   "config.jade.plugin_minformax.owner": "Owner",
@@ -30,7 +31,8 @@
   "tooltip.minformax.quantum_foam": "§bShift + Right Click §awith §dQuantum Ingot §aon §eEternal Generator. §cIt must have at least 5120 overload.",
   "tooltip.minformax.overload": "§a1 Overload Point = 1 Excessive Item.",
   "tooltip.minformax.ore_coalescer": "§aUltimate processing solution for the ores",
-  "tooltip.minformax.ultimate_speed_upgrade": "§a0x energy consumption",
+  "tooltip.minformax.ultimate_speed_upgrade": "§c0x energy consumption",
+  "tooltip.minformax.ultimate_processing_upgrade": "§cOnly for the §eOre Coalescer.",
   "tooltip.minformax.inverted_upgrade": "§aMain ↔ Additional",
   "tooltip.minformax.strength_upgrade": "§aAllows to farm bosses.",
   "tooltip.minformax.auto_smelting_upgrade": "§aSmelts items automatically",
@@ -42,6 +44,8 @@
   "tooltip.minformax.upgrade_item": "§bShift + Right Click §ato insert/extract upgrade.",
   "tooltip.minformax.farmer": "§aYour whole farm in 1 block!!",
   "tooltip.minformax.watering_upgrade": "§aSpeeds up the growth.",
+  "tooltip.minformax.collect_xp": "§aCollect",
+  "tooltip.minformax.linker": "§aCollects overload every minute.",
 
   "message.minformax.ore_coalescer.item_overflow": "§aCurrent block contains more than §c4096 items§a. §bHold Shift §ato break the block. ",
   "message.minformax.warning": "§cLarge amount of entities may cause lag spike!!!",
@@ -50,6 +54,8 @@
   "message.minformax.scanner.new_entry": "§aNew entry added to your index: §e%s",
   "message.minformax.scanner.exists": "§eEntry already exists in your index: §e%s",
   "message.minformax.scanner.cannot_scan": "§cThis entity cannot be scanned: §e%s",
+  "message.minformax.linker.linked": "§aLinked",
+  "message.minformax.linker.cleared": "§cUnlinked",
 
   "item.minformax.scanner": "Scanner",
   "item.minformax.quantum_foam": "Quantum Foam",
@@ -93,5 +99,8 @@
   "item.minformax.blank_module_6": "Custom Module 6",
   "item.minformax.blank_module_7": "Custom Module 7",
   "item.minformax.blank_module_8": "Custom Module 8",
-  "item.minformax.watering_upgrade": "Watering Upgrade"
+  "item.minformax.watering_upgrade": "Watering Upgrade",
+  "item.minformax.frozen_crystal": "Frozen Crystal",
+  "item.minformax.frozen_core": "Frozen Core",
+  "item.minformax.linker": "Absorber"
 }

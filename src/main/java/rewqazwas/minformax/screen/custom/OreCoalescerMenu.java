@@ -204,16 +204,14 @@ public class OreCoalescerMenu extends AbstractContainerMenu {
     }
 
     class UpgradeSlot extends SlotItemHandler {
-        private final IItemHandler itemHandler;
         public UpgradeSlot(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
             super(itemHandler, index, xPosition, yPosition);
-            this.itemHandler = itemHandler;
         }
 
         @Override
         public boolean mayPlace(ItemStack stack) {
             return stack.getItem() instanceof UpgradeItem
-                    && !Utils.canPass(itemHandler, stack, UPGRADE_SLOTS)
+                    && !Utils.canPass(this.getItemHandler(), stack, UPGRADE_SLOTS)
                     && (stack.is(ModTags.SPEED_UPGRADES)
                     || stack.is(ModTags.PROCESSING_UPGRADES)
                     || stack.is(ModItems.AUTO_SMELTING_UPGRADE)

@@ -13,6 +13,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import rewqazwas.minformax.MinForMax;
+import rewqazwas.minformax.custom.utility.UpgradeHud;
 import rewqazwas.minformax.custom.utility.Utils;
 
 
@@ -68,8 +69,15 @@ public class EternalGeneratorScreen extends AbstractContainerScreen<EternalGener
         guiGraphics.blit(XP_BAR, x + 31, y - 15, 0, 0, this.menu.getXPProgress(), 12, 102, 12);
         guiGraphics.blit(PROGRESS_BAR, x + 44, y + 70, 0, 0, this.menu.getProgress(), 6, 88, 6);
         var lvl = this.menu.getXPLevel();
-        var pos = (lvl < 100) ? 11 : (lvl < 1000) ? 8 : (lvl < 10000) ? 5 : 16;
-        guiGraphics.drawString(this.font, lvl + "", x + pos, y - 13, 16777215, true);
+        var pos = 5;
+        if(lvl <= 9){
+            pos = 13;
+        } else if(lvl <= 99) {
+            pos = 11;
+        } else if(lvl <= 1000) {
+            pos = 7;
+        }
+        guiGraphics.drawString(this.font, Utils.getDelimeter(lvl), x + pos, y - 13, 16777215, true);
     }
 
     @Override
@@ -115,6 +123,7 @@ public class EternalGeneratorScreen extends AbstractContainerScreen<EternalGener
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
+        UpgradeHud.render(guiGraphics, this.minecraft, this.menu.blockEntity);
     }
 
     @Override
@@ -135,6 +144,9 @@ public class EternalGeneratorScreen extends AbstractContainerScreen<EternalGener
         }
         if(Math.clamp(x , posX + 6, posX + 12) == x && Math.clamp(y, posY + 70, posY + 80) == y) {
             guiGraphics.renderTooltip(this.font, Component.translatable("tooltip.minformax.overload"), x, y);
+        }
+        if(Math.clamp(x , posX + 135, posX + 170) == x && Math.clamp(y, posY - 15, posY - 3) == y) {
+            guiGraphics.renderTooltip(this.font, Component.translatable("tooltip.minformax.collect_xp"), x, y);
         }
     }
 

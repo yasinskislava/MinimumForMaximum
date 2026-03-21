@@ -25,37 +25,12 @@ import rewqazwas.minformax.custom.ModBlockEntities;
 import rewqazwas.minformax.custom.component.ModDataComponents;
 import rewqazwas.minformax.custom.index.HolderClass;
 import rewqazwas.minformax.custom.items.ModItems;
+import rewqazwas.minformax.custom.utility.Utils;
 import rewqazwas.minformax.screen.custom.IndexLabMenu;
 
 import java.util.TreeMap;
 
 public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
-    public final ItemStackHandler itemHandler = new ItemStackHandler(1) {
-        @Override
-        protected int getStackLimit(int slot, ItemStack stack) { return 1; }
-
-        @Override
-        protected void onContentsChanged(int slot) {
-            setChanged();
-            if(!level.isClientSide()) {
-                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
-            }
-        }
-    };
-    protected final ContainerData data;
-    private int mobKey = -1;
-    private int process = 0;
-    private String keyName = null;
-    private HolderClass holder = null;
-    public String owner;
-
-
-    @Override
-    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
-
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) { return saveWithoutMetadata(registries); }
-
     public IndexLabBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.INDEX_LAB_BE.get(), pos, blockState);
         data = new ContainerData() {
@@ -82,7 +57,25 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
             }
         };
     }
+    //Handlers
 
+    public final Utils.SingleItemHandler itemHandler = new Utils.SingleItemHandler(1);
+
+    protected final ContainerData data;
+
+    //Variables
+    private int mobKey = -1;
+    private int process = 0;
+    private String keyName = null;
+    private HolderClass holder = null;
+    public String owner;
+
+    //Extra
+    @Override
+    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) { return saveWithoutMetadata(registries); }
 
     public void drops() {
         SimpleContainer inv = new SimpleContainer(itemHandler.getSlots());
@@ -135,11 +128,13 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
         setChanged();
     }
 
+    //Utility
     private void resetProcess() {
         this.process = 0;
         setChanged();
     }
 
+    //Main
     public void tick(Level level, BlockPos blockPos, BlockState blockState, IndexLabBlockEntity blockEntity) {
         ItemStack loader = blockEntity.itemHandler.getStackInSlot(0);
         if (!loader.isEmpty() && (loader.getItem() == ModItems.MEMORY_SHARD.get() || loader.getItem() == ModItems.CHAOS_SHARD.get()) && loader.get(ModDataComponents.MOB_INDEX) == null) {
@@ -153,8 +148,6 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
                             var map = new TreeMap<>(player.getData(ModAttachmentTypes.INDEX_SYNC));
                             keyName = map.keySet().toArray(new String[0])[mobKey];
                             holder = map.get(keyName);
-                            System.out.println(keyName);
-                            System.out.println(holder);
                             break;
                         }
                     }

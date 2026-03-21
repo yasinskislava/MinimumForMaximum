@@ -17,8 +17,6 @@ import rewqazwas.minformax.custom.blocks.ModBlocks;
 import rewqazwas.minformax.custom.component.ModDataComponents;
 import rewqazwas.minformax.custom.items.AccShard;
 import rewqazwas.minformax.custom.items.ModItems;
-import rewqazwas.minformax.custom.items.upgrades.FortuneUpgrade;
-import rewqazwas.minformax.custom.items.upgrades.UpgradeItem;
 import rewqazwas.minformax.custom.utility.Utils;
 import rewqazwas.minformax.screen.ModMenuTypes;
 
@@ -37,7 +35,7 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
     private static final int CUSTOM_INVENTORY_FIRST_SLOT_INDEX = VANILLA_SLOT_COUNT;
 
     public EternalGeneratorMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
-        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(5));
+        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(6));
     }
 
     public EternalGeneratorMenu(int containerId, Inventory inv, BlockEntity blockEntity, ContainerData data) {
@@ -102,15 +100,15 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
     }
 
     public int getXPProgress() {
-        int xp = this.data.get(3);
+        long xp = (long)this.data.get(3) + (long)this.data.get(5) * Integer.MAX_VALUE;
         var res = Utils.calculateLevel(xp);
-        return Math.round((res[1] / (float)res[2]) * 102);
+        return Math.round((res.currentXp() / (float)res.xpForNext()) * 102);
     }
 
     public int getXPLevel() {
-        int xp = this.data.get(3);
+        long xp = (long)this.data.get(3) + (long)this.data.get(5) * Integer.MAX_VALUE;
         var res = Utils.calculateLevel(xp);
-        return res[0];
+        return res.level();
     }
 
     public int getEnergyLevel() {
@@ -132,10 +130,14 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
 
     @Override
     public boolean clickMenuButton(Player player, int id) {
-        player.giveExperiencePoints(this.data.get(3));
-        var temp = this.data.get(4);
-        this.data.set(3, 0);
-        this.data.set(4, temp);
+        long totalXp = (long)this.data.get(3) + (long)this.data.get(5) * Integer.MAX_VALUE;
+        int xpToGive = (int)Math.min(totalXp, Integer.MAX_VALUE);
+
+        player.giveExperiencePoints(xpToGive);
+
+        long remainingXp = totalXp - xpToGive;
+        this.data.set(3, (int)(remainingXp % Integer.MAX_VALUE));
+        this.data.set(5, (int)(remainingXp / Integer.MAX_VALUE));
         return super.clickMenuButton(player, id);
     }
 
@@ -199,26 +201,22 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
     }
 
     class UpgradeSlot extends SlotItemHandler {
-        private IItemHandler itemHandler;
         public UpgradeSlot(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
             super(itemHandler, index, xPosition, yPosition);
-            this.itemHandler = itemHandler;
+        }
+
+        @Override
+        public int getMaxStackSize() {
+            return 1;
         }
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            return stack.getItem() instanceof UpgradeItem
-                    && !Utils.canPass(itemHandler, stack)
-                    && (stack.is(ModTags.PROCESSING_UPGRADES) && !stack.is(ModItems.ULTIMATE_PROCESSING_UPGRADE)
+            return !Utils.canPass(this.getItemHandler(), stack)
+                    && (stack.is(ModTags.EXTRA_DROP_UPGRADES)
+                    || stack.is(ModItems.INVERTED_UPGRADE)
                     || stack.is(ModTags.SPEED_UPGRADES)
-                    || stack.is(ModTags.EXTRA_DROP_UPGRADES)
-                    || stack.is(ModItems.INVERTED_UPGRADE));
+                    || (stack.is(ModTags.PROCESSING_UPGRADES) && !(stack.getItem() == ModItems.ULTIMATE_PROCESSING_UPGRADE.get())));
         }
-
-        @Override
-        public int getMaxStackSize(ItemStack stack) {
-            return 1;
-        }
-
     }
 }

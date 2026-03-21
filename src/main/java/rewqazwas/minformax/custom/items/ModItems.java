@@ -1,6 +1,7 @@
 package rewqazwas.minformax.custom.items;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -17,7 +18,10 @@ public class ModItems {
 
     public static final DeferredItem<Item> QUANTUM_FOAM = ITEMS.register("quantum_foam", QuantumFoamItem::new);
     public static final DeferredItem<Item> QUANTUM_INGOT = ITEMS.register("quantum_ingot", QuantumIngotItem::new);
+    public static final DeferredItem<Item> FROZEN_CRYSTAL = ITEMS.register("frozen_crystal", () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> FROZEN_CORE = ITEMS.register("frozen_core", () -> new Item(new Item.Properties()));
 
+    public static final DeferredItem<Item> LINKER = ITEMS.register("linker", () -> new LinkerItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<Item> SCANNER = ITEMS.register("scanner", () -> new ScannerItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<Item> ANALYZER = ITEMS.register("analyzer", () -> new AnalyzerItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<Item> MEMORY_SHARD = ITEMS.register("memory_shard", () -> new AccShard(new Item.Properties().stacksTo(1)));
@@ -38,7 +42,13 @@ public class ModItems {
     public static final DeferredItem<Item> PROCESSING_UPGRADE_TIER2 = ITEMS.register("processing_upgrade_tier2", () -> new ProcessingUpgrade(16));
     public static final DeferredItem<Item> PROCESSING_UPGRADE_TIER3 = ITEMS.register("processing_upgrade_tier3", () -> new ProcessingUpgrade(64));
     public static final DeferredItem<Item> PROCESSING_UPGRADE_TIER4 = ITEMS.register("processing_upgrade_tier4", () -> new ProcessingUpgrade(256));
-    public static final DeferredItem<Item> ULTIMATE_PROCESSING_UPGRADE = ITEMS.register("ultimate_processing_upgrade", () -> new ProcessingUpgrade(9999));
+    public static final DeferredItem<Item> ULTIMATE_PROCESSING_UPGRADE = ITEMS.register("ultimate_processing_upgrade", () -> new ProcessingUpgrade(9999) {
+        @Override
+        public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+            super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+            tooltipComponents.add(Component.translatable("tooltip.minformax.ultimate_processing_upgrade"));
+        }
+    });
     public static final DeferredItem<Item> EXTRA_DROP_UPGRADE_TIER1 = ITEMS.register("extra_drop_upgrade_tier1", () -> new ExtraDropUpgrade(25));
     public static final DeferredItem<Item> EXTRA_DROP_UPGRADE_TIER2 = ITEMS.register("extra_drop_upgrade_tier2", () -> new ExtraDropUpgrade(50));
     public static final DeferredItem<Item> EXTRA_DROP_UPGRADE_TIER3 = ITEMS.register("extra_drop_upgrade_tier3", () -> new ExtraDropUpgrade(75));

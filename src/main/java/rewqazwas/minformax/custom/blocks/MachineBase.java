@@ -45,6 +45,6 @@ public class MachineBase extends BaseEntityBlock {
                 }
             }
         }
-        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+        return ItemInteractionResult.sidedSuccess(level.isClientSide());
     }
 }

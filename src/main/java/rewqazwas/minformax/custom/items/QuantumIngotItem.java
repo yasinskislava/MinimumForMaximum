@@ -17,7 +17,7 @@ public class QuantumIngotItem extends Item {
         if(context.getPlayer().isCrouching()){
             var target = context.getLevel().getBlockEntity(context.getClickedPos());
             if(target instanceof EternalGeneratorBlockEntity generator && generator.canConsumeOverload()) {
-                generator.consumeOverload();
+                generator.consumeOverload(5120);
                 var itemStack = context.getItemInHand();
                 itemStack.shrink(1);
                 var inv = context.getPlayer().getInventory();

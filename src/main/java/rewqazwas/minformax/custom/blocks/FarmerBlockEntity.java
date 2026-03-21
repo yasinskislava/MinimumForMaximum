@@ -10,6 +10,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -31,8 +33,11 @@ import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
+import rewqazwas.minformax.config.DataConfigs;
 import rewqazwas.minformax.custom.ModBlockEntities;
 import rewqazwas.minformax.custom.ModTags;
+import rewqazwas.minformax.custom.index.FarmerData;
+import rewqazwas.minformax.custom.index.ModDataReloadListener;
 import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.items.upgrades.FortuneUpgrade;
 import rewqazwas.minformax.custom.items.upgrades.ProcessingUpgrade;
@@ -47,70 +52,43 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider {
-    public final ItemStackHandler upgradeHandler = new ItemStackHandler(4) {
-        @Override
-        public int getSlotLimit(int slot) {
-            return 1;
-        }
+    public FarmerBlockEntity(BlockPos pos, BlockState blockState) {
+        super(ModBlockEntities.FARMER_BE.get(), pos, blockState);
+    }
+    //Handlers
 
+    public final Utils.UpgradeItemHandler upgradeHandler = new Utils.UpgradeItemHandler(4) {
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return stack.getItem() instanceof UpgradeItem
-                    && !Utils.canPass(itemHandler, stack)
-                    && (stack.is(ModTags.PROCESSING_UPGRADES) && !stack.is(ModItems.ULTIMATE_PROCESSING_UPGRADE)
-                    || stack.is(ModTags.SPEED_UPGRADES)
-                    || stack.is(ModItems.WATERING_UPGRADE)
-                    || stack.is(ModTags.FORTUNE_UPGRADES));
-        }
-
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if(Utils.canPass(this, stack)){
-                return stack;
-            }
-            return super.insertItem(slot, stack, simulate);
+            return stack.is(ModItems.WATERING_UPGRADE)
+                    || stack.is(ModTags.FORTUNE_UPGRADES)
+                    || super.isItemValid(slot, stack);
         }
     };
 
-    public final ItemStackHandler itemHandler = new ItemStackHandler(1) {
-        @Override
-        protected void onContentsChanged(int slot) {
-            setChanged();
-            if(level != null && !level.isClientSide()) {
-                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
-            }
-        }
-
+    public final Utils.SingleItemHandler itemHandler = new Utils.SingleItemHandler(1) {
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            Block cropBlock = stack.getItem() instanceof BlockItem blockItem ? blockItem.getBlock() : null;
-            return stack.is(Tags.Items.SEEDS) || stack.is(Tags.Items.CROPS) || stack.is(ModTags.FARMER_SELF_SUSTAINING) || cropBlock instanceof FlowerBlock || cropBlock instanceof SaplingBlock;
-        }
+            String itemString = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
 
-        @Override
-        public int getSlotLimit(int slot) {
-            return 1;
-        }
+            for (FarmerData data : ModDataReloadListener.FARMER_DATA.values()) {
+                // Prohibited check takes priority
+                if (data.prohibitedItems().contains(itemString)) return false;
+                for (String tag : data.prohibitedTags()) {
+                    if (stack.is(TagKey.create(BuiltInRegistries.ITEM.key(), ResourceLocation.parse(tag)))) return false;
+                }
 
-        @Override
-        protected int getStackLimit(int slot, ItemStack stack) {
-            return 1;
+                // Allowed check
+                if (data.allowedItems().contains(itemString)) return true;
+                for (String tag : data.allowedTags()) {
+                    if (stack.is(TagKey.create(BuiltInRegistries.ITEM.key(), ResourceLocation.parse(tag)))) return true;
+                }
+            }
+            return false; // Only allow items found in config
         }
     };
 
-    public final EnergyStorage energyHandler = new EnergyStorage(40_960_000) {
-        @Override
-        public int receiveEnergy(int toReceive, boolean simulate) {
-            setChanged();
-            return super.receiveEnergy(toReceive, simulate);
-        }
-
-        @Override
-        public int extractEnergy(int toExtract, boolean simulate) {
-            setChanged();
-            return super.extractEnergy(toExtract, simulate);
-        }
-    };
+    public final EnergyStorage energyHandler = new EnergyStorage(40_960_000);
 
     protected final ContainerData data = new ContainerData() {
         @Override
@@ -138,14 +116,12 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
         }
     };
 
+    //Variables
     private int process = 0;
     private int maxProcess = 256;
     private int duration = maxProcess;
 
-    public FarmerBlockEntity(BlockPos pos, BlockState blockState) {
-        super(ModBlockEntities.FARMER_BE.get(), pos, blockState);
-    }
-
+    //Extra
     @Override
     public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
@@ -188,6 +164,33 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
         this.energyHandler.receiveEnergy(tag.getInt("farmer.energy"), false);
     }
 
+    @Override
+    public Component getDisplayName() {
+        return Component.translatable("block.minformax.farmer");
+    }
+
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
+        return new FarmerMenu(containerId, playerInventory, this, this.data);
+    }
+
+    //Utility
+    public static int wateringChance() {
+        double chance = ThreadLocalRandom.current().nextDouble(100.0);
+        if (chance < 90.0) {
+            return 2;
+        } else if (chance < 99.0) {
+            return 4;
+        } else {
+            return 8;
+        }
+    }
+
+    private List<ItemStack> getPotentialDrops(ServerLevel level, ItemStack seedStack) {
+        return Utils.getFarmerDrops(level, seedStack);
+    }
+
+    //Main
     public void tick(Level level, BlockPos blockPos, BlockState blockState, FarmerBlockEntity blockEntity) {
         if(level.isClientSide()) return;
 
@@ -217,7 +220,7 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
             }
         }
 
-        int energyCost = stackMultiplier;
+        int energyCost = stackMultiplier * speedModifier * DataConfigs.farmCoefficient.get();
         if (speedModifier == 9999) {
             energyCost = 0;
         }
@@ -231,7 +234,6 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
         }
         process++;
         if(process >= maxProcess) {
-            System.out.println(maxProcess);
             for (ItemStack drop : drops) {
                 drop.setCount(drop.getCount() * stackMultiplier * fortuneMultiplier);
                 Utils.moveItem(level, blockPos, drop);
@@ -239,96 +241,5 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
             process = 0;
         }
         setChanged(level, blockPos, blockState);
-    }
-
-    public static int wateringChance() {
-        double chance = ThreadLocalRandom.current().nextDouble(100.0);
-        if (chance < 90.0) {
-            return 2;
-        } else if (chance < 99.0) {
-            return 4;
-        } else {
-            return 8;
-        }
-    }
-
-    private List<ItemStack> getPotentialDrops(ServerLevel level, ItemStack seedStack) {
-        if (!(seedStack.getItem() instanceof BlockItem blockItem)) return Collections.emptyList();
-        Block cropBlock = blockItem.getBlock();
-        if (seedStack.getItem() == Items.MELON_SEEDS) {
-            return List.of(new ItemStack(Items.MELON, 1));
-        } else if (seedStack.getItem() == Items.PUMPKIN_SEEDS) {
-            return List.of(new ItemStack(Items.PUMPKIN, 1));
-        }  else if (seedStack.is(ModTags.FARMER_SELF_SUSTAINING)) {
-            return List.of(new ItemStack(seedStack.getItem(), 1));
-        } else if (cropBlock instanceof FlowerBlock) {
-            return List.of(new ItemStack(seedStack.getItem(), 1));
-        } else if (cropBlock instanceof SaplingBlock) {
-            var drops = new ArrayList<ItemStack>();
-            
-            ResourceLocation key = BuiltInRegistries.BLOCK.getKey(cropBlock);
-            String path = key.getPath();
-            String logPath = path.replace("sapling", "log");
-            String leavesPath = path.replace("sapling", "leaves");
-            
-            if (path.equals("mangrove_propagule")) {
-                logPath = "mangrove_log";
-                leavesPath = "mangrove_leaves";
-            } else if (path.equals("azalea") || path.equals("flowering_azalea")) {
-                 logPath = "oak_log";
-                 leavesPath = "azalea_leaves";
-                 if (path.equals("flowering_azalea")) leavesPath = "flowering_azalea_leaves";
-            }
-
-            Block logBlock = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(key.getNamespace(), logPath));
-            Block leavesBlock = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(key.getNamespace(), leavesPath));
-
-            if (logBlock != Blocks.AIR) {
-                drops.add(new ItemStack(logBlock, 2 + level.random.nextInt(2)));
-            }
-            if (leavesBlock != Blocks.AIR) {
-                drops.add(new ItemStack(leavesBlock, 1));
-            }
-            
-            return drops;
-        }
-
-        BlockState fullyGrownState;
-        if (cropBlock instanceof CropBlock ageable) {
-            fullyGrownState = ageable.getStateForAge(ageable.getMaxAge());
-        } else {
-            fullyGrownState = cropBlock.defaultBlockState();
-            var optAgeProp = cropBlock.getStateDefinition().getProperties().stream()
-                    .filter(p -> p instanceof IntegerProperty && p.getName().equals("age"))
-                    .map(p -> (IntegerProperty) p)
-                    .findFirst();
-
-            if (optAgeProp.isPresent()) {
-                var ageProperty = optAgeProp.get();
-                int maxAge = Collections.max(ageProperty.getPossibleValues());
-                fullyGrownState = fullyGrownState.setValue(ageProperty, maxAge);
-            }
-        }
-
-        LootParams.Builder builder = new LootParams.Builder(level)
-                .withParameter(LootContextParams.ORIGIN, Vec3.ZERO)
-                .withParameter(LootContextParams.TOOL, ItemStack.EMPTY);
-
-        List<ItemStack> drops = new ArrayList<>(fullyGrownState.getDrops(builder));
-        if (seedStack.is(ModTags.MYSTICAL_AGRICULTURE_SEEDS)) {
-            drops.removeIf(stack -> stack.is(seedStack.getItem()));
-        }
-
-        return drops;
-    }
-
-    @Override
-    public Component getDisplayName() {
-        return Component.translatable("block.minformax.farmer");
-    }
-
-    @Override
-    public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        return new FarmerMenu(containerId, playerInventory, this, this.data);
     }
 }

@@ -28,6 +28,10 @@ public class ModBlockStateProvider extends BlockStateProvider {
         blockWithItem(ModBlocks.BLOCK_REPLICATOR);
         blockWithItem(ModBlocks.ORE_COALESCER);
         blockWithItem(ModBlocks.FARMER);
+
+        simpleBlock(ModBlocks.PANDORA_BOX_CORE.get(), new ModelFile.UncheckedModelFile("minformax:block/pandora_box"));
+        simpleBlock(ModBlocks.PANDORA_BOX_HATCH.get(), new ModelFile.UncheckedModelFile("minformax:block/pandora_box"));
+        simpleBlock(ModBlocks.PANDORA_BOX_DUMMY.get(), new ModelFile.UncheckedModelFile("minformax:block/pandora_box"));
     }
 
 

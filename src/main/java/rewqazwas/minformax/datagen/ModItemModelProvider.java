@@ -46,6 +46,8 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.QUANTUM_FOAM.get());
         basicItem(ModItems.QUANTUM_INGOT.get());
         basicItem(ModItems.ANALYZER.get());
+        basicItem(ModItems.FROZEN_CORE.get());
+        basicItem(ModItems.FROZEN_CRYSTAL.get());
 
         // Blank modules using the same texture
         withExistingParent(ModItems.BLANK_MODULE_1.getId().getPath(),

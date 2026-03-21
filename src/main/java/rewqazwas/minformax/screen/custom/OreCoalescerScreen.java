@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import rewqazwas.minformax.MinForMax;
+import rewqazwas.minformax.custom.utility.UpgradeHud;
 import rewqazwas.minformax.custom.utility.Utils;
 
 public class OreCoalescerScreen extends AbstractContainerScreen<OreCoalescerMenu> {
@@ -57,6 +58,7 @@ public class OreCoalescerScreen extends AbstractContainerScreen<OreCoalescerMenu
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
+        UpgradeHud.render(guiGraphics, this.minecraft, this.menu.blockEntity);
     }
 
     @Override

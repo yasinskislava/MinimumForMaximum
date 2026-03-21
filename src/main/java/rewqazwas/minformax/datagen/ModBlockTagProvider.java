@@ -28,6 +28,9 @@ public class ModBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.ORE_COALESCER.get())
                 .add(ModBlocks.FLUID_REPLICATOR.get())
                 .add(ModBlocks.BLOCK_REPLICATOR.get())
-                .add(ModBlocks.FARMER.get());
+                .add(ModBlocks.FARMER.get())
+                .add(ModBlocks.PANDORA_BOX_CORE.get())
+                .add(ModBlocks.PANDORA_BOX_DUMMY.get())
+                .add(ModBlocks.PANDORA_BOX_HATCH.get());
     }
 }

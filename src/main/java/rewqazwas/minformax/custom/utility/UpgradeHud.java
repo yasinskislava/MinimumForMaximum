@@ -87,8 +87,8 @@ public class UpgradeHud {
         int yOffset = 20;
         
         // Adjust position to left side
-        xc -= 200;
-        yc -= 50;
+        xc -= 230;
+        yc -= 20;
 
         if (!displayGroups.isEmpty()) {
             gui.drawString(mc.font, "Supported Upgrades:", xc, yc + 4, 0xFFFFFF, true);
@@ -101,7 +101,7 @@ public class UpgradeHud {
                 ItemStack stack = group.get(index);
 
                 gui.renderFakeItem(stack, xc - 8, yc + yOffset);
-                gui.drawString(mc.font, stack.getHoverName(), xc + 10, yc + yOffset + 4, 0xFFFFFF, true);
+                gui.drawString(mc.font, adaptName(stack.getHoverName().getString()), xc + 10, yc + yOffset + 4, 0xFFFFFF, true);
                 yOffset += 20;
             }
         }
@@ -114,6 +114,10 @@ public class UpgradeHud {
             }
         }
         return false;
+    }
+
+    private static String adaptName(String name) {
+        return name.replace("Upgrade ", "").replace("Upgrade", "").trim();
     }
 
     public static boolean isBlockValid(BlockEntity blockEntity) {

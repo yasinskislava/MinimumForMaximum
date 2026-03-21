@@ -10,6 +10,7 @@ public abstract class MachineBaseEntity extends BlockEntity {
     public MachineBaseEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
+    //Utility
 
     public ItemStackHandler getUpgradeHandler() {
         return switch (this) {

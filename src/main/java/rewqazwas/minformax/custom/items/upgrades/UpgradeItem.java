@@ -34,7 +34,7 @@ public class UpgradeItem extends Item {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         var be = context.getLevel().getBlockEntity(context.getClickedPos());
-        if(context.getPlayer().isCrouching() && isBlockValid(be)){
+        if(context.getPlayer().isShiftKeyDown() && isBlockValid(be)){
             var cap = context.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, context.getClickedPos(), context.getClickedFace());
 
             if (cap != null) {
@@ -91,5 +91,4 @@ public class UpgradeItem extends Item {
         }
         return InteractionResult.sidedSuccess(context.getLevel().isClientSide());
     }
-
 }

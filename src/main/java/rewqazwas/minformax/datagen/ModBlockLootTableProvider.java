@@ -27,6 +27,7 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(ModBlocks.BLOCK_REPLICATOR.get());
         dropSelf(ModBlocks.ORE_COALESCER.get());
         dropSelf(ModBlocks.FARMER.get());
+        dropSelf(ModBlocks.PANDORA_BOX_CORE.get());
     }
 
 

@@ -319,7 +319,7 @@
   "entity.iceandfire.stymphalian_bird": {
     "main_drop": "iceandfire:stymphalian_bird_feather",
     "additional_drop": [
-      "iceandfire:copper_nugger",
+      "iceandfire:copper_nugget",
       "minecraft:iron_ingot",
       "minecraft:copper_ingot"
     ],
@@ -600,7 +600,8 @@
       "irons_spellbooks:blank_rune"
     ],
     "xp": 80,
-    "duration": 5120
+    "duration": 5120,
+    "is_boss": true
   },
   "entity.irons_spellbooks.necromancer": {
     "main_drop": "irons_spellbooks:arcane_essence",
