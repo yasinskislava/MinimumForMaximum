@@ -8,7 +8,19 @@
       "minecraft:kelp",
       "minecraft:bamboo",
       "minecraft:red_mushroom",
-      "minecraft:brown_mushroom"
+      "minecraft:brown_mushroom",
+      "mysticalagriculture:allthemodium_seeds",
+      "mysticalagriculture:eclipse_alloy_seeds",
+      "mysticalagriculture:iesnium_seeds",
+      "mysticalagriculture:lithium_seeds",
+      "mysticalagriculture:mithril_seeds",
+      "mysticalagriculture:neptunium_seeds",
+      "mysticalagriculture:plastic_seeds",
+      "mysticalagriculture:plutonium_seeds",
+      "mysticalagriculture:polonium_seeds",
+      "mysticalagriculture:sky_steel_seeds",
+      "mysticalagriculture:unobtainium_seeds",
+      "mysticalagriculture:vibranium_seeds"
     ],
     "prohibited_items": [
       "minecraft:wheat",

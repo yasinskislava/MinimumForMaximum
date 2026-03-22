@@ -16,6 +16,10 @@ out
 # gradle
 build
 .gradle
+gradle
+settings.gradle
+gradlew
+gradlew.bat
 
 # other
 eclipse
@@ -26,3 +30,8 @@ run-data
 repo
 /src/generated/
 /pics/
+
+# github
+.github
+.gitattributes
+.gitignore
