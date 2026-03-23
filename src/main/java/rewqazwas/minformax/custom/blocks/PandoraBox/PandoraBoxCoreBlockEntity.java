@@ -15,7 +15,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -77,18 +76,31 @@ public class PandoraBoxCoreBlockEntity extends BlockEntity implements MenuProvid
     private long overload = 0;
     private long totalXp = 0;
     private int cooldown = 0;
+    
+    // Cache
+    private long cachedProduction = 0;
+    private boolean cacheDirty = true;
+    private final List<BlockPos> hatchOffsets = new ArrayList<>();
+    private boolean hatchesInitialized = false;
 
 
     //Main
     public void tick(Level level, BlockPos pos, BlockState state) {
         if (level.isClientSide) return;
+        
+        if (cacheDirty) {
+            recalculateCache();
+        }
+        
+        if (!hatchesInitialized) {
+            initializeHatches();
+        }
 
         cooldown++;
-        long xpLevel = Utils.calculateLevel(totalXp).level();
-        double multiplier = Math.log10(xpLevel + 10);
-        long production = (long) (overload * multiplier);
-
+        
         boolean changed = false;
+        long production = this.cachedProduction;
+        
         if (production > 0) {
             int currentEnergy = energyHandler.getEnergyStored();
             int maxEnergy = energyHandler.getMaxEnergyStored();
@@ -98,25 +110,23 @@ public class PandoraBoxCoreBlockEntity extends BlockEntity implements MenuProvid
                 changed = true;
             }
         }
+        
         if (this.energyHandler.getEnergyStored() > 0) {
-            for (BlockPos offset : PandoraBoxCore.STRUCTURE_OFFSETS) {
-                // Only export from Hatch positions (center columns at y -1 and y 1)
-                if (offset.getX() == 0 && offset.getZ() == 0) {
-                    BlockPos hatchPos = pos.offset(offset);
+            for (BlockPos offset : this.hatchOffsets) {
+                BlockPos hatchPos = pos.offset(offset);
 
-                    // Look at neighbors of the HATCH, not the CORE
-                    Utils.forEachNeighborCapability(Capabilities.EnergyStorage.BLOCK, level, hatchPos, (targetHandler, side) -> {
-                        int energyToPush = this.energyHandler.getEnergyStored();
-                        if (energyToPush > 0 && targetHandler.canReceive()) {
-                            // Ensure we aren't pushing back into our own multiblock
-                            int accepted = targetHandler.receiveEnergy(energyToPush, false);
-                            if (accepted > 0) {
-                                this.energyHandler.setEnergy(this.energyHandler.getEnergyStored() - accepted);
-                                setChanged(level, pos, state);
-                            }
+                Utils.forEachNeighborCapability(Capabilities.EnergyStorage.BLOCK, level, hatchPos, (targetHandler, side) -> {
+                    int energyToPush = this.energyHandler.getEnergyStored();
+                    if (energyToPush > 0 && targetHandler.canReceive()) {
+                        int accepted = targetHandler.receiveEnergy(energyToPush, false);
+                        if (accepted > 0) {
+                            this.energyHandler.setEnergy(this.energyHandler.getEnergyStored() - accepted);
+                            setChanged();
                         }
-                    });
-                }
+                    }
+                });
+
+                if (this.energyHandler.getEnergyStored() <= 0) break;
             }
         }
 
@@ -124,22 +134,42 @@ public class PandoraBoxCoreBlockEntity extends BlockEntity implements MenuProvid
             cooldown = 0;
             ItemStack stack = itemHandler.getStackInSlot(0);
             if (!stack.isEmpty()) {
-                if (stack.is(ModItems.LINKER)) {
-                    List<BlockPos> storage = new ArrayList<>(stack.getOrDefault(ModDataComponents.LINKED_POS, List.of()));
+                List<BlockPos> storage = stack.getOrDefault(ModDataComponents.LINKED_POS, List.of());
+                if (!storage.isEmpty()) {
                     for (BlockPos blockPos : storage) {
                         if (level.getBlockEntity(blockPos) instanceof EternalGeneratorBlockEntity generator) {
                             var overloadVal = generator.getOverload();
-                            generator.consumeOverload(overloadVal);
-                            this.overload += overloadVal;
+                            if (overloadVal > 0) {
+                                generator.consumeOverload(overloadVal);
+                                this.overload += overloadVal;
+                                cacheDirty = true;
+                                changed = true;
+                            }
                         }
                     }
-                    changed = true;
                 }
             }
         }
         if (changed) {
             setChanged(level, pos, state);
         }
+    }
+    
+    private void recalculateCache() {
+        long xpLevel = Utils.calculateLevel(totalXp).level();
+        double multiplier = Math.log10(xpLevel + 10);
+        this.cachedProduction = (long) (overload * multiplier);
+        this.cacheDirty = false;
+    }
+    
+    private void initializeHatches() {
+        hatchOffsets.clear();
+        for (BlockPos offset : PandoraBoxCore.STRUCTURE_OFFSETS) {
+            if (offset.getX() == 0 && offset.getZ() == 0) {
+                hatchOffsets.add(offset);
+            }
+        }
+        hatchesInitialized = true;
     }
 
     //Extra
@@ -159,6 +189,7 @@ public class PandoraBoxCoreBlockEntity extends BlockEntity implements MenuProvid
         itemHandler.deserializeNBT(registries, tag.getCompound("inventory"));
         this.overload = tag.getLong("overload");
         this.totalXp = tag.getLong("totalXp");
+        this.cacheDirty = true;
     }
 
     @Override
@@ -185,11 +216,13 @@ public class PandoraBoxCoreBlockEntity extends BlockEntity implements MenuProvid
 
     public void addOverload(long value) {
         this.overload += value;
+        this.cacheDirty = true;
         setChanged();
     }
 
     public void addXp(long value) {
         this.totalXp += value;
+        this.cacheDirty = true;
         setChanged();
     }
 

@@ -3,8 +3,12 @@ package rewqazwas.minformax.custom.utility;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -13,8 +17,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
@@ -31,6 +38,7 @@ import rewqazwas.minformax.custom.index.HolderClass;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
 import rewqazwas.minformax.custom.items.ModItems;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.BiConsumer;
 
@@ -163,11 +171,27 @@ public class Utils {
         return getDelimeter(energy) + "FE";
     }
 
+    public static String simpleEnergyDisplay(long energy) {
+        return getDelimeter(energy) + "FE";
+    }
+
     public static String simpleEnergyDisplay(int energy, int maxEnergy) {
         return getDelimeter(energy) + "FE / " + getDelimeter(maxEnergy) + "FE";
     }
 
     public static String getDelimeter(int value) {
+        if (value >= 1_000_000_000) {
+            return formatToThreeDigits(value / 1_000_000_000.0, "G");
+        } else if (value >= 1_000_000) {
+            return formatToThreeDigits(value / 1_000_000.0, "M");
+        } else if (value >= 1_000) {
+            return formatToThreeDigits(value / 1_000.0, "K");
+        } else {
+            return String.valueOf(value);
+        }
+    }
+
+    public static String getDelimeter(long value) {
         if (value >= 1_000_000_000) {
             return formatToThreeDigits(value / 1_000_000_000.0, "G");
         } else if (value >= 1_000_000) {
@@ -331,15 +355,16 @@ public class Utils {
 
         // 3. Handle Saplings (Tree logic)
         if (seedItem instanceof BlockItem blockItem && blockItem.getBlock() instanceof SaplingBlock) {
-            return getSaplingDrops(seedItem);
+            return getSaplingDrops(level, seedItem);
         }
 
-        // 4. Standard Crops (Wheat, Carrots, Potato, Beetroot)
-        // If we are on client (JEI), we manually map common seeds to crops
-        if (seedItem == Items.WHEAT_SEEDS) return List.of(new ItemStack(Items.WHEAT), new ItemStack(Items.WHEAT_SEEDS));
-        if (seedItem == Items.BEETROOT_SEEDS) return List.of(new ItemStack(Items.BEETROOT), new ItemStack(Items.BEETROOT_SEEDS));
+        // 4. Croptopia tea seeds special handling
+        if (registryName.getNamespace().equals("croptopia") && path.equals("tea_seeds")) {
+             Item teaLeaves = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("croptopia", "tea_leaves"));
+             if (teaLeaves != Items.AIR) return List.of(new ItemStack(teaLeaves), new ItemStack(seedItem));
+        }
 
-        // 5. Generic Fallback: Try to get drops via Loot Tables (Works best on Server)
+        // 5. Generic Fallback: Try to get drops via Loot Tables
         if (seedItem instanceof BlockItem blockItem) {
             Block block = blockItem.getBlock();
             BlockState fullyGrown = getFullyGrownState(block);
@@ -352,6 +377,45 @@ public class Utils {
                 List<ItemStack> drops = fullyGrown.getDrops(builder);
                 if (!drops.isEmpty()) return drops;
             }
+        }
+
+        // 6. Name Guessing (Client/Fallback) for JEI
+        Set<String> candidates = new LinkedHashSet<>();
+        if (path.endsWith("_seeds")) candidates.add(path.replace("_seeds", ""));
+        else if (path.endsWith("_seed")) candidates.add(path.replace("_seed", ""));
+        else if (path.startsWith("seeds_")) candidates.add(path.replace("seeds_", ""));
+        else if (path.startsWith("seed_")) candidates.add(path.replace("seed_", ""));
+        
+        if (path.contains("seeds")) candidates.add(path.replace("seeds", "").replace("__", "_"));
+        if (path.contains("seed")) candidates.add(path.replace("seed", "").replace("__", "_"));
+
+        for (String cropName : candidates) {
+            if (cropName.startsWith("_")) cropName = cropName.substring(1);
+            if (cropName.endsWith("_")) cropName = cropName.substring(0, cropName.length() - 1);
+            if (cropName.isEmpty()) continue;
+
+            Item cropItem = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath(registryName.getNamespace(), cropName));
+            if (cropItem != Items.AIR && cropItem != seedItem) {
+                return List.of(new ItemStack(cropItem), new ItemStack(seedItem));
+            }
+        }
+        
+        // 7. Last resort: Fuzzy search in namespace
+        for (String cropName : candidates) {
+             String cleanName = cropName;
+             if (cleanName.startsWith("_")) cleanName = cleanName.substring(1);
+             if (cleanName.endsWith("_")) cleanName = cleanName.substring(0, cleanName.length() - 1);
+             if (cleanName.isEmpty()) continue;
+
+             for(Item item : BuiltInRegistries.ITEM) {
+                 ResourceLocation r = BuiltInRegistries.ITEM.getKey(item);
+                 if (r.getNamespace().equals(registryName.getNamespace()) && item != seedItem) {
+                     String p = r.getPath();
+                     if (p.equals(cleanName) || p.equals(cleanName + "_item") || p.equals(cleanName + "_fruit") || p.equals(cleanName + "_crop")) {
+                          return List.of(new ItemStack(item), new ItemStack(seedItem));
+                     }
+                 }
+             }
         }
 
         // Default: Return the seed itself if no other logic found
@@ -372,10 +436,14 @@ public class Utils {
                 .orElse(null);
     }
 
+    public static List<ItemStack> getSaplingDrops(Item sapling) {
+        return getSaplingDrops(null, sapling);
+    }
+
     /**
      * Simulates log and leaf drops for a sapling based on its registry name.
      */
-    public static List<ItemStack> getSaplingDrops(Item sapling) {
+    public static List<ItemStack> getSaplingDrops(Level level, Item sapling) {
         ResourceLocation key = BuiltInRegistries.ITEM.getKey(sapling);
         String path = key.getPath();
         List<ItemStack> drops = new ArrayList<>();
@@ -398,12 +466,106 @@ public class Utils {
             return drops;
         }
 
-        // Default Log/Leaf replacement logic (e.g., oak_sapling -> oak_log)
-        Item log = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath(key.getNamespace(), path.replace("_sapling", "_log")));
-        Item leaf = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath(key.getNamespace(), path.replace("_sapling", "_leaves")));
+        if (key.getNamespace().equals("croptopia") && path.endsWith("_sapling")) {
+            String fruitName = path.replace("_sapling", "");
+            Item fruit = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("croptopia", fruitName));
 
-        if (log != Items.AIR) drops.add(new ItemStack(log, logCount));
-        if (leaf != Items.AIR) drops.add(new ItemStack(leaf, 1));
+            if (fruit != Items.AIR) {
+                drops.add(new ItemStack(fruit, 1));
+            }
+
+            drops.add(new ItemStack(Items.OAK_LOG, logCount));
+            drops.add(new ItemStack(Items.OAK_LEAVES, 1));
+
+            return drops;
+        }
+
+        // Try getting configured feature from TreeGrower (advanced reflection)
+        if (level != null && sapling instanceof BlockItem blockItem && blockItem.getBlock() instanceof SaplingBlock saplingBlock) {
+            try {
+                Field growerField = SaplingBlock.class.getDeclaredField("treeGrower");
+                growerField.setAccessible(true);
+                TreeGrower grower = (TreeGrower) growerField.get(saplingBlock);
+                
+                if(grower != null) {
+                    java.lang.reflect.Method getFeatureMethod = TreeGrower.class.getDeclaredMethod("getConfiguredFeature", RandomSource.class, boolean.class);
+                    getFeatureMethod.setAccessible(true);
+                    Optional<ResourceKey<ConfiguredFeature<?, ?>>> featureKeyOpt = (Optional<ResourceKey<ConfiguredFeature<?, ?>>>) getFeatureMethod.invoke(grower, RandomSource.create(), false);
+
+                    if (featureKeyOpt.isPresent()) {
+                        ResourceKey<ConfiguredFeature<?, ?>> featureKey = featureKeyOpt.get();
+                        Optional<ConfiguredFeature<?, ?>> featureOpt = level.registryAccess().registryOrThrow(Registries.CONFIGURED_FEATURE).getOptional(featureKey);
+
+                        if (featureOpt.isPresent()) {
+                            ConfiguredFeature<?, ?> feature = featureOpt.get();
+                            if (feature.config() instanceof TreeConfiguration treeConfig) {
+                                BlockState logState = treeConfig.trunkProvider.getState(RandomSource.create(), BlockPos.ZERO);
+                                BlockState leafState = treeConfig.foliageProvider.getState(RandomSource.create(), BlockPos.ZERO);
+
+                                if (!logState.isAir()) drops.add(new ItemStack(logState.getBlock().asItem(), logCount));
+                                if (!leafState.isAir()) drops.add(new ItemStack(leafState.getBlock().asItem(), 1));
+
+                                if (!drops.isEmpty()) return drops;
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                // Ignore reflection errors and continue to fallback
+            }
+        }
+
+        // Fallback Name Substitution Logic
+        String baseName = path.replace("_sapling", "");
+        if (baseName.endsWith("_tree")) baseName = baseName.replace("_tree", "");
+        
+        List<String> logSuffixes = List.of("_log", "_wood", "_stem", "_hyphae");
+        List<String> leafSuffixes = List.of("_leaves", "_wart_block");
+        
+        // 1. Try exact reconstruction
+        for (String suffix : logSuffixes) {
+            Item log = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath(key.getNamespace(), baseName + suffix));
+            if (log != Items.AIR) {
+                 drops.add(new ItemStack(log, logCount));
+                 break;
+            }
+        }
+        
+        for (String suffix : leafSuffixes) {
+            Item leaf = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath(key.getNamespace(), baseName + suffix));
+            if (leaf != Items.AIR) {
+                drops.add(new ItemStack(leaf, 1));
+                break;
+            }
+        }
+
+        boolean hasLog = drops.stream().anyMatch(d -> d.is(ItemTags.LOGS));
+        boolean hasLeaf = drops.stream().anyMatch(d -> d.is(ItemTags.LEAVES));
+
+        if (hasLog && hasLeaf) return drops;
+
+        // 2. Fallback: Check if we missed logs but have leaves or vice versa, or missed both.
+        // Scan namespace for items containing baseName and having tags.
+        if (!hasLog || !hasLeaf) {
+            for (Item item : BuiltInRegistries.ITEM) {
+                ResourceLocation itemKey = BuiltInRegistries.ITEM.getKey(item);
+                if (itemKey.getNamespace().equals(key.getNamespace()) && itemKey.getPath().contains(baseName)) {
+                     ItemStack stack = new ItemStack(item);
+                     
+                     // Add log if missing
+                     if (!hasLog && stack.is(ItemTags.LOGS)) {
+                          drops.add(new ItemStack(item, logCount));
+                          hasLog = true;
+                     }
+                     // Add leaf if missing
+                     if (!hasLeaf && stack.is(ItemTags.LEAVES)) {
+                          drops.add(new ItemStack(item, 1));
+                          hasLeaf = true;
+                     }
+                     if (hasLog && hasLeaf) break;
+                }
+            }
+        }
 
         return drops.isEmpty() ? List.of(new ItemStack(sapling)) : drops;
     }

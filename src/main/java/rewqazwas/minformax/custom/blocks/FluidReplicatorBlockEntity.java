@@ -7,20 +7,21 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.Containers;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 import rewqazwas.minformax.custom.ModBlockEntities;
+import rewqazwas.minformax.custom.index.FluidReplicatorData;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
-import rewqazwas.minformax.custom.items.upgrades.SpeedUpgrade;
 import rewqazwas.minformax.custom.items.upgrades.ProcessingUpgrade;
+import rewqazwas.minformax.custom.items.upgrades.SpeedUpgrade;
 import rewqazwas.minformax.custom.utility.Utils;
+
+import java.util.List;
 
 
 public class FluidReplicatorBlockEntity extends MachineBaseEntity {
@@ -32,8 +33,9 @@ public class FluidReplicatorBlockEntity extends MachineBaseEntity {
     public final FluidTank fluidHandler = new FluidTank(1000) {
         @Override
         protected void onContentsChanged() {
+            cacheDirty = true;
             setChanged();
-            if(!level.isClientSide()) {
+            if(level != null && !level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
             }
         }
@@ -45,13 +47,26 @@ public class FluidReplicatorBlockEntity extends MachineBaseEntity {
         }
     };
 
-    public final Utils.UpgradeItemHandler upgradeHandler = new Utils.UpgradeItemHandler(2);
+    public final Utils.UpgradeItemHandler upgradeHandler = new Utils.UpgradeItemHandler(2) {
+        @Override
+        protected void onContentsChanged(int slot) {
+            super.onContentsChanged(slot);
+            cacheDirty = true;
+            setChanged();
+        }
+    };
 
     public final EnergyStorage energyHandler = new EnergyStorage(40_960_000);
 
     //Variables
     private int process = 0;
     private int maxProcess = 256;
+    
+    // Cache
+    private boolean cacheDirty = true;
+    private FluidReplicatorData cachedData;
+    private int cachedSpeedModifier = 1;
+    private int cachedStackMultiplier = 1;
 
     //Extra
     @Override
@@ -64,12 +79,9 @@ public class FluidReplicatorBlockEntity extends MachineBaseEntity {
         return saveWithoutMetadata(registries);
     }
 
-    public void drops() {
-        SimpleContainer inv = new SimpleContainer(upgradeHandler.getSlots());
-        for(int i = 0; i < upgradeHandler.getSlots(); i++){
-            inv.setItem(i, upgradeHandler.getStackInSlot(i));
-        }
-        Containers.dropContents(this.level, this.worldPosition, inv);
+    @Override
+    protected List<IItemHandler> getDroppableHandlers() {
+        return List.of(upgradeHandler);
     }
 
     @Override
@@ -90,20 +102,17 @@ public class FluidReplicatorBlockEntity extends MachineBaseEntity {
         this.process = tag.getInt("fluid_replicator.process");
         this.maxProcess = tag.getInt("fluid_replicator.max_process");
         this.energyHandler.receiveEnergy(tag.getInt("fluid_replicator.energy"), false);
+        this.cacheDirty = true;
     }
 
-    //Main
-    public void tick(Level level, BlockPos blockPos, BlockState blockState, FluidReplicatorBlockEntity blockEntity) {
-        if(level.isClientSide()) return;
-
+    private void recalculateCache() {
         var sourceStack = fluidHandler.getFluid();
-        if (sourceStack.isEmpty()) return;
-
-        if (sourceStack.getAmount() < fluidHandler.getCapacity()) return;
-
-        var key = BuiltInRegistries.FLUID.getKey(sourceStack.getFluid()).toString();
-        if (!ModDataReloadListener.FLUID_REPLICATOR_DATA.containsKey(key)) return;
-        var data = ModDataReloadListener.FLUID_REPLICATOR_DATA.get(key);
+        if (!sourceStack.isEmpty()) {
+            var key = BuiltInRegistries.FLUID.getKey(sourceStack.getFluid()).toString();
+            this.cachedData = ModDataReloadListener.FLUID_REPLICATOR_DATA.getOrDefault(key, null);
+        } else {
+            this.cachedData = null;
+        }
 
         int speedModifier = 1;
         int stackMultiplier = 1;
@@ -116,25 +125,67 @@ public class FluidReplicatorBlockEntity extends MachineBaseEntity {
                 stackMultiplier = processingUpgrade.getMultiplier();
             }
         }
+        this.cachedSpeedModifier = speedModifier;
+        this.cachedStackMultiplier = stackMultiplier;
+        
+        this.cacheDirty = false;
+    }
 
-        int effectiveSpeed = Math.min(speedModifier, data.duration());
-        int energyCost = data.energyMultiplier() * effectiveSpeed * stackMultiplier;
+    //Main
+    public void tick(Level level, BlockPos blockPos, BlockState blockState, FluidReplicatorBlockEntity blockEntity) {
+        if(level.isClientSide()) return;
+        
+        if (this.cacheDirty) {
+            recalculateCache();
+        }
+
+        if (this.cachedData == null) {
+            if (process != 0) {
+                process = 0;
+                setChanged(level, blockPos, blockState);
+            }
+            return;
+        }
+
+        var sourceStack = fluidHandler.getFluid();
+        if (sourceStack.isEmpty() || sourceStack.getAmount() < fluidHandler.getCapacity()) {
+             return;
+        }
+
+        boolean dirty = false;
+        
+        int speedModifier = this.cachedSpeedModifier;
+        int stackMultiplier = this.cachedStackMultiplier;
+        
+        int effectiveSpeed = Math.min(speedModifier, this.cachedData.duration());
+        int energyCost = this.cachedData.energyMultiplier() * effectiveSpeed * stackMultiplier;
+        
         if (speedModifier == 9999) {
             energyCost = 0;
         }
-        if (energyHandler.getEnergyStored() < energyCost) return;
+        
+        int currentEnergy = energyHandler.getEnergyStored();
+        if (currentEnergy < energyCost) return;
+        
         if (!Utils.canInsertAtLeastOne(level, blockPos, sourceStack)) return;
 
         energyHandler.extractEnergy(energyCost, false);
+        if (energyHandler.getEnergyStored() != currentEnergy) {
+            dirty = true;
+        }
 
         process++;
-        maxProcess = data.duration();
+        maxProcess = this.cachedData.duration();
+        dirty = true;
 
-        if (process >= maxProcess / speedModifier) {
-            int totalToGenerate = data.basicAmountGenerated() * stackMultiplier;
-            int leftovers = Utils.moveFluid(level, blockPos, sourceStack, totalToGenerate);
+        if (process >= Math.max(1, maxProcess / speedModifier)) {
+            int totalToGenerate = this.cachedData.basicAmountGenerated() * stackMultiplier;
+            Utils.moveFluid(level, blockPos, sourceStack, totalToGenerate);
             process = 0;
         }
-        setChanged(level, blockPos, blockState);
+        
+        if (dirty) {
+            setChanged(level, blockPos, blockState);
+        }
     }
 }

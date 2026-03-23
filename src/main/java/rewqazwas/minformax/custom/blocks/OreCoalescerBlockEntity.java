@@ -8,12 +8,12 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
@@ -37,7 +37,9 @@ import rewqazwas.minformax.custom.utility.Utils;
 import rewqazwas.minformax.screen.custom.OreCoalescerMenu;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuProvider {
@@ -52,7 +54,10 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
-            if (level != null && !level.isClientSide()) {
+            if (slot < 4) {
+                updateUpgrades();
+            }
+            if (!isProcessing && level != null && !level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
             }
         }
@@ -195,6 +200,7 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
                     System.arraycopy(loadedCounts, 0, this.bigStackCounts, 0, loadedCounts.length);
                 }
             }
+            OreCoalescerBlockEntity.this.updateUpgrades();
         }
     };
 
@@ -204,7 +210,7 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
-            if (level != null && !level.isClientSide()) {
+            if (!isProcessing && level != null && !level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
             }
         }
@@ -338,14 +344,16 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
     public final EnergyStorage energyHandler = new EnergyStorage(5000000) {
         @Override
         public int receiveEnergy(int toReceive, boolean simulate) {
-            setChanged();
-            return super.receiveEnergy(toReceive, simulate);
+            int received = super.receiveEnergy(toReceive, simulate);
+            if (received > 0 && !simulate) setChanged();
+            return received;
         }
 
         @Override
         public int extractEnergy(int toExtract, boolean simulate) {
-            setChanged();
-            return super.extractEnergy(toExtract, simulate);
+            int extracted = super.extractEnergy(toExtract, simulate);
+            if (extracted > 0 && !simulate) setChanged();
+            return extracted;
         }
     };
 
@@ -378,6 +386,16 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
     //Variables
     private int process = 0;
     private int maxProcess = 512;
+    private boolean isProcessing = false;
+
+    // Cache
+    private int speedMultiplier = 1;
+    private int processingMultiplier = 1;
+    private int fortuneMultiplier = 1;
+    private boolean autoSmelt = false;
+    
+    // Result Cache
+    private final Map<Item, List<ItemStack>> outputCache = new HashMap<>();
 
     //Extra
     @Override
@@ -400,32 +418,9 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
         return new OreCoalescerMenu(containerId, playerInventory, this, this.data);
     }
 
-    public void drops() {
-        if (this.level == null) return;
-
-        for (int i = 0; i < inventoryHandler.getSlots(); i++) {
-            ItemStack stack = inventoryHandler.getStackInSlot(i);
-            if (stack.isEmpty()) continue;
-            int count = stack.getCount();
-            while (count > 0) {
-                int dropCount = Math.min(count, 64);
-                ItemStack dropStack = stack.copyWithCount(dropCount);
-                Containers.dropItemStack(this.level, this.worldPosition.getX(), this.worldPosition.getY(), this.worldPosition.getZ(), dropStack);
-                count -= dropCount;
-            }
-        }
-
-        for (int i = 0; i < outputHandler.getSlots(); i++) {
-            ItemStack stack = outputHandler.getStackInSlot(i);
-            if (stack.isEmpty()) continue;
-            int count = stack.getCount();
-            while (count > 0) {
-                int dropCount = Math.min(count, 64);
-                ItemStack dropStack = stack.copyWithCount(dropCount);
-                Containers.dropItemStack(this.level, this.worldPosition.getX(), this.worldPosition.getY(), this.worldPosition.getZ(), dropStack);
-                count -= dropCount;
-            }
-        }
+    @Override
+    protected List<IItemHandler> getDroppableHandlers() {
+        return List.of(inventoryHandler, outputHandler);
     }
 
     @Override
@@ -446,6 +441,7 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
         this.process = tag.getInt("ore_coalescer.process");
         this.maxProcess = tag.getInt("ore_coalescer.max_process");
         this.energyHandler.receiveEnergy(tag.getInt("ore_coalescer.energy"), false);
+        this.outputCache.clear();
     }
 
     //Utility
@@ -522,7 +518,6 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
             if (!stackInSlot.isEmpty()) {
                 ItemStack remainder = Utils.moveItem(level, getBlockPos(), stackInSlot.copy());
 
-                // If the remainder is different from the original, something was moved
                 if (remainder.getCount() != stackInSlot.getCount()) {
                     outputHandler.setStackInSlot(i, remainder);
                     setChanged();
@@ -531,150 +526,241 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
         }
     }
 
+    private void updateUpgrades() {
+        int speed = 1;
+        int processing = 1;
+        int fortune = 1;
+        boolean smelt = false;
+
+        for (int i = 0; i < 4; i++) {
+            ItemStack stack = inventoryHandler.getStackInSlot(i);
+            if (stack.isEmpty()) continue;
+            var item = stack.getItem();
+            if (item instanceof SpeedUpgrade speedUpgrade) {
+                speed = speedUpgrade.getModifier();
+            } else if (item instanceof ProcessingUpgrade processingUpgrade) {
+                processing = processingUpgrade.getMultiplier();
+            } else if (item instanceof FortuneUpgrade fortuneUpgrade) {
+                fortune = fortuneUpgrade.getMultiplier();
+            } else if (stack.is(ModItems.AUTO_SMELTING_UPGRADE)) {
+                smelt = true;
+            }
+        }
+
+        if (this.fortuneMultiplier != fortune || this.autoSmelt != smelt) {
+            this.outputCache.clear();
+        }
+
+        this.speedMultiplier = speed;
+        this.processingMultiplier = processing;
+        this.fortuneMultiplier = fortune;
+        this.autoSmelt = smelt;
+    }
+
+    private int calculateMaxInsertion(List<ItemStack> outputs, int maxToProcess) {
+        if (maxToProcess <= 0) return 0;
+        
+        int low = 1;
+        int high = maxToProcess;
+        int validAmount = 0;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+            if (canInsertAllExact(outputs, mid)) {
+                validAmount = mid;
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+        return validAmount;
+    }
+
+    private boolean canInsertAllExact(List<ItemStack> outputs, int multiplier) {
+        ItemStack[] tempSlots = new ItemStack[outputHandler.getSlots()];
+        for (int i = 0; i < tempSlots.length; i++) {
+            ItemStack original = outputHandler.getStackInSlot(i);
+            tempSlots[i] = original.isEmpty() ? ItemStack.EMPTY : original.copy();
+        }
+
+        for (ItemStack output : outputs) {
+            ItemStack remaining = output.copy();
+            remaining.setCount(output.getCount() * multiplier);
+
+            // 1. Merge
+            for (int i = 0; i < tempSlots.length; i++) {
+                if (remaining.isEmpty()) break;
+                if (!tempSlots[i].isEmpty() && ItemStack.isSameItemSameComponents(tempSlots[i], remaining)) {
+                    int limit = outputHandler.getSlotLimit(i);
+                    int space = limit - tempSlots[i].getCount();
+                    if (space > 0) {
+                        int toAdd = Math.min(remaining.getCount(), space);
+                        tempSlots[i].grow(toAdd);
+                        remaining.shrink(toAdd);
+                    }
+                }
+            }
+            // 2. Fill empty
+            if (!remaining.isEmpty()) {
+                for (int i = 0; i < tempSlots.length; i++) {
+                    if (remaining.isEmpty()) break;
+                    if (tempSlots[i].isEmpty()) {
+                        int limit = outputHandler.getSlotLimit(i);
+                        int toAdd = Math.min(remaining.getCount(), limit);
+                        tempSlots[i] = remaining.copyWithCount(toAdd);
+                        remaining.shrink(toAdd);
+                    }
+                }
+            }
+
+            if (!remaining.isEmpty()) return false;
+        }
+        return true;
+    }
+
+    private boolean hasInput() {
+        for (int i = 4; i < 12; i++) {
+            if (!inventoryHandler.getStackInSlot(i).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isOutputFull() {
+        for (int i = 0; i < outputHandler.getSlots(); i++) {
+            ItemStack stack = outputHandler.getStackInSlot(i);
+            if (stack.isEmpty() || stack.getCount() < outputHandler.getSlotLimit(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private List<ItemStack> getProcessedOutput(Item inputItem) {
+        if (outputCache.containsKey(inputItem)) {
+            return outputCache.get(inputItem);
+        }
+
+        ArrayList<ItemStack> baseOutputs = new ArrayList<>();
+        Block block = Block.byItem(inputItem);
+        
+        if (this.level instanceof ServerLevel serverLevel) {
+            List<ItemStack> drops = block.defaultBlockState().getDrops(new LootParams.Builder(serverLevel)
+                    .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(this.worldPosition))
+                    .withParameter(LootContextParams.TOOL, ItemStack.EMPTY));
+
+            if (drops.isEmpty()) {
+                drops.add(new ItemStack(inputItem));
+            }
+
+            for (ItemStack drop : drops) {
+                ItemStack baseItem = drop.copy();
+                int baseCount = drop.getCount();
+
+                if (autoSmelt) {
+                    var recipe = level.getRecipeManager().getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(baseItem), level);
+                    if (recipe.isPresent()) {
+                        baseItem = recipe.get().value().getResultItem(level.registryAccess()).copy();
+                        baseCount = drop.getCount() * baseItem.getCount();
+                    }
+                }
+
+                baseItem.setCount(baseCount * fortuneMultiplier);
+                baseOutputs.add(baseItem);
+            }
+        }
+        
+        boolean isSameItem = false;
+        for (ItemStack output : baseOutputs) {
+            if (output.getItem() == inputItem) {
+                isSameItem = true;
+                break;
+            }
+        }
+        
+        if (isSameItem) {
+             baseOutputs.clear();
+        }
+
+        outputCache.put(inputItem, baseOutputs);
+        return baseOutputs;
+    }
+
     //Main
     public void tick(Level level, BlockPos blockPos, BlockState blockState, OreCoalescerBlockEntity blockEntity) {
         if(level.isClientSide()) return;
 
         autoExportItems();
 
-        int speedMultiplier = 1;
-        int processingMultiplier = 1;
-        int fortuneMultiplier = 1;
-        boolean autoSmelt = false;
-
-        for (int i = 0; i < 4; i++) {
-            ItemStack stack = inventoryHandler.getStackInSlot(i);
-            var item = stack.getItem();
-            if (item instanceof SpeedUpgrade speedUpgrade) {
-                speedMultiplier = speedUpgrade.getModifier();
-            } else if (item instanceof ProcessingUpgrade processingUpgrade) {
-                processingMultiplier = processingUpgrade.getMultiplier();
-            } else if (item instanceof FortuneUpgrade fortuneUpgrade) {
-                fortuneMultiplier = fortuneUpgrade.getMultiplier();
-            } else if (stack.is(ModItems.AUTO_SMELTING_UPGRADE)) {
-                autoSmelt = true;
+        if (!hasInput() || isOutputFull()) {
+            if (process > 0) {
+                process = 0;
+                setChanged(level, blockPos, blockState);
             }
+            return;
         }
 
         process++;
         maxProcess = Math.max((512 / speedMultiplier), 1);
-        setChanged(level, blockPos, blockState);
+
+        boolean changed = false;
 
         if (process >= maxProcess) {
             process = 0;
             int remainingProcessing = processingMultiplier;
 
-            for (int i = 4; i < 12; i++) {
-                if (remainingProcessing <= 0) break;
+            isProcessing = true;
+            try {
+                for (int i = 4; i < 12; i++) {
+                    if (remainingProcessing <= 0) break;
 
-                ItemStack inputStack = inventoryHandler.getStackInSlot(i);
-                if (inputStack.isEmpty()) continue;
+                    ItemStack inputStack = inventoryHandler.getStackInSlot(i);
+                    if (inputStack.isEmpty()) continue;
+                    
+                    List<ItemStack> baseOutputs = getProcessedOutput(inputStack.getItem());
+                    if (baseOutputs.isEmpty()) continue;
 
-                int amountToProcess = Math.min(inputStack.getCount(), remainingProcessing);
+                    int amountToProcess = Math.min(inputStack.getCount(), remainingProcessing);
 
-                int maxAffordable;
-                if (speedMultiplier == 9999) {
-                    maxAffordable = amountToProcess; // No energy limit
-                } else {
-                    maxAffordable = energyHandler.getEnergyStored() / 1024;
-                }
-                amountToProcess = Math.min(amountToProcess, maxAffordable);
-
-                if (amountToProcess <= 0) continue;
-
-                // 1. Calculate base outputs for ONE ore
-                ArrayList<ItemStack> baseOutputs = new ArrayList<>();
-                Block block = Block.byItem(inputStack.getItem());
-                List<ItemStack> drops = block.defaultBlockState().getDrops(new LootParams.Builder((ServerLevel) level)
-                        .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(blockPos))
-                        .withParameter(LootContextParams.TOOL, ItemStack.EMPTY));
-
-                if (drops.isEmpty()) {
-                    drops.add(new ItemStack(inputStack.getItem()));
-                }
-
-                for (ItemStack drop : drops) {
-                    ItemStack baseItem = drop.copy();
-                    int baseCount = drop.getCount();
-
-                    if (autoSmelt) {
-                        var recipe = level.getRecipeManager().getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(baseItem), level);
-                        if (recipe.isPresent()) {
-                            baseItem = recipe.get().value().getResultItem(level.registryAccess()).copy();
-                            baseCount *= baseItem.getCount();
-                        }
-                    }
-
-                    // Apply fortune to the base count for 1 ore
-                    baseItem.setCount(baseCount * fortuneMultiplier);
-                    baseOutputs.add(baseItem);
-                }
-
-                boolean isSameItem = false;
-                for (ItemStack output : baseOutputs) {
-                    if (output.getItem() == inputStack.getItem()) {
-                        isSameItem = true;
-                        break;
-                    }
-                }
-                if (isSameItem) continue;
-
-                // 2. Binary search for the maximum amount that fits
-                int low = 1;
-                int high = amountToProcess;
-                int validAmount = 0;
-
-                while (low <= high) {
-                    int mid = low + (high - low) / 2;
-
-                    // Simulate outputs for 'mid' ores
-                    boolean canFit = true;
-                    ItemStackHandler simHandler = new ItemStackHandler(outputHandler.getSlots()) {
-                        @Override
-                        public int getSlotLimit(int slot) {
-                            return outputHandler.getSlotLimit(slot);
-                        }
-                    };
-                    for (int j = 0; j < outputHandler.getSlots(); j++) {
-                        simHandler.setStackInSlot(j, outputHandler.getStackInSlot(j).copy());
-                    }
-
-                    for (ItemStack baseOutput : baseOutputs) {
-                        ItemStack toInsert = baseOutput.copy();
-                        toInsert.setCount(baseOutput.getCount() * mid);
-
-                        if (!forceInsertItemStacked(simHandler, toInsert).isEmpty()) {
-                            canFit = false;
-                            break;
-                        }
-                    }
-
-                    if (canFit) {
-                        validAmount = mid;
-                        low = mid + 1;
+                    int maxAffordable;
+                    if (speedMultiplier == 9999) {
+                        maxAffordable = amountToProcess;
                     } else {
-                        high = mid - 1;
+                        maxAffordable = energyHandler.getEnergyStored() / 1024;
+                    }
+                    amountToProcess = Math.min(amountToProcess, maxAffordable);
+
+                    if (amountToProcess <= 0) continue;
+
+                    int validAmount = calculateMaxInsertion(baseOutputs, amountToProcess);
+
+                    if (validAmount > 0) {
+                        int energyRequired = validAmount * 1024;
+                        if(speedMultiplier == 9999) energyRequired = 0;
+                        energyHandler.extractEnergy(energyRequired, false);
+
+                        for (ItemStack baseOutput : baseOutputs) {
+                            ItemStack toInsert = baseOutput.copy();
+                            toInsert.setCount(baseOutput.getCount() * validAmount);
+                            forceInsertItemStacked(outputHandler, toInsert);
+                        }
+
+                        inventoryHandler.extractItem(i, validAmount, false);
+                        remainingProcessing -= validAmount;
+                        changed = true;
                     }
                 }
-
-                // 3. Execute if we found a valid amount
-                if (validAmount > 0) {
-                    int energyRequired = validAmount * 1024;
-                    if(speedMultiplier == 9999) energyRequired = 0;
-                    energyHandler.extractEnergy(energyRequired, false);
-
-                    for (ItemStack baseOutput : baseOutputs) {
-                        ItemStack toInsert = baseOutput.copy();
-                        toInsert.setCount(baseOutput.getCount() * validAmount);
-                        forceInsertItemStacked(outputHandler, toInsert);
-                    }
-
-                    inventoryHandler.extractItem(i, validAmount, false);
-                    remainingProcessing -= validAmount;
-                }
+            } finally {
+                isProcessing = false;
             }
         }
 
-        setChanged(level, blockPos, blockState);
+        if (changed) {
+            setChanged(level, blockPos, blockState);
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        } else {
+             if (process > 0) setChanged(level, blockPos, blockState);
+        }
     }
 }

@@ -11,27 +11,16 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.energy.EnergyStorage;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 import rewqazwas.minformax.config.DataConfigs;
 import rewqazwas.minformax.custom.ModBlockEntities;
@@ -42,12 +31,10 @@ import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.items.upgrades.FortuneUpgrade;
 import rewqazwas.minformax.custom.items.upgrades.ProcessingUpgrade;
 import rewqazwas.minformax.custom.items.upgrades.SpeedUpgrade;
-import rewqazwas.minformax.custom.items.upgrades.UpgradeItem;
 import rewqazwas.minformax.custom.utility.Utils;
 import rewqazwas.minformax.screen.custom.FarmerMenu;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -63,6 +50,13 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
             return stack.is(ModItems.WATERING_UPGRADE)
                     || stack.is(ModTags.FORTUNE_UPGRADES)
                     || super.isItemValid(slot, stack);
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            super.onContentsChanged(slot);
+            cacheDirty = true;
+            setChanged();
         }
     };
 
@@ -85,6 +79,13 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
                 }
             }
             return false; // Only allow items found in config
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            super.onContentsChanged(slot);
+            cacheDirty = true;
+            setChanged();
         }
     };
 
@@ -121,6 +122,13 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
     private int maxProcess = 256;
     private int duration = maxProcess;
 
+    // Cache
+    private boolean cacheDirty = true;
+    private ModifierData cachedModifiers;
+    private List<ItemStack> cachedDrops = new ArrayList<>();
+    private int cachedEnergyCost = 0;
+    private boolean hasValidSource = false;
+
     //Extra
     @Override
     public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
@@ -132,16 +140,9 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
         return saveWithoutMetadata(registries);
     }
 
-    public void drops() {
-        if (this.level == null) return;
-        SimpleContainer inv = new SimpleContainer(upgradeHandler.getSlots() + itemHandler.getSlots());
-        for(int i = 0; i < upgradeHandler.getSlots(); i++){
-            inv.setItem(i, upgradeHandler.getStackInSlot(i));
-        }
-        for(int i = 0; i < itemHandler.getSlots(); i++){
-            inv.setItem(i + upgradeHandler.getSlots(), itemHandler.getStackInSlot(i));
-        }
-        Containers.dropContents(this.level, this.worldPosition, inv);
+    @Override
+    protected List<IItemHandler> getDroppableHandlers() {
+        return List.of(itemHandler, upgradeHandler);
     }
 
     @Override
@@ -162,6 +163,7 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
         this.process = tag.getInt("farmer.process");
         this.maxProcess = tag.getInt("farmer.max_process");
         this.energyHandler.receiveEnergy(tag.getInt("farmer.energy"), false);
+        this.cacheDirty = true;
     }
 
     @Override
@@ -190,21 +192,11 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
         return Utils.getFarmerDrops(level, seedStack);
     }
 
-    //Main
-    public void tick(Level level, BlockPos blockPos, BlockState blockState, FarmerBlockEntity blockEntity) {
-        if(level.isClientSide()) return;
-
-        var sourceStack = itemHandler.getStackInSlot(0);
-        if(sourceStack.isEmpty()) {
-            process = 0;
-            setChanged(level, blockPos, blockState);
-            return;
-        }
-
+    private void recalculateCache(ServerLevel level) {
         int speedModifier = 1;
         int stackMultiplier = 1;
         int fortuneMultiplier = 1;
-        int wateringMultiplier = 1;
+        boolean hasWatering = false;
 
         for(int i = 0; i < upgradeHandler.getSlots(); i++) {
             var stack = upgradeHandler.getStackInSlot(i);
@@ -216,30 +208,108 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
             } else if(upgrade instanceof FortuneUpgrade fortuneUpgrade) {
                 fortuneMultiplier = fortuneUpgrade.getMultiplier();
             } else if(stack.is(ModItems.WATERING_UPGRADE)) {
-                wateringMultiplier = wateringChance();
+                hasWatering = true;
             }
         }
 
-        int energyCost = stackMultiplier * speedModifier * DataConfigs.farmCoefficient.get();
-        if (speedModifier == 9999) {
-            energyCost = 0;
+        this.cachedModifiers = new ModifierData(speedModifier, stackMultiplier, fortuneMultiplier, hasWatering);
+        
+        var sourceStack = itemHandler.getStackInSlot(0);
+        this.hasValidSource = !sourceStack.isEmpty();
+        
+        if (this.hasValidSource) {
+            this.cachedDrops = getPotentialDrops(level, sourceStack);
+        } else {
+            this.cachedDrops = List.of();
         }
-        if (energyHandler.getEnergyStored() < energyCost) return;
-        var drops = getPotentialDrops(((ServerLevel) level), sourceStack);
-        if (!Utils.canInsertAtLeastOneComplex(level, blockPos, drops)) return;
-        energyHandler.extractEnergy(energyCost, false);
 
-        if(process == 0){
-            maxProcess = Math.max(duration / speedModifier / wateringMultiplier, 1);
+        this.cachedEnergyCost = stackMultiplier * speedModifier * DataConfigs.farmCoefficient.get();
+        if (speedModifier == 9999) {
+            this.cachedEnergyCost = 0;
         }
+
+        this.cacheDirty = false;
+    }
+
+    private List<ItemStack> mergeStacks(List<ItemStack> stacks) {
+        List<ItemStack> merged = new ArrayList<>();
+        for (ItemStack stack : stacks) {
+            if (stack.isEmpty()) continue;
+            boolean found = false;
+            for (ItemStack m : merged) {
+                if (ItemStack.isSameItemSameComponents(m, stack)) {
+                    m.grow(stack.getCount());
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                merged.add(stack);
+            }
+        }
+        return merged;
+    }
+
+    //Main
+    public void tick(Level level, BlockPos blockPos, BlockState blockState, FarmerBlockEntity blockEntity) {
+        if(level.isClientSide()) return;
+        
+        if (this.cacheDirty) {
+            recalculateCache((ServerLevel) level);
+        }
+
+        if(!this.hasValidSource) {
+            if (process != 0) {
+                process = 0;
+                setChanged(level, blockPos, blockState);
+            }
+            return;
+        }
+
+        boolean dirty = false;
+        int currentEnergy = energyHandler.getEnergyStored();
+        int energyCost = this.cachedEnergyCost;
+        
+        if (currentEnergy < energyCost) return;
+        
+        if (!Utils.canInsertAtLeastOneComplex(level, blockPos, this.cachedDrops)) return;
+
+        energyHandler.extractEnergy(energyCost, false);
+        if (energyHandler.getEnergyStored() != currentEnergy) {
+            dirty = true;
+        }
+
+        var modifiers = this.cachedModifiers;
+        int effectiveWateringMultiplier = modifiers.hasWatering ? wateringChance() : 1;
+        
+        if(process == 0){
+            maxProcess = Math.max(duration / modifiers.speedModifier / effectiveWateringMultiplier, 1);
+            dirty = true;
+        }
+        
         process++;
+        dirty = true; // Process changed
+
         if(process >= maxProcess) {
-            for (ItemStack drop : drops) {
-                drop.setCount(drop.getCount() * stackMultiplier * fortuneMultiplier);
+            List<ItemStack> finalDrops = new ArrayList<>();
+            for (ItemStack drop : this.cachedDrops) {
+                ItemStack copy = drop.copy();
+                copy.setCount(copy.getCount() * modifiers.stackMultiplier * modifiers.fortuneMultiplier);
+                finalDrops.add(copy);
+            }
+            
+            finalDrops = mergeStacks(finalDrops);
+            
+            for (ItemStack drop : finalDrops) {
                 Utils.moveItem(level, blockPos, drop);
             }
             process = 0;
         }
-        setChanged(level, blockPos, blockState);
+        
+        if (dirty) {
+            setChanged(level, blockPos, blockState);
+        }
     }
+    
+    private record ModifierData(int speedModifier, int stackMultiplier, int fortuneMultiplier, boolean hasWatering) {}
 }

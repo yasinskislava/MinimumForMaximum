@@ -20,7 +20,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 import rewqazwas.minformax.config.DataConfigs;
 import rewqazwas.minformax.custom.ModBlockEntities;
@@ -39,10 +38,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EternalGeneratorBlockEntity extends MachineBaseEntity implements MenuProvider {
+    private static final ResourceLocation INFERIUM_ESSENCE_RL = ResourceLocation.parse("mysticalagriculture:inferium_essence");
+
     public EternalGeneratorBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.ETERNAL_GENERATOR_BE.get(), pos, blockState);
         EternalGeneratorBlock block = (EternalGeneratorBlock) blockState.getBlock();
         this.tier = block.tier;
+        this.loaderSlots = (int) Math.pow(2, tier - 1);
 
         data = new ContainerData() {
             @Override
@@ -79,7 +81,14 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
     }
 
     //Handlers
-    public Utils.SingleItemHandler itemHandler = new Utils.SingleItemHandler(8);
+    public Utils.SingleItemHandler itemHandler = new Utils.SingleItemHandler(8) {
+        @Override
+        protected void onContentsChanged(int slot) {
+            super.onContentsChanged(slot);
+            cacheDirty = true;
+            setChanged();
+        }
+    };
 
     public final Utils.UpgradeItemHandler upgradeHandler = new Utils.UpgradeItemHandler(4) {
         @Override
@@ -87,6 +96,13 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
             return stack.is(ModTags.EXTRA_DROP_UPGRADES)
                     || stack.is(ModItems.INVERTED_UPGRADE)
                     || super.isItemValid(slot, stack);
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            super.onContentsChanged(slot);
+            cacheDirty = true;
+            setChanged();
         }
     };
 
@@ -102,6 +118,15 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
     private int overload;
     public int tier;
 
+    // Cache
+    private boolean cacheDirty = true;
+    private ModifierData cachedModifiers;
+    private final List<CachedLoader> cachedLoaders = new ArrayList<>();
+    private int cachedDuration = 0;
+    private int cachedSize = 0;
+    private int cachedMaxProcess = 1;
+    private final int loaderSlots;
+
     //Extra
     @Override
     public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
@@ -109,16 +134,9 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) { return saveWithoutMetadata(registries); }
 
-
-    public void drops() {
-        SimpleContainer inv = new SimpleContainer(itemHandler.getSlots() + upgradeHandler.getSlots());
-        for(int i = 0; i < itemHandler.getSlots(); i++){
-            inv.setItem(i, itemHandler.getStackInSlot(i));
-        }
-        for(int i = 0; i < upgradeHandler.getSlots(); i++){
-            inv.setItem(i + itemHandler.getSlots(), upgradeHandler.getStackInSlot(i));
-        }
-        Containers.dropContents(this.level, this.worldPosition, inv);
+    @Override
+    protected List<IItemHandler> getDroppableHandlers() {
+        return List.of(itemHandler, upgradeHandler);
     }
 
     @Override
@@ -133,6 +151,7 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
         this.totalXp = tag.getInt("eternal_generator.total_xp");
         this.overload = tag.getInt("eternal_generator.overload");
         this.overflowXp = tag.getInt("eternal_generator.overflow_xp");
+        this.cacheDirty = true;
     }
 
     @Override
@@ -161,7 +180,6 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
     //Utility
     private void resetProcess() {
         this.process = 0;
-        setChanged();
     }
 
     private void addXp(long value) {
@@ -171,46 +189,6 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
             totalXp = (int) (result % Integer.MAX_VALUE);
         } else {
             totalXp = (int) result;
-        }
-    }
-
-    private void moveItems(Level level, BlockPos pos, ModifierData modifiers, List<ItemStack> mainDrop, List<ItemStack> additionalDrop, boolean isShard) {
-        List<ItemStack> mainDropProcessed = new ArrayList<>();
-        for (ItemStack stack : mainDrop) {
-            ItemStack copy = stack.copy();
-            copy.setCount(modifiers.operationMultiplier());
-            mainDropProcessed.add(copy);
-        }
-
-        List<ItemStack> additionalDropProcessed = new ArrayList<>();
-        for (ItemStack stack : additionalDrop) {
-            ItemStack copy = stack.copy();
-            copy.setCount(modifiers.operationMultiplier());
-            additionalDropProcessed.add(copy);
-        }
-
-        if (isShard && modifiers.inverted()) {
-            List<ItemStack> temp = mainDropProcessed;
-            mainDropProcessed = additionalDropProcessed;
-            additionalDropProcessed = temp;
-        }
-
-        // Process Main Drops
-        for (ItemStack main : mainDropProcessed) {
-            ItemStack remaining = Utils.moveItem(level, pos, main);
-            if (!remaining.isEmpty()) {
-                this.overload = (int) Math.min((long) this.overload + remaining.getCount(), Integer.MAX_VALUE);
-            }
-        }
-
-        // Process Additional Drops
-        for (ItemStack extra : additionalDropProcessed) {
-            if (Math.random() * 100 < modifiers.extraDropPercentage()) {
-                ItemStack remaining = Utils.moveItem(level, pos, extra);
-                if (!remaining.isEmpty()) {
-                    this.overload = (int) Math.min((long) this.overload + remaining.getCount(), Integer.MAX_VALUE);
-                }
-            }
         }
     }
 
@@ -235,6 +213,62 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
         }
         return new ModifierData(speedModifier, stackMultiplier, percentage, inverted);
     }
+    
+    private void recalculateCache() {
+        this.cachedModifiers = getModifier();
+        this.cachedLoaders.clear();
+        this.cachedDuration = 0;
+        
+        Item inferiumEssenceItem = null;
+        if (BuiltInRegistries.ITEM.containsKey(INFERIUM_ESSENCE_RL)) {
+            inferiumEssenceItem = BuiltInRegistries.ITEM.get(INFERIUM_ESSENCE_RL);
+        }
+
+        for(int i = 0; i < loaderSlots; i++) {
+            var currentLoader = this.itemHandler.getStackInSlot(i);
+            if(!currentLoader.isEmpty()) {
+                long xp = 0;
+                List<ItemStack> mainDrop = new ArrayList<>();
+                List<ItemStack> additionalDrop = new ArrayList<>();
+                boolean isShard = false;
+
+                if(currentLoader.getItem() instanceof ModuleItem) {
+                    this.cachedDuration += 1024;
+                    var identifier = ModuleDropsReloadListener.rulesForModule(currentLoader.getItem());
+                    xp = identifier.xp();
+                    for (ItemStack s : ModuleDropsReloadListener.mainDropsFromModule(currentLoader.getItem())) {
+                        mainDrop.add(s.copy());
+                    }
+                } else if(currentLoader.getItem() instanceof AccShard) {
+                    var key = currentLoader.get(ModDataComponents.MOB_INDEX);
+                    var index = ModDataReloadListener.MOB_DROPS;
+                    if(index.containsKey(key)) {
+                        var loot = index.get(key);
+                        this.cachedDuration += loot.duration();
+                        mainDrop.add(loot.mainDrop().copy());
+                        for(ItemStack s : loot.additionalDrop()) {
+                            additionalDrop.add(s.copy());
+                        }
+                        xp = loot.xp();
+                        isShard = true;
+                    }
+                    if (inferiumEssenceItem != null) {
+                        mainDrop.add(new ItemStack(inferiumEssenceItem));
+                    }
+                }
+                this.cachedLoaders.add(new CachedLoader(xp, mainDrop, additionalDrop, isShard));
+            }
+        }
+        this.cachedSize = this.cachedLoaders.size();
+        
+        if (this.cachedSize > 0) {
+            this.cachedMaxProcess = Math.max((this.cachedDuration / this.cachedModifiers.speedModifier / this.cachedSize), 1);
+        } else {
+            this.cachedMaxProcess = 1;
+        }
+        
+        this.cacheDirty = false;
+    }
 
     public void consumeOverload(int value) {
         this.overload -= value;
@@ -246,85 +280,124 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
 
     public int getOverload() {return this.overload;}
 
+    private List<ItemStack> mergeStacks(List<ItemStack> stacks) {
+        List<ItemStack> merged = new ArrayList<>();
+        for (ItemStack stack : stacks) {
+            if (stack.isEmpty()) continue;
+            boolean found = false;
+            for (ItemStack m : merged) {
+                if (ItemStack.isSameItemSameComponents(m, stack)) {
+                    m.grow(stack.getCount());
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                merged.add(stack);
+            }
+        }
+        return merged;
+    }
+
     //Main
     public void tick(Level level, BlockPos blockPos, BlockState blockState, EternalGeneratorBlockEntity blockEntity) {
         if(level.isClientSide()) return;
-        this.currentEnergy = energyHandler.getEnergyStored();
-
-        var modifiers = getModifier();
-        List<ItemStack> loaders = new ArrayList<>();
-        var duration = 0;
-
-        //Gather data from all loaders
-        for(int i = 0; i < Math.pow(2, tier - 1); i++) {
-            var currentLoader = blockEntity.itemHandler.getStackInSlot(i);
-            if(!currentLoader.isEmpty()) {
-                if(currentLoader.getItem() instanceof ModuleItem) {
-                    duration += 1024;
-                } else if(currentLoader.getItem() instanceof AccShard) {
-                    var key = currentLoader.get(ModDataComponents.MOB_INDEX);
-                    var index = ModDataReloadListener.MOB_DROPS;
-                    if(index.containsKey(key)) {
-                        var loot = index.get(key);
-                        duration += loot.duration();
-                    }
-                }
-                loaders.add(currentLoader);
-            }
+        
+        boolean dirty = false;
+        
+        // Update energy and check for change
+        int newEnergy = energyHandler.getEnergyStored();
+        if (newEnergy != this.currentEnergy) {
+            this.currentEnergy = newEnergy;
+            dirty = true;
+        }
+        
+        if (this.cacheDirty) {
+            recalculateCache();
         }
 
-        var size = loaders.size();
+        var modifiers = this.cachedModifiers;
+        var size = this.cachedSize;
 
         if(size > 0) {
-            int effectiveSpeed = Math.min(modifiers.speedModifier, duration / size);
+            int effectiveSpeed = Math.min(modifiers.speedModifier, this.cachedDuration / size);
             var requiredEnergy = modifiers.operationMultiplier * effectiveSpeed * DataConfigs.mobCoefficient.get() * size;
             if (modifiers.speedModifier == 9999) {
                 requiredEnergy = 0;
             }
-            if(currentEnergy < requiredEnergy) return;
-            energyHandler.extractEnergy(requiredEnergy, false);
+            
+            if(currentEnergy >= requiredEnergy) {
+                energyHandler.extractEnergy(requiredEnergy, false);
+                this.currentEnergy = energyHandler.getEnergyStored();
+                dirty = true;
 
-            process++;
-            maxProcess = Math.max((duration / modifiers.speedModifier / size), 1);
-            setChanged(level, blockPos, blockState);
+                process++;
+                maxProcess = this.cachedMaxProcess;
 
-            if(process >= maxProcess) {
-                var isShard = false;
-                for(var loader: loaders) {
-                    var loaderItem = loader.getItem();
-                    List<ItemStack> mainDrop = new ArrayList<>();
-                    List<ItemStack> additionalDrop = new ArrayList<>();
-                    if(loaderItem instanceof ModuleItem) {
-                        var identifier = ModuleDropsReloadListener.rulesForModule(loaderItem);
-                        this.addXp((long) identifier.xp() * modifiers.operationMultiplier);
-                        mainDrop.addAll(ModuleDropsReloadListener.mainDropsFromModule(loaderItem));
-                    } else if(loaderItem instanceof AccShard) {
-                        var key = loader.get(ModDataComponents.MOB_INDEX);
-                        var index = ModDataReloadListener.MOB_DROPS;
-                        if(index.containsKey(key)) {
-                            var loot = index.get(key);
-                            mainDrop.add(loot.mainDrop());
-                            additionalDrop.addAll(loot.additionalDrop());
-                            this.addXp((long) loot.xp() * modifiers.operationMultiplier);
-                            isShard = true;
+                if(process >= maxProcess) {
+                    List<ItemStack> dropsToDistribute = new ArrayList<>();
+                    long xpToAdd = 0;
+
+                    for(var loader : this.cachedLoaders) {
+                        xpToAdd += loader.xp * modifiers.operationMultiplier;
+
+                        List<ItemStack> mainDropProcessed = new ArrayList<>();
+                        for (ItemStack stack : loader.mainDrops) {
+                            ItemStack copy = stack.copy();
+                            copy.setCount(modifiers.operationMultiplier());
+                            mainDropProcessed.add(copy);
                         }
-                        ResourceLocation inferiumEssenceRL = ResourceLocation.parse("mysticalagriculture:inferium_essence");
-                        if (BuiltInRegistries.ITEM.containsKey(inferiumEssenceRL)) {
-                            Item inferiumEssenceItem = BuiltInRegistries.ITEM.get(inferiumEssenceRL);
-                            mainDrop.add(new ItemStack(inferiumEssenceItem, modifiers.operationMultiplier));
+
+                        List<ItemStack> additionalDropProcessed = new ArrayList<>();
+                        for (ItemStack stack : loader.additionalDrops) {
+                            ItemStack copy = stack.copy();
+                            copy.setCount(modifiers.operationMultiplier());
+                            additionalDropProcessed.add(copy);
+                        }
+
+                        if (loader.isShard && modifiers.inverted()) {
+                            List<ItemStack> temp = mainDropProcessed;
+                            mainDropProcessed = additionalDropProcessed;
+                            additionalDropProcessed = temp;
+                        }
+
+                        dropsToDistribute.addAll(mainDropProcessed);
+
+                        for (ItemStack extra : additionalDropProcessed) {
+                            if (Math.random() * 100 < modifiers.extraDropPercentage()) {
+                                dropsToDistribute.add(extra);
+                            }
                         }
                     }
 
-                    moveItems(level, blockPos, modifiers, mainDrop, additionalDrop, isShard);
-                    setChanged(level, blockPos, blockState);
+                    if (xpToAdd > 0) {
+                        this.addXp(xpToAdd);
+                    }
+
+                    dropsToDistribute = mergeStacks(dropsToDistribute);
+
+                    for (ItemStack stack : dropsToDistribute) {
+                        ItemStack remaining = Utils.moveItem(level, blockPos, stack);
+                        if (!remaining.isEmpty()) {
+                            this.overload = (int) Math.min((long) this.overload + remaining.getCount(), Integer.MAX_VALUE);
+                        }
+                    }
+
+                    resetProcess();
                 }
-                resetProcess();
             }
         } else {
-            resetProcess();
+            if (process != 0) {
+                resetProcess();
+                dirty = true;
+            }
         }
-        setChanged(level, blockPos, blockState);
+
+        if (dirty) {
+            setChanged(level, blockPos, blockState);
+        }
     }
 
     private record ModifierData(int speedModifier, int operationMultiplier, int extraDropPercentage, boolean inverted) {}
+    private record CachedLoader(long xp, List<ItemStack> mainDrops, List<ItemStack> additionalDrops, boolean isShard) {}
 }

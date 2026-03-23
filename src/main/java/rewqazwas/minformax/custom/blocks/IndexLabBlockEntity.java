@@ -18,7 +18,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 import rewqazwas.minformax.custom.ModAttachmentTypes;
 import rewqazwas.minformax.custom.ModBlockEntities;
@@ -66,8 +65,11 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
     //Variables
     private int mobKey = -1;
     private int process = 0;
+    
+    // Runtime cache, not saved
     private String keyName = null;
     private HolderClass holder = null;
+    
     public String owner;
 
     //Extra
@@ -95,6 +97,9 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
         this.process = tag.getInt("index_lab.process");
         this.mobKey = tag.getInt("index_lab.mob_key");
         this.owner = tag.getString("index_lab.owner");
+        // Reset transient state on load
+        this.keyName = null;
+        this.holder = null;
     }
 
     @Override
@@ -131,42 +136,63 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
     //Utility
     private void resetProcess() {
         this.process = 0;
+        this.keyName = null;
+        this.holder = null;
         setChanged();
+    }
+    
+    private boolean findOwnerData(Level level) {
+        if (this.owner == null || this.mobKey < 0) return false;
+        
+        for(Player player : level.players()) {
+            if(player.getScoreboardName().equals(owner)){
+                var map = new TreeMap<>(player.getData(ModAttachmentTypes.INDEX_SYNC));
+                if (mobKey < map.size()) {
+                    keyName = map.keySet().toArray(new String[0])[mobKey];
+                    holder = map.get(keyName);
+                    return true;
+                }
+                break; // Found owner but key is invalid
+            }
+        }
+        return false;
     }
 
     //Main
     public void tick(Level level, BlockPos blockPos, BlockState blockState, IndexLabBlockEntity blockEntity) {
+        if(level.isClientSide()) return;
+        
         ItemStack loader = blockEntity.itemHandler.getStackInSlot(0);
-        if (!loader.isEmpty() && (loader.getItem() == ModItems.MEMORY_SHARD.get() || loader.getItem() == ModItems.CHAOS_SHARD.get()) && loader.get(ModDataComponents.MOB_INDEX) == null) {
-            if(mobKey > -1) {
-                if(process == 0){
-                    keyName = null;
-                    holder = null;
-                    var playerList = level.players();
-                    for(Player player : playerList) {
-                        if(player.getScoreboardName().equals(owner) && !level.isClientSide()){
-                            var map = new TreeMap<>(player.getData(ModAttachmentTypes.INDEX_SYNC));
-                            keyName = map.keySet().toArray(new String[0])[mobKey];
-                            holder = map.get(keyName);
-                            break;
-                        }
-                    }
-                }
-                if(holder == null) return;
-                var condition = !holder.isBoss() && loader.getItem() == ModItems.CHAOS_SHARD.get() || holder.isBoss() && loader.getItem() == ModItems.MEMORY_SHARD.get();
-                if(condition) return;
-                process++;
-                setChanged(level, blockPos, blockState);
-                if (process >= 1200) {
-                    loader.set(ModDataComponents.MOB_INDEX, keyName);
-                    resetProcess();
-                    this.mobKey = -1;
-                    setChanged(level, blockPos, blockState);
+        boolean isValidItem = !loader.isEmpty() && 
+                             (loader.getItem() == ModItems.MEMORY_SHARD.get() || loader.getItem() == ModItems.CHAOS_SHARD.get()) && 
+                             loader.get(ModDataComponents.MOB_INDEX) == null;
+                             
+        if (isValidItem && mobKey > -1) {
+            // Restore state if needed
+            if (holder == null) {
+                if (!findOwnerData(level)) {
+                    return; 
                 }
             }
+            
+            if(holder == null) return;
+            
+            var condition = !holder.isBoss() && loader.getItem() == ModItems.CHAOS_SHARD.get() || holder.isBoss() && loader.getItem() == ModItems.MEMORY_SHARD.get();
+            if(condition) return;
+            
+            process++;
+            setChanged();
+            
+            if (process >= 1200) {
+                loader.set(ModDataComponents.MOB_INDEX, keyName);
+                resetProcess();
+                this.mobKey = -1;
+                level.sendBlockUpdated(blockPos, blockState, blockState, 3); 
+            }
         } else {
-            resetProcess();
+            if (process != 0) {
+                resetProcess();
+            }
         }
     }
-
 }

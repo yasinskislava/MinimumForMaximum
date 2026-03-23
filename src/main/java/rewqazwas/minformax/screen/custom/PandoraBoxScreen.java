@@ -91,7 +91,7 @@ public class PandoraBoxScreen extends AbstractContainerScreen<PandoraBoxMenu> {
         guiGraphics.drawString(this.font, Component.literal(multText), x + 88 - (multWidth / 2), y + 18, 16777215, false);
 
         // Energy generation text
-        String genText = "Gen: " + Utils.simpleEnergyDisplay((int)production) + "/t";
+        String genText = "Gen: " + Utils.simpleEnergyDisplay(production) + "/t";
         int textWidth = this.font.width(genText);
         guiGraphics.drawString(this.font, Component.literal(genText), x + 89 - (textWidth / 2), y + 55, 16777215, false);
     }
