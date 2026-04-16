@@ -39,7 +39,7 @@
   "tooltip.minformax.extra_drop_upgrade": "%s%% 几率获得额外掉落",
   "tooltip.minformax.fortune_upgrade": "时运 %s",
   "tooltip.minformax.processing_upgrade": "%sx 次操作",
-  "tooltip.minformax.empty": "§a清空",
+  "tooltip.minformax.empty": "§a空",
   "tooltip.minformax.analyzer": "§a模拟扫描器行为，并在聊天框中输出生物 ID",
   "tooltip.minformax.upgrade_item": "§bShift + 右键 §a插入/取出 升级.",
   "tooltip.minformax.farmer": "§a将种植资源于一个农场中生产!!",
