@@ -46,7 +46,7 @@ public class FarmerMenu extends AbstractContainerMenu {
     private static final int CUSTOM_INVENTORY_FIRST_SLOT_INDEX = VANILLA_SLOT_COUNT;
 
     public FarmerMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
-        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(5));
+        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(4));
     }
 
     public FarmerMenu(int containerId, Inventory inv, BlockEntity blockEntity, ContainerData data) {
@@ -63,7 +63,7 @@ public class FarmerMenu extends AbstractContainerMenu {
         this.addSlot(new SupplierSlot(this.blockEntity.itemHandler, 0, 80, 31));
 
         for (int i = 0; i < 4; i++) {
-            this.addSlot(new UpgradeSlot(this.blockEntity.upgradeHandler, i, -19, i * 18 + 7));
+            this.addSlot(new UpgradeSlot(this.blockEntity.upgradeHandler, i, -19, i * 18 + 8));
         }
         addDataSlots(data);
     }
@@ -85,6 +85,10 @@ public class FarmerMenu extends AbstractContainerMenu {
         int process = this.data.get(0);
         int maxProcess = this.data.get(1);
         return Math.round((process / (float)maxProcess) * 100);
+    }
+
+    public int getConsumptionRate() {
+        return this.data.get(3);
     }
 
     @Override
@@ -175,6 +179,7 @@ public class FarmerMenu extends AbstractContainerMenu {
                     && (stack.is(ModTags.FORTUNE_UPGRADES)
                     || stack.is(ModItems.WATERING_UPGRADE)
                     || stack.is(ModTags.SPEED_UPGRADES)
+                    || stack.is(ModItems.COMPRESSING_UPGRADE)
                     || (stack.is(ModTags.PROCESSING_UPGRADES) && !(stack.getItem() == ModItems.ULTIMATE_PROCESSING_UPGRADE.get())));
         }
     }

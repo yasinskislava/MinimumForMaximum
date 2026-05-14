@@ -28,8 +28,8 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern("rdr")
                 .pattern("cr ")
                 .define('r', Ingredient.of(Items.REDSTONE_BLOCK))
-                .define('d', Items.DIAMOND_BLOCK)
-                .define('c', Items.COPPER_BLOCK)
+                .define('d', ModItems.FROZEN_CRYSTAL)
+                .define('c', ModItems.QUANTUM_INGOT)
                 .unlockedBy("has_redstone_block", has(Items.REDSTONE_BLOCK))
                 .save(recipeOutput);
 
@@ -38,8 +38,8 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern("rdr")
                 .pattern("cr ")
                 .define('r', Ingredient.of(Items.REDSTONE_BLOCK))
-                .define('d', Items.NETHERITE_BLOCK)
-                .define('c', Items.BLACK_CONCRETE_POWDER)
+                .define('d', ModItems.VOID_INGOT)
+                .define('c', ModItems.AETHER_INGOT)
                 .unlockedBy("has_redstone_block", has(Items.REDSTONE_BLOCK))
                 .save(recipeOutput);
 
@@ -52,6 +52,51 @@ public class ModRecipeProvider extends RecipeProvider {
                 .define('g', Items.GOLD_INGOT)
                 .define('i', Items.IRON_INGOT)
                 .define('n', Items.COPPER_INGOT)
+                .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.YINMIN_INGOT.get())
+                .pattern("lql")
+                .pattern("qcq")
+                .pattern("lql")
+                .define('q', ModItems.QUANTUM_INGOT)
+                .define('l', Items.LAPIS_BLOCK)
+                .define('c', ModItems.FROZEN_CRYSTAL)
+                .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.AMANITA_INGOT.get())
+                .pattern("lql")
+                .pattern("qcq")
+                .pattern("lql")
+                .define('q', ModItems.YINMIN_INGOT)
+                .define('l', Items.EMERALD_BLOCK)
+                .define('c', ModItems.FROZEN_CRYSTAL)
+                .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.HELIODOR_INGOT.get())
+                .pattern("lql")
+                .pattern("qcq")
+                .pattern("lql")
+                .define('q', ModItems.AMANITA_INGOT)
+                .define('l', Items.GOLD_BLOCK)
+                .define('c', ModItems.FROZEN_CRYSTAL)
+                .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.ULTIMATE_INGOT.get())
+                .pattern("qey")
+                .pattern("oco")
+                .pattern("avh")
+                .define('q', ModItems.QUANTUM_INGOT)
+                .define('y', ModItems.YINMIN_INGOT)
+                .define('a', ModItems.AMANITA_INGOT)
+                .define('h', ModItems.HELIODOR_INGOT)
+                .define('e', ModItems.AETHER_INGOT)
+                .define('v', ModItems.VOID_INGOT)
+                .define('o', Items.CRYING_OBSIDIAN)
+                .define('c', Items.END_CRYSTAL)
                 .unlockedBy("has_diamond", has(Items.DIAMOND))
                 .save(recipeOutput);
 
@@ -86,78 +131,15 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.PANDORA_BOX_CORE.get())
-                .pattern("non")
-                .pattern("ncn")
-                .pattern("non")
+                .pattern("hpv")
+                .pattern("vch")
+                .pattern("hsv")
                 .define('c', ModItems.FROZEN_CORE)
-                .define('n', Items.NETHERITE_BLOCK)
-                .define('o', Items.OBSIDIAN)
+                .define('h', ModItems.AETHER_INGOT)
+                .define('v', ModItems.VOID_INGOT)
+                .define('p', ModItems.ULTIMATE_PROCESSING_UPGRADE)
+                .define('s', ModItems.ULTIMATE_SPEED_UPGRADE)
                 .unlockedBy("has_diamond", has(Items.DIAMOND))
-                .save(recipeOutput);
-
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CHEF_MODULE.get())
-                .pattern("gag")
-                .pattern("bqc")
-                .pattern("gdg")
-                .define('a', Ingredient.of(Items.WHEAT))
-                .define('b', Ingredient.of(Items.POTATO))
-                .define('c', Ingredient.of(Items.CARROT))
-                .define('d', Ingredient.of(Items.BEETROOT))
-                .define('g', Ingredient.of(Items.GOLD_BLOCK))
-                .define('q', Ingredient.of(ModItems.QUANTUM_FOAM))
-                .unlockedBy("has_quantum_foam", has(ModItems.QUANTUM_FOAM))
-                .save(recipeOutput);
-
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.FISHER_MODULE.get())
-                .pattern("gag")
-                .pattern("bqc")
-                .pattern("gdg")
-                .define('a', Ingredient.of(Items.COD))
-                .define('b', Ingredient.of(Items.SALMON))
-                .define('c', Ingredient.of(Items.TROPICAL_FISH))
-                .define('d', Ingredient.of(Items.PUFFERFISH))
-                .define('g', Ingredient.of(Items.GOLD_BLOCK))
-                .define('q', Ingredient.of(ModItems.QUANTUM_FOAM))
-                .unlockedBy("has_quantum_foam", has(ModItems.QUANTUM_FOAM))
-                .save(recipeOutput);
-
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.FARMER_MODULE.get())
-                .pattern("gag")
-                .pattern("bqc")
-                .pattern("gdg")
-                .define('a', Ingredient.of(Items.WHEAT_SEEDS))
-                .define('b', Ingredient.of(Items.MELON_SEEDS))
-                .define('c', Ingredient.of(Items.PUMPKIN_SEEDS))
-                .define('d', Ingredient.of(Items.BEETROOT_SEEDS))
-                .define('g', Ingredient.of(Items.GOLD_BLOCK))
-                .define('q', Ingredient.of(ModItems.QUANTUM_FOAM))
-                .unlockedBy("has_quantum_foam", has(ModItems.QUANTUM_FOAM))
-                .save(recipeOutput);
-
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.GATHERER_MODULE.get())
-                .pattern("gag")
-                .pattern("bqc")
-                .pattern("gdg")
-                .define('a', Ingredient.of(Items.CHORUS_FRUIT))
-                .define('b', Ingredient.of(Items.NETHER_WART))
-                .define('c', Ingredient.of(Items.GLOW_BERRIES))
-                .define('d', Ingredient.of(Items.COCOA_BEANS))
-                .define('g', Ingredient.of(Items.GOLD_BLOCK))
-                .define('q', Ingredient.of(ModItems.QUANTUM_FOAM))
-                .unlockedBy("has_quantum_foam", has(ModItems.QUANTUM_FOAM))
-                .save(recipeOutput);
-
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.BUTCHER_MODULE.get())
-                .pattern("gag")
-                .pattern("bqc")
-                .pattern("gdg")
-                .define('a', DataComponentIngredient.of(true, ModDataComponents.MOB_INDEX.get(), "entity.minecraft.cow", ModItems.MEMORY_SHARD))
-                .define('b', DataComponentIngredient.of(true, ModDataComponents.MOB_INDEX.get(), "entity.minecraft.rabbit", ModItems.MEMORY_SHARD))
-                .define('c', DataComponentIngredient.of(true, ModDataComponents.MOB_INDEX.get(), "entity.minecraft.chicken", ModItems.MEMORY_SHARD))
-                .define('d', DataComponentIngredient.of(true, ModDataComponents.MOB_INDEX.get(), "entity.minecraft.pig", ModItems.MEMORY_SHARD))
-                .define('g', Ingredient.of(Items.GOLD_BLOCK))
-                .define('q', Ingredient.of(ModItems.QUANTUM_FOAM))
-                .unlockedBy("has_quantum_foam", has(ModItems.QUANTUM_FOAM))
                 .save(recipeOutput);
 
         //SPECIAL
@@ -166,8 +148,8 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern("gdg")
                 .pattern("qgq")
                 .define('d', Ingredient.of(ModItems.EXTRA_DROP_UPGRADE_TIER4))
-                .define('g', Ingredient.of(Items.PINK_STAINED_GLASS))
-                .define('q', Ingredient.of(ModItems.QUANTUM_INGOT))
+                .define('g', Ingredient.of(Items.PURPLE_STAINED_GLASS))
+                .define('q', Ingredient.of(ModItems.ULTIMATE_INGOT))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 
@@ -175,7 +157,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern("ibi")
                 .pattern("lfl")
                 .pattern("ibi")
-                .define('i', Ingredient.of(ModItems.QUANTUM_INGOT))
+                .define('i', Ingredient.of(ModItems.ULTIMATE_INGOT))
                 .define('f', Ingredient.of(ModBlocks.FLUID_REPLICATOR))
                 .define('l', Ingredient.of(Items.LAVA_BUCKET))
                 .define('b', Ingredient.of(Items.BLAZE_ROD))
@@ -186,9 +168,19 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern("iwi")
                 .pattern("wsw")
                 .pattern("iwi")
-                .define('i', Ingredient.of(ModItems.QUANTUM_INGOT))
+                .define('i', Ingredient.of(ModItems.ULTIMATE_INGOT))
                 .define('w', Ingredient.of(Items.WATER_BUCKET))
                 .define('s', Ingredient.of(Items.SUGAR))
+                .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.COMPRESSING_UPGRADE.get())
+                .pattern("iwi")
+                .pattern("wsw")
+                .pattern("iwi")
+                .define('i', Ingredient.of(ModItems.ULTIMATE_INGOT))
+                .define('w', Ingredient.of(Items.CRAFTING_TABLE))
+                .define('s', Ingredient.of(ModItems.FROZEN_CORE))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 
@@ -204,42 +196,43 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.SPEED_UPGRADE_TIER2.get())
-                .pattern("lll")
+                .pattern("lul")
                 .pattern("usu")
-                .pattern("lll")
-                .define('l', Ingredient.of(Items.LAPIS_LAZULI))
-                .define('s', Ingredient.of(Items.SLIME_BALL))
+                .pattern("lul")
+                .define('l', Ingredient.of(ModItems.YINMIN_INGOT))
+                .define('s', Ingredient.of(ModItems.FROZEN_CORE))
                 .define('u', Ingredient.of(ModItems.SPEED_UPGRADE_TIER1))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.SPEED_UPGRADE_TIER3.get())
-                .pattern("eee")
+                .pattern("lul")
                 .pattern("usu")
-                .pattern("eee")
-                .define('e', Ingredient.of(Items.EMERALD))
-                .define('s', Ingredient.of(Items.SLIME_BALL))
+                .pattern("lul")
+                .define('l', Ingredient.of(ModItems.AMANITA_INGOT))
+                .define('s', Ingredient.of(ModItems.FROZEN_CORE))
                 .define('u', Ingredient.of(ModItems.SPEED_UPGRADE_TIER2))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.SPEED_UPGRADE_TIER4.get())
-                .pattern("ggg")
+                .pattern("lul")
                 .pattern("usu")
-                .pattern("ggg")
-                .define('g', Ingredient.of(Items.GOLD_INGOT))
-                .define('s', Ingredient.of(Items.SLIME_BALL))
+                .pattern("lul")
+                .define('l', Ingredient.of(ModItems.HELIODOR_INGOT))
+                .define('s', Ingredient.of(ModItems.FROZEN_CORE))
                 .define('u', Ingredient.of(ModItems.SPEED_UPGRADE_TIER3))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.ULTIMATE_SPEED_UPGRADE.get())
-                .pattern("psp")
+                .pattern("isi")
                 .pattern("php")
-                .pattern("psp")
+                .pattern("isi")
                 .define('p', Ingredient.of(ModItems.ULTIMATE_PROCESSING_UPGRADE))
                 .define('s', Ingredient.of(ModItems.SPEED_UPGRADE_TIER4))
                 .define('h', Ingredient.of(ModItems.FROZEN_CORE))
+                .define('i', Ingredient.of(ModItems.ULTIMATE_INGOT))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 
@@ -258,8 +251,8 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern("lul")
                 .pattern("usu")
                 .pattern("lul")
-                .define('l', Ingredient.of(Items.LAPIS_LAZULI))
-                .define('s', Ingredient.of(Items.SLIME_BALL))
+                .define('l', Ingredient.of(ModItems.YINMIN_INGOT))
+                .define('s', Ingredient.of(ModItems.FROZEN_CORE))
                 .define('u', Ingredient.of(ModItems.PROCESSING_UPGRADE_TIER1))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
@@ -268,8 +261,8 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern("eue")
                 .pattern("usu")
                 .pattern("eue")
-                .define('e', Ingredient.of(Items.EMERALD))
-                .define('s', Ingredient.of(Items.SLIME_BALL))
+                .define('e', Ingredient.of(ModItems.AMANITA_INGOT))
+                .define('s', Ingredient.of(ModItems.FROZEN_CORE))
                 .define('u', Ingredient.of(ModItems.PROCESSING_UPGRADE_TIER2))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
@@ -278,10 +271,20 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern("gug")
                 .pattern("usu")
                 .pattern("gug")
-                .define('g', Ingredient.of(Items.GOLD_INGOT))
-                .define('s', Ingredient.of(Items.SLIME_BALL))
+                .define('g', Ingredient.of(ModItems.HELIODOR_INGOT))
+                .define('s', Ingredient.of(ModItems.FROZEN_CORE))
                 .define('u', Ingredient.of(ModItems.PROCESSING_UPGRADE_TIER3))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.ULTIMATE_PROCESSING_UPGRADE.get())
+                .pattern("iui")
+                .pattern("udu")
+                .pattern("iui")
+                .define('u', Ingredient.of(ModItems.PROCESSING_UPGRADE_TIER4.get()))
+                .define('i', ModItems.ULTIMATE_INGOT)
+                .define('d', Ingredient.of(Blocks.DRAGON_EGG))
+                .unlockedBy("has_dragon_egg", has(Blocks.DRAGON_EGG))
                 .save(recipeOutput);
 
         //EXTRA
@@ -296,37 +299,37 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.EXTRA_DROP_UPGRADE_TIER2.get())
-                .pattern("lll")
+                .pattern("lul")
                 .pattern("usu")
-                .pattern("lll")
-                .define('l', Ingredient.of(Items.LAPIS_LAZULI))
-                .define('s', Ingredient.of(Items.SLIME_BALL))
+                .pattern("lul")
+                .define('l', Ingredient.of(ModItems.YINMIN_INGOT))
+                .define('s', Ingredient.of(ModItems.FROZEN_CORE))
                 .define('u', Ingredient.of(ModItems.EXTRA_DROP_UPGRADE_TIER1))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.EXTRA_DROP_UPGRADE_TIER3.get())
-                .pattern("eee")
+                .pattern("eue")
                 .pattern("usu")
-                .pattern("eee")
-                .define('e', Ingredient.of(Items.EMERALD))
-                .define('s', Ingredient.of(Items.SLIME_BALL))
+                .pattern("eue")
+                .define('e', Ingredient.of(ModItems.AMANITA_INGOT))
+                .define('s', Ingredient.of(ModItems.FROZEN_CORE))
                 .define('u', Ingredient.of(ModItems.EXTRA_DROP_UPGRADE_TIER2))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.EXTRA_DROP_UPGRADE_TIER4.get())
-                .pattern("ggg")
+                .pattern("gug")
                 .pattern("usu")
-                .pattern("ggg")
-                .define('g', Ingredient.of(Items.GOLD_INGOT))
-                .define('s', Ingredient.of(Items.SLIME_BALL))
+                .pattern("gug")
+                .define('g', Ingredient.of(ModItems.HELIODOR_INGOT))
+                .define('s', Ingredient.of(ModItems.FROZEN_CORE))
                 .define('u', Ingredient.of(ModItems.EXTRA_DROP_UPGRADE_TIER3))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 
         //GENERATOR
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ETERNAL_GENERATOR_TIER1.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ETERNAL_GENERATOR.get())
                 .pattern("idi")
                 .pattern("dbd")
                 .pattern("idi")
@@ -334,36 +337,6 @@ public class ModRecipeProvider extends RecipeProvider {
                 .define('d', Ingredient.of(Items.ANCIENT_DEBRIS))
                 .define('b', Ingredient.of(Items.DIAMOND))
                 .unlockedBy("has_diamond", has(Items.DIAMOND))
-                .save(recipeOutput);
-
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ETERNAL_GENERATOR_TIER2.get())
-                .pattern("lll")
-                .pattern("usu")
-                .pattern("lll")
-                .define('l', Ingredient.of(Items.LAPIS_BLOCK))
-                .define('s', Ingredient.of(ModItems.QUANTUM_FOAM))
-                .define('u', Ingredient.of(ModBlocks.ETERNAL_GENERATOR_TIER1))
-                .unlockedBy("has_quantum_foam", has(ModItems.QUANTUM_FOAM))
-                .save(recipeOutput);
-
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ETERNAL_GENERATOR_TIER3.get())
-                .pattern("eee")
-                .pattern("usu")
-                .pattern("eee")
-                .define('e', Ingredient.of(Items.EMERALD_BLOCK))
-                .define('s', Ingredient.of(ModItems.QUANTUM_FOAM))
-                .define('u', Ingredient.of(ModBlocks.ETERNAL_GENERATOR_TIER2))
-                .unlockedBy("has_quantum_foam", has(ModItems.QUANTUM_FOAM))
-                .save(recipeOutput);
-
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ETERNAL_GENERATOR_TIER4.get())
-                .pattern("ggg")
-                .pattern("usu")
-                .pattern("ggg")
-                .define('g', Ingredient.of(Items.GOLD_BLOCK))
-                .define('s', Ingredient.of(ModItems.QUANTUM_FOAM))
-                .define('u', Ingredient.of(ModBlocks.ETERNAL_GENERATOR_TIER3))
-                .unlockedBy("has_quantum_foam", has(ModItems.QUANTUM_FOAM))
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.INDEX_INSCRIBER.get())
@@ -410,9 +383,10 @@ public class ModRecipeProvider extends RecipeProvider {
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ORE_COALESCER.get())
                 .pattern("ibi")
-                .pattern("bnb")
+                .pattern("pnp")
                 .pattern("ibi")
                 .define('i', Ingredient.of(Items.IRON_BLOCK))
+                .define('p', Ingredient.of(Items.NETHERITE_PICKAXE))
                 .define('n', Ingredient.of(Blocks.NETHERITE_BLOCK))
                 .define('b', Ingredient.of(Items.BLAZE_ROD))
                 .unlockedBy("has_netherite", has(Items.NETHERITE_INGOT))
@@ -443,8 +417,8 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern("lul")
                 .pattern("usu")
                 .pattern("lul")
-                .define('l', Ingredient.of(Items.LAPIS_LAZULI))
-                .define('s', Ingredient.of(Items.SLIME_BALL))
+                .define('l', ModItems.YINMIN_INGOT)
+                .define('s', Ingredient.of(ModItems.FROZEN_CORE))
                 .define('u', Ingredient.of(ModItems.FORTUNE_UPGRADE_TIER1))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
@@ -453,8 +427,8 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern("eue")
                 .pattern("usu")
                 .pattern("eue")
-                .define('e', Ingredient.of(Items.EMERALD))
-                .define('s', Ingredient.of(Items.SLIME_BALL))
+                .define('e', Ingredient.of(ModItems.AMANITA_INGOT))
+                .define('s', Ingredient.of(ModItems.FROZEN_CORE))
                 .define('u', Ingredient.of(ModItems.FORTUNE_UPGRADE_TIER2))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
@@ -463,20 +437,11 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern("gug")
                 .pattern("usu")
                 .pattern("gug")
-                .define('g', Ingredient.of(Items.GOLD_INGOT))
-                .define('s', Ingredient.of(Items.SLIME_BALL))
+                .define('g', Ingredient.of(ModItems.HELIODOR_INGOT))
+                .define('s', Ingredient.of(ModItems.FROZEN_CORE))
                 .define('u', Ingredient.of(ModItems.FORTUNE_UPGRADE_TIER3))
                 .unlockedBy("has_quantum_ingot", has(ModItems.QUANTUM_INGOT))
                 .save(recipeOutput);
 
-        //ULTIMATE
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.ULTIMATE_PROCESSING_UPGRADE.get())
-                .pattern("uuu")
-                .pattern("udu")
-                .pattern("uuu")
-                .define('u', Ingredient.of(ModItems.PROCESSING_UPGRADE_TIER4.get()))
-                .define('d', Ingredient.of(Blocks.DRAGON_EGG))
-                .unlockedBy("has_dragon_egg", has(Blocks.DRAGON_EGG))
-                .save(recipeOutput);
     }
 }

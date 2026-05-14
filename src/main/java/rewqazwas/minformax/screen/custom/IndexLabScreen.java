@@ -27,8 +27,11 @@ public class IndexLabScreen extends AbstractContainerScreen<IndexLabMenu> {
     private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/index_lab.png");
     private static final ResourceLocation SCROLLER_SPRITE = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID,"widget/scroller");
     private static final ResourceLocation PROGRESS_BAR = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/progress_bar.png");
+    private static final ResourceLocation EMPTY_BAR = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/empty_bar.png");
     private static final ResourceLocation HIGHLIGHTED_SLOT = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/highlighted_slot.png");
     private static final ResourceLocation SUB_BACKGROUND = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "widget/collect_button_off");
+    private static final ResourceLocation CONFIRM_SPRITE = ResourceLocation.withDefaultNamespace("container/beacon/confirm");
+    private static final ResourceLocation CANCEL_SPRITE = ResourceLocation.withDefaultNamespace("container/beacon/cancel");
     private final IndexButton[] indexButtons = new IndexButton[7];
     int scrollOff;
     private HolderClass mobData;
@@ -49,6 +52,7 @@ public class IndexLabScreen extends AbstractContainerScreen<IndexLabMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
         guiGraphics.blit(GUI_TEXTURE, x, y, 0, 0, imageWidth, imageHeight, 512, 256);
+        guiGraphics.blit(EMPTY_BAR, x + 107, y + 71, 0, 0, 88, 6, 88, 6);
         this.mobIndex = menu.getKey();
         if(mobIndex >= 0 && mobIndex < menu.indexList.size()){
             postButtonClick();
@@ -73,6 +77,8 @@ public class IndexLabScreen extends AbstractContainerScreen<IndexLabMenu> {
 
     }
 
+    private Button lockButton;
+
     @Override
     protected void init() {
         super.init();
@@ -91,6 +97,10 @@ public class IndexLabScreen extends AbstractContainerScreen<IndexLabMenu> {
             }));
             k += 20;
         }
+
+        this.lockButton = this.addRenderableWidget(new LockButton(i + 175, j + 43, this.menu, (button) -> {
+            this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, -1);
+        }));
     }
 
     private void postButtonClick() {
@@ -168,6 +178,10 @@ public class IndexLabScreen extends AbstractContainerScreen<IndexLabMenu> {
             IndexLabScreen$IndexButton.visible = IndexLabScreen$IndexButton.index < size;
         }
 
+        if (this.lockButton instanceof LockButton lb && lb.isHoveredOrFocused()) {
+            lb.renderToolTip(guiGraphics, mouseX, mouseY);
+        }
+
         this.renderData(guiGraphics, mouseX, mouseY);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
@@ -233,6 +247,29 @@ public class IndexLabScreen extends AbstractContainerScreen<IndexLabMenu> {
             guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
             int i = getFGColor();
             this.renderString(guiGraphics, minecraft.font, i | Mth.ceil(this.alpha * 255.0F) << 24);
+        }
+    }
+
+    public class LockButton extends Button {
+        private final IndexLabMenu menu;
+
+        public LockButton(int x, int y, IndexLabMenu menu, OnPress onPress) {
+
+            super(x, y, 18, 18, CommonComponents.EMPTY, onPress, DEFAULT_NARRATION);
+            this.menu = menu;
+        }
+
+        @Override
+        protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            ResourceLocation sprite = this.menu.isLocked() ? CONFIRM_SPRITE : CANCEL_SPRITE;
+            guiGraphics.blitSprite(sprite, this.getX() + 1, this.getY() + 1, 16, 16);
+        }
+
+        public void renderToolTip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+            if (this.isHovered) {
+                Component text = Component.translatable(this.menu.isLocked() ? "tooltip.minformax.locked" : "tooltip.minformax.unlocked");
+                guiGraphics.renderTooltip(Minecraft.getInstance().font, text, mouseX, mouseY);
+            }
         }
     }
 }

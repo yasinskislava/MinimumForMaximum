@@ -1,6 +1,7 @@
 package rewqazwas.minformax.custom.blocks;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -26,10 +27,8 @@ import rewqazwas.minformax.custom.ModBlockEntities;
 import rewqazwas.minformax.custom.ModTags;
 import rewqazwas.minformax.custom.component.ModDataComponents;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
-import rewqazwas.minformax.custom.index.ModuleDropsReloadListener;
 import rewqazwas.minformax.custom.items.AccShard;
 import rewqazwas.minformax.custom.items.ModItems;
-import rewqazwas.minformax.custom.items.ModuleItem;
 import rewqazwas.minformax.custom.items.upgrades.*;
 import rewqazwas.minformax.custom.utility.Utils;
 import rewqazwas.minformax.screen.custom.EternalGeneratorMenu;
@@ -42,9 +41,10 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
 
     public EternalGeneratorBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.ETERNAL_GENERATOR_BE.get(), pos, blockState);
-        EternalGeneratorBlock block = (EternalGeneratorBlock) blockState.getBlock();
-        this.tier = block.tier;
-        this.loaderSlots = (int) Math.pow(2, tier - 1);
+        this.loaderSlots = 1;
+
+        this.enabledSides[Direction.DOWN.get3DDataValue()] = true;
+        this.enabledSides[Direction.UP.get3DDataValue()] = true;
 
         data = new ContainerData() {
             @Override
@@ -56,6 +56,7 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
                     case 3 -> EternalGeneratorBlockEntity.this.totalXp;
                     case 4 -> EternalGeneratorBlockEntity.this.overload;
                     case 5 -> EternalGeneratorBlockEntity.this.overflowXp;
+                    case 6 -> EternalGeneratorBlockEntity.this.consumptionRate;
                     default -> 0;
                 };
             }
@@ -69,19 +70,20 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
                     case 3: EternalGeneratorBlockEntity.this.totalXp = value; break;
                     case 4: EternalGeneratorBlockEntity.this.overload = value; break;
                     case 5: EternalGeneratorBlockEntity.this.overflowXp = value; break;
+                    case 6: EternalGeneratorBlockEntity.this.consumptionRate = value; break;
                 }
             }
 
 
             @Override
             public int getCount() {
-                return 6;
+                return 7;
             }
         };
     }
 
     //Handlers
-    public Utils.SingleItemHandler itemHandler = new Utils.SingleItemHandler(8) {
+    public Utils.SingleItemHandler itemHandler = new Utils.SingleItemHandler(1) {
         @Override
         protected void onContentsChanged(int slot) {
             super.onContentsChanged(slot);
@@ -116,7 +118,8 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
     private int totalXp = 0;
     private int overflowXp = 0;
     private int overload;
-    public int tier;
+    private int consumptionRate = 0;
+    private boolean[] enabledSides = new boolean[6];
 
     // Cache
     private boolean cacheDirty = true;
@@ -151,6 +154,10 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
         this.totalXp = tag.getInt("eternal_generator.total_xp");
         this.overload = tag.getInt("eternal_generator.overload");
         this.overflowXp = tag.getInt("eternal_generator.overflow_xp");
+        int[] savedSides = tag.getIntArray("eternal_generator.enabled_sides");
+        for (int i = 0; i < Math.min(savedSides.length, 6); i++) {
+            enabledSides[i] = savedSides[i] == 1;
+        }
         this.cacheDirty = true;
     }
 
@@ -164,6 +171,11 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
         tag.putInt("eternal_generator.total_xp", this.totalXp);
         tag.putInt("eternal_generator.overload", this.overload);
         tag.putInt("eternal_generator.overflow_xp", this.overflowXp);
+        int[] toSave = new int[6];
+        for (int i = 0; i < 6; i++) {
+            toSave[i] = enabledSides[i] ? 1 : 0;
+        }
+        tag.putIntArray("eternal_generator.enabled_sides", toSave);
         super.saveAdditional(tag, registries);
     }
 
@@ -180,6 +192,26 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
     //Utility
     private void resetProcess() {
         this.process = 0;
+    }
+
+    public void toggleSide(Direction dir) {
+        enabledSides[dir.get3DDataValue()] = !enabledSides[dir.get3DDataValue()];
+        this.setChanged();
+        if (this.level != null) {
+            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
+        }
+    }
+
+    public boolean isSideEnabled(Direction dir) {
+        return enabledSides[dir.get3DDataValue()];
+    }
+
+    public String getMobNameInShard() {
+        ItemStack shard = this.itemHandler.getStackInSlot(0);
+        if (!shard.isEmpty() && shard.get(ModDataComponents.MOB_INDEX) != null) {
+            return shard.get(ModDataComponents.MOB_INDEX);
+        }
+        return null;
     }
 
     private void addXp(long value) {
@@ -232,14 +264,7 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
                 List<ItemStack> additionalDrop = new ArrayList<>();
                 boolean isShard = false;
 
-                if(currentLoader.getItem() instanceof ModuleItem) {
-                    this.cachedDuration += 1024;
-                    var identifier = ModuleDropsReloadListener.rulesForModule(currentLoader.getItem());
-                    xp = identifier.xp();
-                    for (ItemStack s : ModuleDropsReloadListener.mainDropsFromModule(currentLoader.getItem())) {
-                        mainDrop.add(s.copy());
-                    }
-                } else if(currentLoader.getItem() instanceof AccShard) {
+                if(currentLoader.getItem() instanceof AccShard) {
                     var key = currentLoader.get(ModDataComponents.MOB_INDEX);
                     var index = ModDataReloadListener.MOB_DROPS;
                     if(index.containsKey(key)) {
@@ -330,7 +355,7 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
                 energyHandler.extractEnergy(requiredEnergy, false);
                 this.currentEnergy = energyHandler.getEnergyStored();
                 dirty = true;
-
+                this.consumptionRate = requiredEnergy;
                 process++;
                 maxProcess = this.cachedMaxProcess;
 
@@ -377,7 +402,7 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
                     dropsToDistribute = mergeStacks(dropsToDistribute);
 
                     for (ItemStack stack : dropsToDistribute) {
-                        ItemStack remaining = Utils.moveItem(level, blockPos, stack);
+                        ItemStack remaining = Utils.moveItem(level, blockPos, stack, enabledSides);
                         if (!remaining.isEmpty()) {
                             this.overload = (int) Math.min((long) this.overload + remaining.getCount(), Integer.MAX_VALUE);
                         }
@@ -385,8 +410,11 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
 
                     resetProcess();
                 }
+            } else {
+                this.consumptionRate = 0;
             }
         } else {
+            this.consumptionRate = 0;
             if (process != 0) {
                 resetProcess();
                 dirty = true;
@@ -395,6 +423,7 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
 
         if (dirty) {
             setChanged(level, blockPos, blockState);
+            level.sendBlockUpdated(blockPos, blockState, blockState, 3);
         }
     }
 

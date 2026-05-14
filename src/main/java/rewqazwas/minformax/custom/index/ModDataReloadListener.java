@@ -21,7 +21,6 @@ public class ModDataReloadListener implements ResourceManagerReloadListener {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     public static Map<String, HolderClass> MOB_DROPS = new HashMap<>();
-    public static Map<String, ModuleData> MODULE_DROPS = new HashMap<>();
     public static Map<String, FarmerData> FARMER_DATA = new HashMap<>();
     public static Map<String, FluidReplicatorData> FLUID_REPLICATOR_DATA = new HashMap<>();
     public static Map<String, BlockReplicatorData> BLOCK_REPLICATOR_DATA = new HashMap<>();
@@ -30,7 +29,6 @@ public class ModDataReloadListener implements ResourceManagerReloadListener {
     public void onResourceManagerReload(ResourceManager resourceManager) {
         // Clear old data
         MOB_DROPS.clear();
-        MODULE_DROPS.clear();
         FARMER_DATA.clear();
         FLUID_REPLICATOR_DATA.clear();
         BLOCK_REPLICATOR_DATA.clear();
@@ -39,16 +37,13 @@ public class ModDataReloadListener implements ResourceManagerReloadListener {
         // 1. Process Mob Drops
         handleCategory("mob_drops.json", "mob_drops", HolderClass.CODEC, MOB_DROPS, resourceManager);
 
-        // 2. Process Module Drops
-        handleCategory("module_drops.json", "module_drops", ModuleData.CODEC, MODULE_DROPS, resourceManager);
-
-        // 3. Process Fluid Data
+        // 2. Process Fluid Data
         handleCategory("fluid_replicator.json", "fluid_replicator_data", FluidReplicatorData.CODEC, FLUID_REPLICATOR_DATA, resourceManager);
 
-        // 4. Process Block Data
+        // 3. Process Block Data
         handleCategory("block_replicator.json", "block_replicator_data", BlockReplicatorData.CODEC, BLOCK_REPLICATOR_DATA, resourceManager);
 
-        // 5. Process Farmer Data
+        // 4. Process Farmer Data
         handleCategory("farmer_data.json", "farmer_data", FarmerData.CODEC, FARMER_DATA, resourceManager);
 
         MinForMax.LOGGER.info("Data Reload Complete. Mobs: {}, Fluids: {}, Blocks: {}, Farmer: {}",

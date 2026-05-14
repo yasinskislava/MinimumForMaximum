@@ -50,7 +50,7 @@ public class OreCoalescerMenu extends AbstractContainerMenu {
 
         // Upgrades (Slots 0-3 of inventoryHandler)
         for (int i = 0; i < UPGRADE_SLOTS; i++) {
-            this.addSlot(new UpgradeSlot(this.blockEntity.inventoryHandler, i, -19, i * 18 + 7));
+            this.addSlot(new UpgradeSlot(this.blockEntity.inventoryHandler, i, -19, i * 18 + 8));
         }
 
         for (int i = 0; i < INPUT_SLOTS; i++) {

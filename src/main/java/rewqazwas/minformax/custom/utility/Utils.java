@@ -1,5 +1,8 @@
 package rewqazwas.minformax.custom.utility;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -13,6 +16,10 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
@@ -33,16 +40,39 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import rewqazwas.minformax.MinForMax;
 import rewqazwas.minformax.custom.ModTags;
 import rewqazwas.minformax.custom.index.HolderClass;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
 import rewqazwas.minformax.custom.items.ModItems;
 
 import java.lang.reflect.Field;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.BiConsumer;
 
 public class Utils {
+
+    private static final String MOD_ID = MinForMax.MOD_ID;
+
+    public static final ResourceLocation ENERGY_BAR = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/energy_bar.png");
+    public static final ResourceLocation EMPTY_BAR = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/empty_bar.png");
+    public static final ResourceLocation OVERLOAD_BAR = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/overload_bar.png");
+    public static final ResourceLocation PROGRESS_BAR = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/progress_bar.png");
+    public static final ResourceLocation UPGRADES_BAR = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/upgrades_bar.png");
+    public static final ResourceLocation SLOT_TEXTURE = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/slot.png");
+    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/template.png");
+    public static final ResourceLocation SIDE = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/side.png");
+    public static final ResourceLocation CONSUMPTION = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/energy.png");
+    public static final ResourceLocation SIDE_CONFIG = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/circuit.png");
+    private static final ResourceLocation INFO = ResourceLocation.fromNamespaceAndPath(MOD_ID,"textures/item/analyzer.png");
+
+    // Standard Sizes
+    public static final int V_BAR_HEIGHT = 55;
+    public static final int V_BAR_WIDTH = 7;
+    public static final int H_BAR_WIDTH = 88;
+    public static final int H_BAR_HEIGHT = 6;
+
     public static String prettyName(String input) {
         if (input == null || input.isEmpty()) return "";
         int idx = input.lastIndexOf('.');
@@ -82,6 +112,18 @@ public class Utils {
                 action.accept(handler, side);
             }
         }
+    }
+
+    public static ItemStack moveItem(Level level, BlockPos pos, ItemStack stack, boolean[] enabledSides) {
+        final ItemStack[] currentStack = {stack.copy()};
+
+        forEachNeighborCapability(Capabilities.ItemHandler.BLOCK, level, pos, (handler, side) -> {
+            if (enabledSides[side.get3DDataValue()] && !currentStack[0].isEmpty()) {
+                currentStack[0] = ItemHandlerHelper.insertItemStacked(handler, currentStack[0], false);
+            }
+        });
+
+        return currentStack[0];
     }
 
     public static ItemStack moveItem(Level level, BlockPos pos, ItemStack stack) {
@@ -179,6 +221,24 @@ public class Utils {
         return getDelimeter(energy) + "FE / " + getDelimeter(maxEnergy) + "FE";
     }
 
+    public static String simpleEnergyDisplay(long energy, long maxEnergy) {
+        return getDelimeter(energy) + "FE / " + getDelimeter(maxEnergy) + "FE";
+    }
+
+    private static final String[] SUFFIXES = {"", "k", "M", "G", "T", "P", "E"};
+
+    public static String formatNumber(long number) {
+        if (number < 1000) return String.valueOf(number);
+
+        int exp = (int) (Math.log(number) / Math.log(1000));
+        exp = Math.min(exp, SUFFIXES.length - 1);
+
+        double value = number / Math.pow(1000, exp);
+
+        DecimalFormat df = new DecimalFormat("#.#");
+        return df.format(value) + SUFFIXES[exp];
+    }
+
     public static String getDelimeter(int value) {
         if (value >= 1_000_000_000) {
             return formatToThreeDigits(value / 1_000_000_000.0, "G");
@@ -192,11 +252,17 @@ public class Utils {
     }
 
     public static String getDelimeter(long value) {
-        if (value >= 1_000_000_000) {
+        if (value >= 1_000_000_000_000_000_000L) {
+            return formatToThreeDigits(value / 1_000_000_000_000_000_000.0, "E");
+        } else if (value >= 1_000_000_000_000_000L) {
+            return formatToThreeDigits(value / 1_000_000_000_000_000.0, "P");
+        } else if (value >= 1_000_000_000_000L) {
+            return formatToThreeDigits(value / 1_000_000_000_000.0, "T");
+        } else if (value >= 1_000_000_000L) {
             return formatToThreeDigits(value / 1_000_000_000.0, "G");
-        } else if (value >= 1_000_000) {
+        } else if (value >= 1_000_000L) {
             return formatToThreeDigits(value / 1_000_000.0, "M");
-        } else if (value >= 1_000) {
+        } else if (value >= 1_000L) {
             return formatToThreeDigits(value / 1_000.0, "K");
         } else {
             return String.valueOf(value);
@@ -280,22 +346,64 @@ public class Utils {
     }
 
     public static class EnergyGenStorage extends EnergyStorage {
-        public EnergyGenStorage(int capacity) {
-            super(capacity, 0, capacity);
+        private long currentEnergy;
+        private long maxCapacity;
+
+        public EnergyGenStorage(long capacity) {
+            super((int) Math.min(capacity, Integer.MAX_VALUE), 0, (int) Math.min(capacity, Integer.MAX_VALUE));
+            this.maxCapacity = capacity;
+            this.currentEnergy = 0;
         }
 
         @Override
-        public int receiveEnergy(int toReceive, boolean simulate) {
+        public int getEnergyStored() {
+            return (int) Math.min(currentEnergy, Integer.MAX_VALUE);
+        }
+
+        public long getLongEnergyStored() {
+            return currentEnergy;
+        }
+
+        @Override
+        public int getMaxEnergyStored() {
+            return (int) Math.min(maxCapacity, Integer.MAX_VALUE);
+        }
+
+        public long getMaxCapacityLong() {
+            return maxCapacity;
+        }
+
+        @Override
+        public int receiveEnergy(int maxReceive, boolean simulate) {
+            // Generators do not receive energy from external sources
             return 0;
         }
 
-        public void setEnergy(int value) {
-            this.energy = Math.max(0, Math.min(getMaxEnergyStored(), value));
+        @Override
+        public int extractEnergy(int maxExtract, boolean simulate) {
+            long energyExtracted = Math.min(currentEnergy, maxExtract);
+            if (!simulate) {
+                currentEnergy -= energyExtracted;
+            }
+            return (int) Math.min(energyExtracted, Integer.MAX_VALUE);
+        }
+
+        public void setEnergy(long value) {
+            this.currentEnergy = Math.max(0, Math.min(maxCapacity, value));
+        }
+
+        public void addEnergy(long energy) {
+            this.currentEnergy = Math.min(this.currentEnergy + energy, maxCapacity);
         }
 
         @Override
         public boolean canExtract() {
             return true;
+        }
+
+        @Override
+        public boolean canReceive() {
+            return false; // Generators do not receive energy
         }
     }
 
@@ -420,6 +528,87 @@ public class Utils {
 
         // Default: Return the seed itself if no other logic found
         return List.of(new ItemStack(seedItem));
+    }
+
+    public record EssenceRecipeInfo(int inputCount, ItemStack output) {}
+
+    public static boolean isCompressibleEssence(Item item) {
+        ResourceLocation key = BuiltInRegistries.ITEM.getKey(item);
+        return key.getNamespace().equals("mysticalagriculture") && key.getPath().endsWith("_essence");
+    }
+
+    /**
+     * Optimized compression that uses a pre-calculated cache.
+     */
+    public static List<ItemStack> applyCompression(List<ItemStack> drops, Map<Item, EssenceRecipeInfo> recipeCache) {
+        List<ItemStack> resultDrops = new ArrayList<>();
+        for (ItemStack stack : drops) {
+            Item item = stack.getItem();
+
+            if (isCompressibleEssence(item) && recipeCache.containsKey(item)) {
+                EssenceRecipeInfo recipe = recipeCache.get(item);
+                if (!recipe.output().is(Items.AIR)) {
+                    int totalEssence = stack.getCount();
+                    int craftCount = totalEssence / recipe.inputCount();
+                    int leftover = totalEssence % recipe.inputCount();
+
+                    if (craftCount > 0) {
+                        ItemStack output = recipe.output().copy();
+                        output.setCount(output.getCount() * craftCount);
+                        resultDrops.add(output);
+                    }
+
+                    if (leftover > 0) {
+                        ItemStack remainder = stack.copy();
+                        remainder.setCount(leftover);
+                        resultDrops.add(remainder);
+                    }
+                    continue;
+                }
+            }
+            resultDrops.add(stack);
+        }
+        return resultDrops;
+    }
+
+    public static EssenceRecipeInfo getEssenceRecipe(ServerLevel level, Item essence) {
+        ItemStack essenceStack = new ItemStack(essence);
+        for (RecipeHolder<CraftingRecipe> holder : level.getRecipeManager().getAllRecipesFor(RecipeType.CRAFTING)) {
+            CraftingRecipe recipe = holder.value();
+            List<Ingredient> ingredients = recipe.getIngredients();
+            if (ingredients.isEmpty()) continue;
+
+            int inputCount = 0;
+            boolean allIngredientsMatch = true;
+            for (Ingredient ing : ingredients) {
+                if (ing.isEmpty()) continue;
+                if (ing.test(essenceStack)) {
+                    inputCount++;
+                } else {
+                    allIngredientsMatch = false;
+                    break;
+                }
+            }
+            if (allIngredientsMatch && inputCount > 0) {
+                return new EssenceRecipeInfo(inputCount, recipe.getResultItem(level.registryAccess()));
+            }
+        }
+        return null;
+    }
+
+    public static List<ItemStack> applyCompression(Level level, List<ItemStack> drops) {
+        if (!(level instanceof ServerLevel serverLevel)) return drops;
+
+        // This is the "expensive" way, preserved for generic calls
+        Map<Item, EssenceRecipeInfo> temporaryCache = new HashMap<>();
+        for(ItemStack stack : drops) {
+            Item item = stack.getItem();
+            if(isCompressibleEssence(item)) {
+                EssenceRecipeInfo info = getEssenceRecipe(serverLevel, item);
+                if(info != null) temporaryCache.put(item, info);
+            }
+        }
+        return applyCompression(drops, temporaryCache);
     }
 
     /**
@@ -568,5 +757,133 @@ public class Utils {
         }
 
         return drops.isEmpty() ? List.of(new ItemStack(sapling)) : drops;
+    }
+
+    public void drawMirroredX(GuiGraphics guiGraphics, ResourceLocation texture, int x, int y, int width, int height) {
+        guiGraphics.pose().pushPose();
+
+        // Move to the right edge of the intended area
+        guiGraphics.pose().translate(x + width, y, 0);
+
+        // Flip the X coordinates
+        guiGraphics.pose().scale(-1.0F, 1.0F, 1.0F);
+
+        // Draw at 0,0 relative to the new flipped origin
+        guiGraphics.blit(texture, 0, 0, 0, 0, width, height, width, height);
+
+        guiGraphics.pose().popPose();
+    }
+
+    public void drawMirroredY(GuiGraphics guiGraphics, ResourceLocation texture, int x, int y, int width, int height) {
+        guiGraphics.pose().pushPose();
+
+        // Move to the bottom edge of the intended area
+        guiGraphics.pose().translate(x, y + height, 0);
+
+        // Flip the Y coordinates
+        guiGraphics.pose().scale(1.0F, -1.0F, 1.0F);
+
+        // Draw at 0,0 relative to the new flipped origin
+        guiGraphics.blit(texture, 0, 0, 0, 0, width, height, width, height);
+
+        guiGraphics.pose().popPose();
+    }
+
+    /**
+     * Draws the main background and the standard energy bar on the right.
+     */
+    public static void drawTemplate(GuiGraphics guiGraphics, int x, int y, int imageWidth, int imageHeight, ResourceLocation guiTexture, int energyLevel) {
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+
+        // 1. Main Background
+        guiGraphics.blit(guiTexture, x, y, 0, 0, imageWidth, imageHeight);
+
+        // 2. Standard Energy Bar (Right side)
+        drawVerticalBar(guiGraphics, x + 163, y + 13, ENERGY_BAR, energyLevel);
+    }
+
+    /**
+     * Internal helper to draw vertical bars (Energy, Overload).
+     */
+    public static void drawVerticalBar(GuiGraphics guiGraphics, int x, int y, ResourceLocation fillTexture, int level) {
+        // Draw the background empty bar
+        guiGraphics.blit(EMPTY_BAR, x, y, 0, 0, V_BAR_WIDTH, V_BAR_HEIGHT, V_BAR_WIDTH, V_BAR_HEIGHT);
+
+        // Draw the fill level
+        int diff = V_BAR_HEIGHT - level;
+        guiGraphics.blit(fillTexture, x, y + diff, 0, diff, V_BAR_WIDTH, level, V_BAR_WIDTH, V_BAR_HEIGHT);
+    }
+
+    /**
+     * Draws the overload bar on the left.
+     */
+    public static void drawOverload(GuiGraphics guiGraphics, int x, int y, int overloadLevel) {
+        drawVerticalBar(guiGraphics, x + 6, y + 13, OVERLOAD_BAR, overloadLevel);
+    }
+
+    /**
+     * Draws the horizontal progress bar at the bottom center.
+     */
+    public static void drawProgressBar(GuiGraphics guiGraphics, int x, int y, int progress) {
+        guiGraphics.blit(EMPTY_BAR, x + 44, y + 70, 0, 0, H_BAR_WIDTH, H_BAR_HEIGHT, H_BAR_WIDTH, H_BAR_HEIGHT);
+        guiGraphics.blit(PROGRESS_BAR, x + 44, y + 70, 0, 0, progress, H_BAR_HEIGHT, H_BAR_WIDTH, H_BAR_HEIGHT);
+    }
+
+    /**
+     * Draws the upgrade tab extension.
+     */
+    public static void drawUpgradeTab(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(UPGRADES_BAR, x - 24, y + 3, 0, 0, 24, 80, 24, 80);
+    }
+
+    /**
+     * Draws the side extension.
+     */
+    public static void drawSideTab(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(SIDE, x - 24, y, 0, 0, 26, 24, 26, 24);
+    }
+
+    /**
+     * Draws the energy consumption side tab extension.
+     */
+    public static void drawConsumptionTab(GuiGraphics guiGraphics, int x, int y) {
+        drawSideTab(guiGraphics, x, y + 142);
+        guiGraphics.blit(CONSUMPTION, x - 19, y + 146, 0, 0, 16, 16, 16, 16);
+    }
+
+    /**
+     * Draws the side configuration tab extension.
+     */
+    public static void drawIOTab(GuiGraphics guiGraphics, int x, int y) {
+        drawSideTab(guiGraphics, x, y + 142 - 56);
+        guiGraphics.blit(SIDE_CONFIG, x - 19, y + 146 - 56, 0, 0, 16, 16, 16, 16);
+    }
+
+    /**
+     * Draws the information side tab extension.
+     */
+    public static void drawInfoTab(GuiGraphics guiGraphics, int x, int y) {
+        drawSideTab(guiGraphics, x, y + 142 - 28);
+        //guiGraphics.blit(CONSUMPTION, x - 19, y + 146 - 28, 0, 0, 16, 16, 16, 16);
+    }
+
+    /**
+     * Draws the upgrade info side tab extension.
+     */
+    public static void drawUpgradeInfoTab(GuiGraphics guiGraphics, int x, int y) {
+        drawSideTab(guiGraphics, x, y - 19);
+        guiGraphics.blit(INFO, x - 19, y - 15, 0, 0, 16, 16, 16, 16);
+    }
+
+    /**
+     * Draws a single item slot background.
+     */
+    public static void drawSlot(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(SLOT_TEXTURE, x, y, 0, 0, 18, 18, 18, 18);
+    }
+
+    public static boolean isMouseOver(double mouseX, double mouseY, int x, int y, int sizeX, int sizeY) {
+        return mouseX >= x && mouseX <= x + sizeX && mouseY >= y && mouseY <= y + sizeY;
     }
 }

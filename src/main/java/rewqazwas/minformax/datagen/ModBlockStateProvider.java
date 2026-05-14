@@ -18,16 +18,13 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
     @Override
     protected void registerStatesAndModels() {
-        blockWithItem(ModBlocks.ETERNAL_GENERATOR_TIER1);
-        blockWithItem(ModBlocks.ETERNAL_GENERATOR_TIER2);
-        blockWithItem(ModBlocks.ETERNAL_GENERATOR_TIER3);
-        blockWithItem(ModBlocks.ETERNAL_GENERATOR_TIER4);
-        blockWithItem(ModBlocks.INDEX_INSCRIBER);
+        simpleBlockWithItem(ModBlocks.ETERNAL_GENERATOR.get(), models().getExistingFile(modLoc("block/eternal_generator")));
+        simpleBlockWithItem(ModBlocks.INDEX_INSCRIBER.get(), models().getExistingFile(modLoc("block/index_inscriber")));
         blockWithItem(ModBlocks.CREATIVE_ENERGY);
-        blockWithItem(ModBlocks.FLUID_REPLICATOR);
-        blockWithItem(ModBlocks.BLOCK_REPLICATOR);
-        blockWithItem(ModBlocks.ORE_COALESCER);
-        blockWithItem(ModBlocks.FARMER);
+        simpleBlockWithItem(ModBlocks.FLUID_REPLICATOR.get(), models().getExistingFile(modLoc("block/replicator")));
+        simpleBlockWithItem(ModBlocks.BLOCK_REPLICATOR.get(), models().getExistingFile(modLoc("block/replicator")));
+        simpleBlockWithItem(ModBlocks.ORE_COALESCER.get(), models().getExistingFile(modLoc("block/ore_coalescer")));
+        simpleBlockWithItem(ModBlocks.FARMER.get(), models().getExistingFile(modLoc("block/farmer")));
 
         simpleBlock(ModBlocks.PANDORA_BOX_CORE.get(), new ModelFile.UncheckedModelFile("minformax:block/pandora_box"));
         simpleBlock(ModBlocks.PANDORA_BOX_HATCH.get(), new ModelFile.UncheckedModelFile("minformax:block/pandora_box"));

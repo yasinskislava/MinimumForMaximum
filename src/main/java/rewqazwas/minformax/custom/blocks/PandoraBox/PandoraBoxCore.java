@@ -2,11 +2,14 @@ package rewqazwas.minformax.custom.blocks.PandoraBox;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -18,6 +21,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -58,6 +63,18 @@ public class PandoraBoxCore extends Block implements EntityBlock {
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        // --- NEW: Restore data from item ---
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof PandoraBoxCoreBlockEntity core) {
+            CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+            if (customData != null) {
+                CompoundTag tag = customData.copyTag();
+                if (tag.contains("overload")) core.addOverload(tag.getLong("overload"));
+                if (tag.contains("totalXp")) core.addXp(tag.getLong("totalXp"));
+            }
+        }
+        // ------------------------------------
+
         super.setPlacedBy(level, pos, state, placer, stack);
         for (BlockPos offset : STRUCTURE_OFFSETS) {
             BlockPos targetPos = pos.offset(offset);
@@ -68,13 +85,47 @@ public class PandoraBoxCore extends Block implements EntityBlock {
                 blockState = ModBlocks.PANDORA_BOX_DUMMY.get().defaultBlockState();
             }
 
-            // Set the core pos in the dummy block entity
             level.setBlock(targetPos, blockState, 3);
-            BlockEntity be = level.getBlockEntity(targetPos);
-            if (be instanceof PandoraBoxDummyBlockEntity dummyBe) {
+            BlockEntity dummyBeRaw = level.getBlockEntity(targetPos);
+            if (dummyBeRaw instanceof PandoraBoxDummyBlockEntity dummyBe) {
                 dummyBe.setCorePos(pos);
             }
         }
+    }
+
+    @Override
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
+        List<ItemStack> drops = super.getDrops(state, builder);
+        BlockEntity be = builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+
+        if (be instanceof PandoraBoxCoreBlockEntity core) {
+            for (ItemStack stack : drops) {
+                // Check if the dropped item is the core itself
+                if (stack.is(this.asItem())) {
+                    CompoundTag tag = new CompoundTag();
+                    tag.putLong("overload", core.getOverload());
+                    tag.putLong("totalXp", core.getTotalXp());
+                    // Store the NBT into the item's Custom Data component
+                    stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+                }
+            }
+        }
+        return drops;
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+        ItemStack stack = new ItemStack(ModBlocks.PANDORA_BOX_CORE.get());
+        BlockEntity be = level.getBlockEntity(pos);
+
+        if (be instanceof PandoraBoxCoreBlockEntity core) {
+            CompoundTag tag = new CompoundTag();
+            tag.putLong("overload", core.getOverload());
+            tag.putLong("totalXp", core.getTotalXp());
+            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+        }
+
+        return stack;
     }
     
     @Override
@@ -158,11 +209,6 @@ public class PandoraBoxCore extends Block implements EntityBlock {
             };
         }
         return null;
-    }
-
-    @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, net.minecraft.world.entity.player.Player player) {
-        return new ItemStack(ModBlocks.PANDORA_BOX_CORE.get());
     }
 
     @Override

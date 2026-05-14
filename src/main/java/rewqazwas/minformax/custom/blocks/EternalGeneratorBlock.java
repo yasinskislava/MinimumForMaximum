@@ -27,7 +27,6 @@ import java.util.List;
 
 public class EternalGeneratorBlock extends MachineBase {
     public static final MapCodec<EternalGeneratorBlock> CODEC = simpleCodec(EternalGeneratorBlock::new);
-    public int tier;
 
     @Override
     public MapCodec<EternalGeneratorBlock> codec() {
@@ -36,10 +35,6 @@ public class EternalGeneratorBlock extends MachineBase {
 
     public EternalGeneratorBlock(BlockBehaviour.Properties properties) {
         super(properties);
-    }
-    public EternalGeneratorBlock(int tier) {
-        this(BlockBehaviour.Properties.of().strength(3.5f).requiresCorrectToolForDrops());
-        this.tier = tier;
     }
 
     @Override

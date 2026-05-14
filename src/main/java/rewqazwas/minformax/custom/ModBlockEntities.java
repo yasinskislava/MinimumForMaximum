@@ -15,12 +15,7 @@ public class ModBlockEntities {
 
     public static final Supplier<BlockEntityType<IndexLabBlockEntity>> INDEX_LAB_BE = BLOCK_ENTITY_TYPES.register("index_lab", () -> BlockEntityType.Builder.of(IndexLabBlockEntity::new, ModBlocks.INDEX_INSCRIBER.get()).build(null));
     public static final Supplier<BlockEntityType<CreativeEnergyBlockEntity>> CREATIVE_ENERGY_BE = BLOCK_ENTITY_TYPES.register("creative_energy", () -> BlockEntityType.Builder.of(CreativeEnergyBlockEntity::new, ModBlocks.CREATIVE_ENERGY.get()).build(null));
-    public static final Supplier<BlockEntityType<EternalGeneratorBlockEntity>> ETERNAL_GENERATOR_BE = BLOCK_ENTITY_TYPES.register("eternal_generator", () -> BlockEntityType.Builder.of(EternalGeneratorBlockEntity::new,
-            ModBlocks.ETERNAL_GENERATOR_TIER1.get(),
-            ModBlocks.ETERNAL_GENERATOR_TIER2.get(),
-            ModBlocks.ETERNAL_GENERATOR_TIER3.get(),
-            ModBlocks.ETERNAL_GENERATOR_TIER4.get())
-            .build(null));
+    public static final Supplier<BlockEntityType<EternalGeneratorBlockEntity>> ETERNAL_GENERATOR_BE = BLOCK_ENTITY_TYPES.register("eternal_generator", () -> BlockEntityType.Builder.of(EternalGeneratorBlockEntity::new, ModBlocks.ETERNAL_GENERATOR.get()).build(null));
     public static final Supplier<BlockEntityType<FluidReplicatorBlockEntity>> FLUID_REPLICATOR_BE = BLOCK_ENTITY_TYPES.register("fluid_replicator", () -> BlockEntityType.Builder.of(FluidReplicatorBlockEntity::new, ModBlocks.FLUID_REPLICATOR.get()).build(null));
     public static final Supplier<BlockEntityType<BlockReplicatorBlockEntity>> BLOCK_REPLICATOR_BE = BLOCK_ENTITY_TYPES.register("block_replicator", () -> BlockEntityType.Builder.of(BlockReplicatorBlockEntity::new, ModBlocks.BLOCK_REPLICATOR.get()).build(null));
     public static final Supplier<BlockEntityType<FarmerBlockEntity>> FARMER_BE = BLOCK_ENTITY_TYPES.register("farmer", () -> BlockEntityType.Builder.of(FarmerBlockEntity::new, ModBlocks.FARMER.get()).build(null));

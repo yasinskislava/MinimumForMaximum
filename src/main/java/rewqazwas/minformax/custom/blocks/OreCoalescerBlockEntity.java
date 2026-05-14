@@ -1,6 +1,7 @@
 package rewqazwas.minformax.custom.blocks;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -45,6 +46,9 @@ import java.util.Map;
 public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuProvider {
     public OreCoalescerBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.ORE_COALESCER_BE.get(), pos, blockState);
+
+        this.enabledSides[Direction.DOWN.get3DDataValue()] = true;
+        this.enabledSides[Direction.UP.get3DDataValue()] = true;
     }
     //Handlers
 
@@ -387,6 +391,7 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
     private int process = 0;
     private int maxProcess = 512;
     private boolean isProcessing = false;
+    private boolean[] enabledSides = new boolean[6];
 
     // Cache
     private int speedMultiplier = 1;
@@ -430,6 +435,11 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
         tag.putInt("ore_coalescer.process", this.process);
         tag.putInt("ore_coalescer.max_process", this.maxProcess);
         tag.putInt("ore_coalescer.energy", this.energyHandler.getEnergyStored());
+        int[] toSave = new int[6];
+        for (int i = 0; i < 6; i++) {
+            toSave[i] = enabledSides[i] ? 1 : 0;
+        }
+        tag.putIntArray("ore_coalescer.enabled_sides", toSave);
         super.saveAdditional(tag, registries);
     }
 
@@ -441,6 +451,10 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
         this.process = tag.getInt("ore_coalescer.process");
         this.maxProcess = tag.getInt("ore_coalescer.max_process");
         this.energyHandler.receiveEnergy(tag.getInt("ore_coalescer.energy"), false);
+        int[] savedSides = tag.getIntArray("ore_coalescer.enabled_sides");
+        for (int i = 0; i < Math.min(savedSides.length, 6); i++) {
+            enabledSides[i] = savedSides[i] == 1;
+        }
         this.outputCache.clear();
     }
 
@@ -454,6 +468,18 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
             count += outputHandler.getStackInSlot(i).getCount();
         }
         return count;
+    }
+
+    public void toggleSide(Direction dir) {
+        enabledSides[dir.get3DDataValue()] = !enabledSides[dir.get3DDataValue()];
+        this.setChanged();
+        if (this.level != null) {
+            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
+        }
+    }
+
+    public boolean isSideEnabled(Direction dir) {
+        return enabledSides[dir.get3DDataValue()];
     }
 
     private ItemStack forceInsertItemStacked(ItemStackHandler handler, ItemStack stack) {
@@ -516,7 +542,7 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
             ItemStack stackInSlot = outputHandler.getStackInSlot(i);
 
             if (!stackInSlot.isEmpty()) {
-                ItemStack remainder = Utils.moveItem(level, getBlockPos(), stackInSlot.copy());
+                ItemStack remainder = Utils.moveItem(level, getBlockPos(), stackInSlot.copy(), enabledSides);
 
                 if (remainder.getCount() != stackInSlot.getCount()) {
                     outputHandler.setStackInSlot(i, remainder);

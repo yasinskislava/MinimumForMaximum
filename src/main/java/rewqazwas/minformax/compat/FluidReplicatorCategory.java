@@ -65,8 +65,8 @@ public class FluidReplicatorCategory implements IRecipeCategory<JeiFluidReplicat
     public void draw(JeiFluidReplicatorRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
         Minecraft minecraft = Minecraft.getInstance();
         
-        guiGraphics.drawString(minecraft.font, Component.translatable("jei.minformax.duration", recipe.data().duration()), 10, 35, 0xFFFFFF, false);
-        guiGraphics.drawString(minecraft.font, Component.translatable("jei.minformax.energy", recipe.data().energyMultiplier()), 10, 45, 0xFFFFFF, false);
-        guiGraphics.drawString(minecraft.font, Component.literal(Utils.simpleFluidDisplay(recipe.data().basicAmountGenerated())), 28, 20, 0xFFFFFF, false);
+        guiGraphics.drawString(minecraft.font, Component.translatable("jei.minformax.duration", recipe.data().duration()), 10, 35, 0xFF404040, false);
+        guiGraphics.drawString(minecraft.font, Component.translatable("jei.minformax.energy", recipe.data().energyMultiplier()), 10, 45, 0xFF404040, false);
+        guiGraphics.drawString(minecraft.font, Component.literal(Utils.simpleFluidDisplay(recipe.data().basicAmountGenerated())), 28, 20, 0xFF404040, false);
     }
 }

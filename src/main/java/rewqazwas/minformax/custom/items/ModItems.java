@@ -20,6 +20,24 @@ public class ModItems {
     public static final DeferredItem<Item> QUANTUM_INGOT = ITEMS.register("quantum_ingot", QuantumIngotItem::new);
     public static final DeferredItem<Item> FROZEN_CRYSTAL = ITEMS.register("frozen_crystal", () -> new Item(new Item.Properties()));
     public static final DeferredItem<Item> FROZEN_CORE = ITEMS.register("frozen_core", () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> AMANITA_INGOT = ITEMS.register("amanita_ingot", () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> ULTIMATE_INGOT = ITEMS.register("ultimate_ingot", () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> HELIODOR_INGOT = ITEMS.register("heliodor_ingot", () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> AETHER_INGOT = ITEMS.register("aether_ingot", () -> new Item(new Item.Properties()) {
+        @Override
+        public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+            super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+            tooltipComponents.add(Component.translatable("tooltip.minformax.aether_ingot"));
+        }
+    });
+    public static final DeferredItem<Item> YINMIN_INGOT = ITEMS.register("yinmin_ingot", () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> VOID_INGOT = ITEMS.register("void_ingot", () -> new Item(new Item.Properties()) {
+        @Override
+        public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+            super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+            tooltipComponents.add(Component.translatable("tooltip.minformax.void_ingot"));
+        }
+    });
 
     public static final DeferredItem<Item> LINKER = ITEMS.register("linker", () -> new LinkerItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<Item> SCANNER = ITEMS.register("scanner", () -> new ScannerItem(new Item.Properties().stacksTo(1)));
@@ -60,22 +78,7 @@ public class ModItems {
     public static final DeferredItem<Item> FORTUNE_UPGRADE_TIER4 = ITEMS.register("fortune_upgrade_tier4", () -> new FortuneUpgrade(100));
     public static final DeferredItem<Item> AUTO_SMELTING_UPGRADE = registerUpgradeWithTooltip("auto_smelting_upgrade", "tooltip.minformax.auto_smelting_upgrade");
     public static final DeferredItem<Item> WATERING_UPGRADE = registerUpgradeWithTooltip("watering_upgrade", "tooltip.minformax.watering_upgrade");
-
-
-    public static final DeferredItem<Item> CHEF_MODULE = ITEMS.register("chef_module", ModuleItem::new);
-    public static final DeferredItem<Item> FARMER_MODULE = ITEMS.register("farmer_module", ModuleItem::new);
-    public static final DeferredItem<Item> GATHERER_MODULE = ITEMS.register("gatherer_module", ModuleItem::new);
-    public static final DeferredItem<Item> FISHER_MODULE = ITEMS.register("fisher_module", ModuleItem::new);
-    public static final DeferredItem<Item> BUTCHER_MODULE = ITEMS.register("butcher_module", ModuleItem::new);
-
-    public static final DeferredItem<Item> BLANK_MODULE_1 = ITEMS.register("blank_module_1", ModuleItem::new);
-    public static final DeferredItem<Item> BLANK_MODULE_2 = ITEMS.register("blank_module_2", ModuleItem::new);
-    public static final DeferredItem<Item> BLANK_MODULE_3 = ITEMS.register("blank_module_3", ModuleItem::new);
-    public static final DeferredItem<Item> BLANK_MODULE_4 = ITEMS.register("blank_module_4", ModuleItem::new);
-    public static final DeferredItem<Item> BLANK_MODULE_5 = ITEMS.register("blank_module_5", ModuleItem::new);
-    public static final DeferredItem<Item> BLANK_MODULE_6 = ITEMS.register("blank_module_6", ModuleItem::new);
-    public static final DeferredItem<Item> BLANK_MODULE_7 = ITEMS.register("blank_module_7", ModuleItem::new);
-    public static final DeferredItem<Item> BLANK_MODULE_8 = ITEMS.register("blank_module_8", ModuleItem::new);
+    public static final DeferredItem<Item> COMPRESSING_UPGRADE = registerUpgradeWithTooltip("compressing_upgrade", "tooltip.minformax.compressing_upgrade");
 
 
     private static DeferredItem<Item> registerUpgradeWithTooltip(String name, String tooltipKey) {

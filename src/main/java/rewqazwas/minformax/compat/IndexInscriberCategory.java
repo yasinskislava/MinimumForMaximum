@@ -24,6 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import rewqazwas.minformax.MinForMax;
 import rewqazwas.minformax.custom.blocks.ModBlocks;
+import rewqazwas.minformax.custom.items.ModItems;
 
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class IndexInscriberCategory implements IRecipeCategory<JeiIndexInscriber
 
     public IndexInscriberCategory(IGuiHelper guiHelper) {
         this.background = guiHelper.createBlankDrawable(176, 120);
-        this.icon = guiHelper.createDrawableItemStack(new ItemStack(ModBlocks.INDEX_INSCRIBER.get()));
+        this.icon = guiHelper.createDrawableItemStack(new ItemStack(ModItems.SCANNER.get()));
         this.slot = guiHelper.createDrawable(SLOT, -1, -1, 18, 18);
     }
 
@@ -49,7 +50,7 @@ public class IndexInscriberCategory implements IRecipeCategory<JeiIndexInscriber
 
     @Override
     public Component getTitle() {
-        return Component.translatable("block.minformax.index_inscriber");
+        return Component.translatable("tooltip.minformax.scan");
     }
 
     @Override
@@ -145,5 +146,9 @@ public class IndexInscriberCategory implements IRecipeCategory<JeiIndexInscriber
         // New text labels for drops
         guiGraphics.drawString(mc.font, Component.translatable("jei.minformax.main_drop"), 116, 10, 0xFF404040, false);
         guiGraphics.drawString(mc.font, Component.translatable("jei.minformax.additional_drops"), 116, 48, 0xFF404040, false);
+
+        // Updated Boss status label with Yes/No argument
+        Component isBossValue = recipe.getData().isBoss() ? Component.translatable("gui.yes") : Component.translatable("gui.no");
+        guiGraphics.drawString(mc.font, Component.translatable("jei.minformax.isboss", isBossValue), 116, 86, 0xFF404040, false);
     }
 }

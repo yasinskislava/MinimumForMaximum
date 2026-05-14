@@ -20,10 +20,7 @@ public class ModBlockTagProvider extends BlockTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         tag(BlockTags.MINEABLE_WITH_PICKAXE)
-                .add(ModBlocks.ETERNAL_GENERATOR_TIER1.get())
-                .add(ModBlocks.ETERNAL_GENERATOR_TIER2.get())
-                .add(ModBlocks.ETERNAL_GENERATOR_TIER3.get())
-                .add(ModBlocks.ETERNAL_GENERATOR_TIER4.get())
+                .add(ModBlocks.ETERNAL_GENERATOR.get())
                 .add(ModBlocks.INDEX_INSCRIBER.get())
                 .add(ModBlocks.ORE_COALESCER.get())
                 .add(ModBlocks.FLUID_REPLICATOR.get())

@@ -2,6 +2,7 @@ package rewqazwas.minformax.custom.utility;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -79,6 +80,9 @@ public class UpgradeHud {
         }
         if (isSupported(upgradeHandler, new ItemStack(ModItems.WATERING_UPGRADE.get()))) {
             displayGroups.add(List.of(new ItemStack(ModItems.WATERING_UPGRADE.get())));
+        }
+        if (isSupported(upgradeHandler, new ItemStack(ModItems.COMPRESSING_UPGRADE.get()))) {
+            displayGroups.add(List.of(new ItemStack(ModItems.COMPRESSING_UPGRADE.get())));
         }
 
 

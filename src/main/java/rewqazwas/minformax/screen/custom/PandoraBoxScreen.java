@@ -17,11 +17,7 @@ import rewqazwas.minformax.custom.utility.Utils;
 
 
 public class PandoraBoxScreen extends AbstractContainerScreen<PandoraBoxMenu> {
-    private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/temp.png");
-    private static final ResourceLocation ENERGY_BAR = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/energy_bar.png");
-    private static final ResourceLocation EMPTY_BAR = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/empty_bar.png");
-    private static final ResourceLocation OVERLOAD_BAR = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/overload_bar.png");
-    private static final ResourceLocation SLOT = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/slot.png");
+    private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/template.png");
     private static final ResourceLocation HIGHLIGHTED_SLOT = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/highlighted_slot.png");
     private static final ResourceLocation XP_MENU = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/xp_menu.png");
     private static final ResourceLocation XP_BAR = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/xp_bar.png");
@@ -45,30 +41,15 @@ public class PandoraBoxScreen extends AbstractContainerScreen<PandoraBoxMenu> {
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, GUI_TEXTURE);
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
-        guiGraphics.blit(GUI_TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
-        guiGraphics.blit(SLOT, x + 80 - 1, y + 31 - 1, 0, 0, 18, 18, 18, 18);
 
-        // Energy Bar
-        var barHeight = 55;
-        guiGraphics.blit(EMPTY_BAR, x + 163, y + 13, 0, 0, 7, barHeight, 7, barHeight);
-        var energyLevel = this.menu.getEnergyLevel();
-        var energyDiff = barHeight - energyLevel;
-        guiGraphics.blit(ENERGY_BAR, x + 163, y + 13 + energyDiff, 0, energyDiff, 7, energyLevel, 7, barHeight);
+        Utils.drawTemplate(guiGraphics, x, y, imageWidth, imageHeight, GUI_TEXTURE, this.menu.getEnergyLevel());
+        Utils.drawOverload(guiGraphics, x, y, this.menu.getOverloadLevel());
+        Utils.drawSlot(guiGraphics, x + 79, y + 30);
 
-        // Overload Bar
-        var overloadLevel = this.menu.getOverloadLevel();
-        var overloadDiff = barHeight - overloadLevel;
-        guiGraphics.blit(EMPTY_BAR, x + 6, y + 13, 0, 0, 7, 55, 7, 55);
-        guiGraphics.blit(OVERLOAD_BAR, x + 6, y + 13 + overloadDiff, 0, overloadDiff, 7, overloadLevel, 7, barHeight);
-
-        // XP Menu
         guiGraphics.blit(XP_MENU, x, y - 21, 0, 0, 176, 24, 176, 24);
-        guiGraphics.blit(XP_BAR, x + 31, y - 15, 0, 0, this.menu.getXPProgress(), 12, 102, 12);
+        guiGraphics.blit(XP_BAR, x + 32, y - 15, 0, 0, this.menu.getXPProgress(), 12, 102, 12);
         var lvl = this.menu.getXPLevel();
         var pos = 5;
         if(lvl <= 9){
@@ -91,7 +72,7 @@ public class PandoraBoxScreen extends AbstractContainerScreen<PandoraBoxMenu> {
         guiGraphics.drawString(this.font, Component.literal(multText), x + 88 - (multWidth / 2), y + 18, 16777215, false);
 
         // Energy generation text
-        String genText = "Gen: " + Utils.simpleEnergyDisplay(production) + "/t";
+        String genText = Utils.simpleEnergyDisplay(production) + "/t";
         int textWidth = this.font.width(genText);
         guiGraphics.drawString(this.font, Component.literal(genText), x + 89 - (textWidth / 2), y + 55, 16777215, false);
     }
@@ -118,11 +99,11 @@ public class PandoraBoxScreen extends AbstractContainerScreen<PandoraBoxMenu> {
         int posX = (width - imageWidth) / 2;
         int posY = (height - imageHeight) / 2;
         if(Math.clamp(x , posX + 163, posX + 169) == x && Math.clamp(y, posY + 13, posY + 68) == y) {
-            int energy = this.menu.data.get(0);
-            guiGraphics.renderTooltip(this.font, Component.literal(Utils.simpleEnergyDisplay(energy, this.menu.blockEntity.energyHandler.getMaxEnergyStored())), x, y);
+            long currentEnergy = this.menu.getCurrentEnergy();
+            guiGraphics.renderTooltip(this.font, Component.literal(Utils.simpleEnergyDisplay(currentEnergy)), x, y);
         }
         if(Math.clamp(x , posX + 6, posX + 12) == x && Math.clamp(y, posY + 13, posY + 68) == y) {
-             guiGraphics.renderTooltip(this.font, Component.literal(this.menu.getOverload() + ""), x, y);
+            guiGraphics.renderTooltip(this.font, Component.literal(Utils.getDelimeter(this.menu.getOverload()) + " Overload"), x, y);
         }
     }
 

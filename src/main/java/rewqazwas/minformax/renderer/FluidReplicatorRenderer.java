@@ -57,8 +57,8 @@ public class FluidReplicatorRenderer implements BlockEntityRenderer<FluidReplica
         float v0 = fluidSprite.getV0();
         float v1 = fluidSprite.getV1();
 
-        float min = 0.001f;
-        float max = 0.999f;
+        float min = 0.124f;
+        float max = 0.874f;
 
         renderFace(builder, poseStack, Direction.UP, min, max, u0, u1, v0, v1, tintColor, combinedLight);
         renderFace(builder, poseStack, Direction.DOWN, min, max, u0, u1, v0, v1, tintColor, combinedLight);

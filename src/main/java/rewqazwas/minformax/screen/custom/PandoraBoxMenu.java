@@ -30,7 +30,7 @@ public class PandoraBoxMenu extends AbstractContainerMenu {
     private static final int CUSTOM_INVENTORY_FIRST_SLOT_INDEX = VANILLA_SLOT_COUNT;
 
     public PandoraBoxMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
-        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(5));
+        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(8)); // Updated to 8 for long values
     }
 
     public PandoraBoxMenu(int containerId, Inventory inv, BlockEntity blockEntity, ContainerData data) {
@@ -49,29 +49,55 @@ public class PandoraBoxMenu extends AbstractContainerMenu {
         addDataSlots(data);
     }
 
+    public long getCurrentEnergy() {
+        int lower = this.data.get(0);
+        int upper = this.data.get(1);
+        return ((long) upper << 32) | (lower & 0xFFFFFFFFL);
+    }
+
+    public long getMaxEnergy() {
+        int lower = this.data.get(2);
+        int upper = this.data.get(3);
+        return ((long) upper << 32) | (lower & 0xFFFFFFFFL);
+    }
+
     public int getEnergyLevel() {
-        int energy = this.data.get(0);
-        int maxEnergy = this.blockEntity.energyHandler.getMaxEnergyStored();
-        return Math.round((energy / (float)maxEnergy) * 55);
+        long currentEnergy = getCurrentEnergy();
+        long maxEnergy = getMaxEnergy();
+
+        if (currentEnergy <= 0 || maxEnergy <= 0) return 0;
+
+        double ratio = Math.log1p(currentEnergy) / Math.log1p(maxEnergy);
+
+        return (int) Math.min(Math.round(ratio * 55), 55);
     }
 
     public long getOverload() {
-        return (long)this.data.get(1) + (long)this.data.get(2) * Integer.MAX_VALUE;
+        int lower = this.data.get(4);
+        int upper = this.data.get(5);
+        return ((long) upper << 32) | (lower & 0xFFFFFFFFL);
     }
 
     public int getOverloadLevel() {
         long overload = getOverload();
-        return Math.min(Math.round(((float) overload / Integer.MAX_VALUE) * 55), 55);
+        if (overload <= 0) return 0;
+
+        double ratio = Math.log1p(overload) / Math.log1p(Long.MAX_VALUE);
+
+        return (int) Math.min(Math.round(ratio * 55), 55);
     }
 
     public long getTotalXp() {
-        return (long)this.data.get(3) + (long)this.data.get(4) * Integer.MAX_VALUE;
+        int lower = this.data.get(6);
+        int upper = this.data.get(7);
+        return ((long) upper << 32) | (lower & 0xFFFFFFFFL);
     }
 
     public int getXPProgress() {
         long xp = getTotalXp();
         var res = Utils.calculateLevel(xp);
-        return Math.round((res.currentXp() / (float)res.xpForNext()) * 102);
+        if (res.xpForNext() == 0) return 0; // Avoid division by zero
+        return (int) Math.round((res.currentXp() / (float) res.xpForNext()) * 102);
     }
 
     public int getXPLevel() {
@@ -83,14 +109,9 @@ public class PandoraBoxMenu extends AbstractContainerMenu {
     @Override
     public boolean clickMenuButton(Player player, int id) {
         if (id == 0) {
-            long totalXp = getPlayerXPAsLong(player);
-            if (totalXp > 0) {
-                int overflow = Math.toIntExact(totalXp / Integer.MAX_VALUE);
-                int actualAmount = Math.toIntExact(totalXp % Integer.MAX_VALUE);
-                for(int i = 0; i < overflow; i++){
-                    this.blockEntity.addXp(Integer.MAX_VALUE);
-                }
-                this.blockEntity.addXp(actualAmount);
+            long totalPlayerXp = getPlayerXPAsLong(player);
+            if (totalPlayerXp > 0) {
+                this.blockEntity.addXp(totalPlayerXp); // Directly add the long value
                 player.experienceLevel = 0;
                 player.experienceProgress = 0;
                 player.totalExperience = 0;

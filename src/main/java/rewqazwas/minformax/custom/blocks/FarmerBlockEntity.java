@@ -1,6 +1,7 @@
 package rewqazwas.minformax.custom.blocks;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -16,6 +17,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -35,12 +37,17 @@ import rewqazwas.minformax.custom.utility.Utils;
 import rewqazwas.minformax.screen.custom.FarmerMenu;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider {
     public FarmerBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.FARMER_BE.get(), pos, blockState);
+
+        this.enabledSides[Direction.DOWN.get3DDataValue()] = true;
+        this.enabledSides[Direction.UP.get3DDataValue()] = true;
     }
     //Handlers
 
@@ -49,6 +56,7 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
         public boolean isItemValid(int slot, ItemStack stack) {
             return stack.is(ModItems.WATERING_UPGRADE)
                     || stack.is(ModTags.FORTUNE_UPGRADES)
+                    || stack.is(ModItems.COMPRESSING_UPGRADE)
                     || super.isItemValid(slot, stack);
         }
 
@@ -98,6 +106,7 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
                 case 0 -> FarmerBlockEntity.this.process;
                 case 1 -> FarmerBlockEntity.this.maxProcess;
                 case 2 -> FarmerBlockEntity.this.energyHandler.getEnergyStored();
+                case 3 -> FarmerBlockEntity.this.consumptionRate;
                 default -> 0;
             };
         }
@@ -108,12 +117,13 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
                 case 0 -> FarmerBlockEntity.this.process = value;
                 case 1 -> FarmerBlockEntity.this.maxProcess = value;
                 case 2 -> FarmerBlockEntity.this.energyHandler.receiveEnergy(value, false);
+                case 3 -> FarmerBlockEntity.this.consumptionRate = value;
             }
         }
 
         @Override
         public int getCount() {
-            return 3;
+            return 4;
         }
     };
 
@@ -121,6 +131,8 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
     private int process = 0;
     private int maxProcess = 256;
     private int duration = maxProcess;
+    private int consumptionRate = 0;
+    private boolean[] enabledSides = new boolean[6];
 
     // Cache
     private boolean cacheDirty = true;
@@ -128,6 +140,7 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
     private List<ItemStack> cachedDrops = new ArrayList<>();
     private int cachedEnergyCost = 0;
     private boolean hasValidSource = false;
+    private final Map<Item, Utils.EssenceRecipeInfo> compressionCache = new HashMap<>();
 
     //Extra
     @Override
@@ -153,6 +166,11 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
         tag.putInt("farmer.process", this.process);
         tag.putInt("farmer.max_process", this.maxProcess);
         tag.putInt("farmer.energy", this.energyHandler.getEnergyStored());
+        int[] toSave = new int[6];
+        for (int i = 0; i < 6; i++) {
+            toSave[i] = enabledSides[i] ? 1 : 0;
+        }
+        tag.putIntArray("farmer.enabled_sides", toSave);
     }
 
     @Override
@@ -163,6 +181,10 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
         this.process = tag.getInt("farmer.process");
         this.maxProcess = tag.getInt("farmer.max_process");
         this.energyHandler.receiveEnergy(tag.getInt("farmer.energy"), false);
+        int[] savedSides = tag.getIntArray("farmer.enabled_sides");
+        for (int i = 0; i < Math.min(savedSides.length, 6); i++) {
+            enabledSides[i] = savedSides[i] == 1;
+        }
         this.cacheDirty = true;
     }
 
@@ -188,8 +210,16 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
         }
     }
 
-    private List<ItemStack> getPotentialDrops(ServerLevel level, ItemStack seedStack) {
-        return Utils.getFarmerDrops(level, seedStack);
+    public void toggleSide(Direction dir) {
+        enabledSides[dir.get3DDataValue()] = !enabledSides[dir.get3DDataValue()];
+        this.setChanged();
+        if (this.level != null) {
+            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
+        }
+    }
+
+    public boolean isSideEnabled(Direction dir) {
+        return enabledSides[dir.get3DDataValue()];
     }
 
     private void recalculateCache(ServerLevel level) {
@@ -197,6 +227,7 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
         int stackMultiplier = 1;
         int fortuneMultiplier = 1;
         boolean hasWatering = false;
+        boolean hasCompressing = false;
 
         for(int i = 0; i < upgradeHandler.getSlots(); i++) {
             var stack = upgradeHandler.getStackInSlot(i);
@@ -209,16 +240,31 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
                 fortuneMultiplier = fortuneUpgrade.getMultiplier();
             } else if(stack.is(ModItems.WATERING_UPGRADE)) {
                 hasWatering = true;
+            } else if(stack.is(ModItems.COMPRESSING_UPGRADE.get())) {
+                hasCompressing = true;
             }
         }
 
-        this.cachedModifiers = new ModifierData(speedModifier, stackMultiplier, fortuneMultiplier, hasWatering);
-        
+        this.cachedModifiers = new ModifierData(speedModifier, stackMultiplier, fortuneMultiplier, hasWatering, hasCompressing);
+
         var sourceStack = itemHandler.getStackInSlot(0);
         this.hasValidSource = !sourceStack.isEmpty();
-        
+
+        this.compressionCache.clear();
         if (this.hasValidSource) {
-            this.cachedDrops = getPotentialDrops(level, sourceStack);
+            this.cachedDrops = Utils.getFarmerDrops(level, sourceStack);
+
+            if (hasCompressing) {
+                for (ItemStack drop : this.cachedDrops) {
+                    Item item = drop.getItem();
+                    if (Utils.isCompressibleEssence(item)) {
+                        Utils.EssenceRecipeInfo info = Utils.getEssenceRecipe(level, item);
+                        if (info != null) {
+                            this.compressionCache.put(item, info);
+                        }
+                    }
+                }
+            }
         } else {
             this.cachedDrops = List.of();
         }
@@ -253,7 +299,7 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
     //Main
     public void tick(Level level, BlockPos blockPos, BlockState blockState, FarmerBlockEntity blockEntity) {
         if(level.isClientSide()) return;
-        
+        this.consumptionRate = 0;
         if (this.cacheDirty) {
             recalculateCache((ServerLevel) level);
         }
@@ -278,6 +324,7 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
         if (energyHandler.getEnergyStored() != currentEnergy) {
             dirty = true;
         }
+        this.consumptionRate = energyCost;
 
         var modifiers = this.cachedModifiers;
         int effectiveWateringMultiplier = modifiers.hasWatering ? wateringChance() : 1;
@@ -297,11 +344,16 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
                 copy.setCount(copy.getCount() * modifiers.stackMultiplier * modifiers.fortuneMultiplier);
                 finalDrops.add(copy);
             }
-            
+
             finalDrops = mergeStacks(finalDrops);
-            
+
+            if (modifiers.hasCompressing && !compressionCache.isEmpty()) {
+                finalDrops = Utils.applyCompression(finalDrops, compressionCache);
+                finalDrops = mergeStacks(finalDrops);
+            }
+
             for (ItemStack drop : finalDrops) {
-                Utils.moveItem(level, blockPos, drop);
+                Utils.moveItem(level, blockPos, drop, enabledSides);
             }
             process = 0;
         }
@@ -310,6 +362,9 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
             setChanged(level, blockPos, blockState);
         }
     }
-    
-    private record ModifierData(int speedModifier, int stackMultiplier, int fortuneMultiplier, boolean hasWatering) {}
+
+    // Update the ModifierData record at the bottom of the class
+    private record ModifierData(int speedModifier, int stackMultiplier, int fortuneMultiplier, boolean hasWatering, boolean hasCompressing) {}
+
+
 }

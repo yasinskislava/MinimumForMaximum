@@ -2,11 +2,14 @@ package rewqazwas.minformax.compat;
 
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
+import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
@@ -17,6 +20,7 @@ import net.minecraft.world.level.block.SaplingBlock;
 import rewqazwas.minformax.MinForMax;
 import rewqazwas.minformax.custom.blocks.ModBlocks;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
+import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.utility.Utils;
 
 import java.util.ArrayList;
@@ -37,6 +41,27 @@ public class DetailedInfoPlugin implements IModPlugin {
     }
 
     @Override
+    public void registerRecipes(IRecipeRegistration registration) {
+        registration.addIngredientInfo(
+                new ItemStack(ModItems.AETHER_INGOT.get()),
+                VanillaTypes.ITEM_STACK,
+                Component.translatable("jei.minformax.aether_ingot.info")
+        );
+
+        registration.addIngredientInfo(
+                new ItemStack(ModItems.VOID_INGOT.get()),
+                VanillaTypes.ITEM_STACK,
+                Component.translatable("jei.minformax.void_ingot.info")
+        );
+
+        registration.addIngredientInfo(
+                new ItemStack(ModItems.QUANTUM_FOAM.get()),
+                VanillaTypes.ITEM_STACK,
+                Component.translatable("jei.minformax.quantum_foam.info")
+        );
+    }
+
+    @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
         registration.addRecipeCategories(new BlockReplicatorCategory(registration.getJeiHelpers().getGuiHelper()));
         registration.addRecipeCategories(new FluidReplicatorCategory(registration.getJeiHelpers().getGuiHelper()));
@@ -49,6 +74,8 @@ public class DetailedInfoPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.BLOCK_REPLICATOR.get()), BlockReplicatorCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.FLUID_REPLICATOR.get()), FluidReplicatorCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.INDEX_INSCRIBER.get()), IndexInscriberCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.ETERNAL_GENERATOR.get()), IndexInscriberCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(ModItems.SCANNER.get()), IndexInscriberCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.FARMER.get()), FarmerCategory.RECIPE_TYPE);
     }
 

@@ -46,32 +46,6 @@ Mob drops are defined under the `mob_drops` key. Each entry consists of a mob's 
 
 **Note: There is a limit of maximum 3 items for additional drops.**
 
-### Module Drops
-
-Module drops are defined under the `module_drops` key. Each entry consists of a module's item ID followed by its drop data.
-
-**Example:**
-
-```json
-{
-  "module_drops": {
-    "minformax:farmer_module": {
-      "allowed_items": [],
-      "prohibited_items": ["minecraft:torchflower_seeds"],
-      "allowed_tags": ["c:seeds"],
-      "prohibited_tags": [],
-      "xp": 0
-    }
-  }
-}
-```
-
--   `allowed_items`: A list of specific item IDs that are allowed to be produced.
--   `prohibited_items`: A list of specific item IDs that are not allowed to be produced.
--   `allowed_tags`: A list of item tags that are allowed to be produced.
--   `prohibited_tags`: A list of item tags that are not allowed to be produced.
--   `xp`: The amount of experience points gained from the module.
-
 ### Block Replicator Data
 
 Block replicator data is defined under the `block_replicator_data` key. Each entry consists of a block's ID followed by its replication data.

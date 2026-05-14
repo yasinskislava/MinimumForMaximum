@@ -26,10 +26,7 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -52,9 +49,7 @@ import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.items.upgrades.UpgradeItem;
 import rewqazwas.minformax.custom.utility.UpgradeHud;
 import rewqazwas.minformax.network.SyncJeiDataPacket;
-import rewqazwas.minformax.renderer.BlockReplicatorRenderer;
-import rewqazwas.minformax.renderer.FluidReplicatorRenderer;
-import rewqazwas.minformax.renderer.PandoraBoxRenderer;
+import rewqazwas.minformax.renderer.*;
 import rewqazwas.minformax.screen.ModMenuTypes;
 import rewqazwas.minformax.screen.custom.*;
 
@@ -92,6 +87,34 @@ public class MinForMax {
                 ItemProperties.register(ModItems.LINKER.get(), ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "storage"),
                         ((stack, level, entity, seed) -> stack.get(ModDataComponents.LINKED_POS) != null && !stack.get(ModDataComponents.LINKED_POS).isEmpty() ? 1.0f : 0.0f));
             });
+        }
+
+        @SubscribeEvent
+        public static void onBlockHighlight(RenderHighlightEvent.Block event) {
+            BlockPos pos = event.getTarget().getBlockPos();
+            Minecraft mc = Minecraft.getInstance();
+
+            if (mc.level != null) {
+                ResourceLocation blockLocation = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(mc.level.getBlockState(pos).getBlock());
+
+                if (blockLocation.getNamespace().equals(MinForMax.MOD_ID)) {
+                    event.setCanceled(true);
+
+                    PoseStack poseStack = event.getPoseStack();
+                    Vec3 camera = event.getCamera().getPosition();
+                    VertexConsumer buffer = event.getMultiBufferSource().getBuffer(RenderType.lines());
+
+                    poseStack.pushPose();
+                    poseStack.translate(pos.getX() - camera.x, pos.getY() - camera.y, pos.getZ() - camera.z);
+                    LevelRenderer.renderLineBox(
+                            poseStack,
+                            buffer,
+                            -0.001, -0.001, -0.001, 1.001, 1.001, 1.001,
+                            0.0f, 0.0f, 0.0f, 1.0f
+                    );
+                    poseStack.popPose();
+                }
+            }
         }
 
         @SubscribeEvent
@@ -151,6 +174,8 @@ public class MinForMax {
             event.registerBlockEntityRenderer(ModBlockEntities.BLOCK_REPLICATOR_BE.get(), BlockReplicatorRenderer::new);
             event.registerBlockEntityRenderer(ModBlockEntities.FLUID_REPLICATOR_BE.get(), FluidReplicatorRenderer::new);
             event.registerBlockEntityRenderer(ModBlockEntities.PANDORA_BOX_CORE_BE.get(), PandoraBoxRenderer::new);
+            event.registerBlockEntityRenderer(ModBlockEntities.INDEX_LAB_BE.get(), IndexLabRenderer::new);
+            event.registerBlockEntityRenderer(ModBlockEntities.ETERNAL_GENERATOR_BE.get(), EternalGeneratorRenderer::new);
         }
 
         @SubscribeEvent
@@ -182,16 +207,14 @@ public class MinForMax {
             player.setData(ModAttachmentTypes.INDEX_SYNC, clearContent(PlayerIndex.getLocalIndex((ServerPlayer) player), event.getEntity().level()));
             
             MinForMax.LOGGER.info("Sending JEI data packet to player {}", player.getName().getString());
-            MinForMax.LOGGER.info("Data sizes - Mob: {}, Module: {}, Fluid: {}, Block: {}, Farmer: {}",
+            MinForMax.LOGGER.info("Data sizes - Mob: {},  Fluid: {}, Block: {}, Farmer: {}",
                 ModDataReloadListener.MOB_DROPS.size(),
-                ModDataReloadListener.MODULE_DROPS.size(),
                 ModDataReloadListener.FLUID_REPLICATOR_DATA.size(),
                 ModDataReloadListener.BLOCK_REPLICATOR_DATA.size(), ModDataReloadListener.FARMER_DATA.size()
             );
 
             PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncJeiDataPacket(
                     ModDataReloadListener.MOB_DROPS,
-                    ModDataReloadListener.MODULE_DROPS,
                     ModDataReloadListener.FLUID_REPLICATOR_DATA,
                     ModDataReloadListener.BLOCK_REPLICATOR_DATA,
                     ModDataReloadListener.FARMER_DATA
@@ -211,6 +234,7 @@ public class MinForMax {
 
         @SubscribeEvent
         public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.INDEX_LAB_BE.get(), (IndexLabBlockEntity be, Direction context) -> be.itemHandler);
             event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.ETERNAL_GENERATOR_BE.get(), (EternalGeneratorBlockEntity be, Direction context) -> be.upgradeHandler);
             event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.ETERNAL_GENERATOR_BE.get(), (EternalGeneratorBlockEntity be, Direction context) -> be.energyHandler);
             event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.CREATIVE_ENERGY_BE.get(), (CreativeEnergyBlockEntity be, Direction context) -> be.energyHandler);
@@ -251,8 +275,4 @@ public class MinForMax {
     }
 }
 
-//TODO
-//Fisher
-//Revamp module system
-//Textures/GUI revamp
-//Config revamp
+

@@ -32,7 +32,7 @@ public class BlockReplicatorRenderer implements BlockEntityRenderer<BlockReplica
 
         poseStack.pushPose();
         poseStack.translate(0.5f, 0.5f, 0.5f);
-        poseStack.scale(1.99f, 1.99f, 1.99f);
+        poseStack.scale(1.74f, 1.74f, 1.74f);
 
 
         itemRenderer.renderStatic(stack, ItemDisplayContext.FIXED,

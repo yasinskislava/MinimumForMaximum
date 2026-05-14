@@ -61,6 +61,10 @@ public class IndexLabMenu extends AbstractContainerMenu {
         return data.get(0) > 0;
     }
 
+    public boolean isLocked() {
+        return this.data.get(2) == 1;
+    }
+
     public int getProgress() {
         int process = this.data.get(0);
         int maxProcess = 1200;
@@ -106,6 +110,10 @@ public class IndexLabMenu extends AbstractContainerMenu {
 
     @Override
     public boolean clickMenuButton(Player player, int id) {
+        if(id == -1){
+            blockEntity.toggleLock();
+            return true;
+        }
         blockEntity.setKey(id);
         return super.clickMenuButton(player, id);
     }

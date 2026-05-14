@@ -26,20 +26,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
     protected void addTags(HolderLookup.Provider provider) {
         tag(ModTags.SUPPLIER_ITEMS)
                 .add(ModItems.MEMORY_SHARD.get())
-                .add(ModItems.CHAOS_SHARD.get())
-                .add(ModItems.FISHER_MODULE.get())
-                .add(ModItems.FARMER_MODULE.get())
-                .add(ModItems.GATHERER_MODULE.get())
-                .add(ModItems.CHEF_MODULE.get())
-                .add(ModItems.BUTCHER_MODULE.get())
-                .add(ModItems.BLANK_MODULE_1.get())
-                .add(ModItems.BLANK_MODULE_2.get())
-                .add(ModItems.BLANK_MODULE_3.get())
-                .add(ModItems.BLANK_MODULE_4.get())
-                .add(ModItems.BLANK_MODULE_5.get())
-                .add(ModItems.BLANK_MODULE_6.get())
-                .add(ModItems.BLANK_MODULE_7.get())
-                .add(ModItems.BLANK_MODULE_8.get());
+                .add(ModItems.CHAOS_SHARD.get());
 
         tag(ModTags.SPEED_UPGRADES)
                 .add(ModItems.SPEED_UPGRADE_TIER1.get())

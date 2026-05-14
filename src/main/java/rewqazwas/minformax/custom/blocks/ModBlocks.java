@@ -18,11 +18,8 @@ import java.util.function.Supplier;
 public class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MinForMax.MOD_ID);
 
-    public static final DeferredBlock<Block> INDEX_INSCRIBER = registerBlock("index_inscriber", () -> new IndexLabBlock(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops()));
-    public static final DeferredBlock<Block> ETERNAL_GENERATOR_TIER1 = registerBlock("eternal_generator_tier1", () -> new EternalGeneratorBlock(1));
-    public static final DeferredBlock<Block> ETERNAL_GENERATOR_TIER2 = registerBlock("eternal_generator_tier2", () -> new EternalGeneratorBlock(2));
-    public static final DeferredBlock<Block> ETERNAL_GENERATOR_TIER3 = registerBlock("eternal_generator_tier3", () -> new EternalGeneratorBlock(3));
-    public static final DeferredBlock<Block> ETERNAL_GENERATOR_TIER4 = registerBlock("eternal_generator_tier4", () -> new EternalGeneratorBlock(4));
+    public static final DeferredBlock<Block> INDEX_INSCRIBER = registerBlock("index_inscriber", () -> new IndexLabBlock(BlockBehaviour.Properties.of().strength(3f).noOcclusion().requiresCorrectToolForDrops()));
+    public static final DeferredBlock<Block> ETERNAL_GENERATOR = registerBlock("eternal_generator", () -> new EternalGeneratorBlock(BlockBehaviour.Properties.of().strength(3.5f).noOcclusion().requiresCorrectToolForDrops()));
     public static final DeferredBlock<Block> CREATIVE_ENERGY = registerBlock("creative_energy", () -> new CreativeEnergyBlock(BlockBehaviour.Properties.of()));
     public static final DeferredBlock<Block> FLUID_REPLICATOR = registerBlock("fluid_replicator", () -> new FluidReplicator(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops().noOcclusion()));
     public static final DeferredBlock<Block> BLOCK_REPLICATOR = registerBlock("block_replicator", () -> new BlockReplicator(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops().noOcclusion()));

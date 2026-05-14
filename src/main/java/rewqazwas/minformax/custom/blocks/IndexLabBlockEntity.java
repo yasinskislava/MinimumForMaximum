@@ -38,6 +38,7 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
                 return switch (i) {
                     case 0 -> IndexLabBlockEntity.this.process;
                     case 1 -> IndexLabBlockEntity.this.mobKey;
+                    case 2 -> IndexLabBlockEntity.this.isLocked ? 1 : 0;
                     default -> 0;
                 };
             }
@@ -47,12 +48,13 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
                 switch (i) {
                     case 0: IndexLabBlockEntity.this.process = value;
                     case 1: IndexLabBlockEntity.this.mobKey = value;
+                    case 2: IndexLabBlockEntity.this.isLocked = value == 1;
                 }
             }
 
             @Override
             public int getCount() {
-                return 2;
+                return 3;
             }
         };
     }
@@ -65,6 +67,7 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
     //Variables
     private int mobKey = -1;
     private int process = 0;
+    private boolean isLocked = false;
     
     // Runtime cache, not saved
     private String keyName = null;
@@ -97,6 +100,7 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
         this.process = tag.getInt("index_lab.process");
         this.mobKey = tag.getInt("index_lab.mob_key");
         this.owner = tag.getString("index_lab.owner");
+        this.isLocked = tag.getBoolean("index_lab.locked");
         // Reset transient state on load
         this.keyName = null;
         this.holder = null;
@@ -108,6 +112,7 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
         tag.putInt("index_lab.process", this.process);
         tag.putInt("index_lab.mob_key", this.mobKey);
         tag.putString("index_lab.owner", this.owner);
+        tag.putBoolean("index_lab.locked", this.isLocked);
         super.saveAdditional(tag, registries);
     }
 
@@ -140,6 +145,15 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
         this.holder = null;
         setChanged();
     }
+
+    public void toggleLock() {
+        this.isLocked = !this.isLocked;
+        setChanged();
+    }
+
+    public float getProcessPercentage() {
+        return (float) this.process / 1200f;
+    }
     
     private boolean findOwnerData(Level level) {
         if (this.owner == null || this.mobKey < 0) return false;
@@ -160,13 +174,15 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
 
     //Main
     public void tick(Level level, BlockPos blockPos, BlockState blockState, IndexLabBlockEntity blockEntity) {
-        if(level.isClientSide()) return;
-        
         ItemStack loader = blockEntity.itemHandler.getStackInSlot(0);
         boolean isValidItem = !loader.isEmpty() && 
                              (loader.getItem() == ModItems.MEMORY_SHARD.get() || loader.getItem() == ModItems.CHAOS_SHARD.get()) && 
                              loader.get(ModDataComponents.MOB_INDEX) == null;
-                             
+
+        if(process % 10 == 0){
+            level.sendBlockUpdated(blockPos, blockState, blockState, 3);
+        }
+
         if (isValidItem && mobKey > -1) {
             // Restore state if needed
             if (holder == null) {
@@ -182,12 +198,14 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
             
             process++;
             setChanged();
-            
+
             if (process >= 1200) {
                 loader.set(ModDataComponents.MOB_INDEX, keyName);
                 resetProcess();
-                this.mobKey = -1;
-                level.sendBlockUpdated(blockPos, blockState, blockState, 3); 
+                if(!isLocked) {
+                    this.mobKey = -1;
+                }
+                level.sendBlockUpdated(blockPos, blockState, blockState, 3);
             }
         } else {
             if (process != 0) {

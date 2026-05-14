@@ -17,5 +17,11 @@ public class ModNetwork {
                 SyncJeiDataPacket.STREAM_CODEC,
                 SyncJeiDataPacket::handle
         );
+
+        registrar.playToServer(
+                SideConfigPayload.TYPE,
+                SideConfigPayload.STREAM_CODEC,
+                SideConfigPayload::handle
+        );
     }
 }

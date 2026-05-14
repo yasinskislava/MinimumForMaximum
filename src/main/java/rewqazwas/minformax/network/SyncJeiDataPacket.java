@@ -15,7 +15,6 @@ import java.util.Map;
 
 public record SyncJeiDataPacket(
         Map<String, HolderClass> mobDrops,
-        Map<String, ModuleData> moduleDrops,
         Map<String, FluidReplicatorData> fluidReplicatorData,
         Map<String, BlockReplicatorData> blockReplicatorData,
         Map<String, FarmerData> farmerData) implements CustomPacketPayload {
@@ -25,8 +24,6 @@ public record SyncJeiDataPacket(
     public static final StreamCodec<RegistryFriendlyByteBuf, SyncJeiDataPacket> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, HolderClass.STREAM_CODEC),
             SyncJeiDataPacket::mobDrops,
-            ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, ModuleData.STREAM_CODEC),
-            SyncJeiDataPacket::moduleDrops,
             ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, FluidReplicatorData.STREAM_CODEC),
             SyncJeiDataPacket::fluidReplicatorData,
             ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, BlockReplicatorData.STREAM_CODEC),
@@ -46,7 +43,6 @@ public record SyncJeiDataPacket(
             MinForMax.LOGGER.info("Received JEI data sync packet on client");
             MinForMax.LOGGER.info("Data sizes - Mob: {}, Module: {}, Fluid: {}, Block: {}, Farmer: {}",
                     packet.mobDrops.size(),
-                    packet.moduleDrops.size(),
                     packet.fluidReplicatorData.size(),
                     packet.blockReplicatorData.size(),
                     packet.farmerData.size()
@@ -54,7 +50,6 @@ public record SyncJeiDataPacket(
 
             // Sync all maps to the client-side data listener
             ModDataReloadListener.MOB_DROPS = packet.mobDrops;
-            ModDataReloadListener.MODULE_DROPS = packet.moduleDrops;
             ModDataReloadListener.FLUID_REPLICATOR_DATA = packet.fluidReplicatorData;
             ModDataReloadListener.BLOCK_REPLICATOR_DATA = packet.blockReplicatorData;
             ModDataReloadListener.FARMER_DATA = packet.farmerData;

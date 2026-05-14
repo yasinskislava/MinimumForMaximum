@@ -1,6 +1,7 @@
 package rewqazwas.minformax.custom.blocks.PandoraBox;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -37,7 +38,7 @@ public class PandoraBoxCoreBlockEntity extends BlockEntity implements MenuProvid
     }
     //Handlers
 
-    public final Utils.EnergyGenStorage energyHandler = new Utils.EnergyGenStorage(Integer.MAX_VALUE);
+    public final Utils.EnergyGenStorage energyHandler = new Utils.EnergyGenStorage(Long.MAX_VALUE);
 
     public final Utils.SingleItemHandler itemHandler = new Utils.SingleItemHandler(1) {
         @Override
@@ -51,32 +52,41 @@ public class PandoraBoxCoreBlockEntity extends BlockEntity implements MenuProvid
         @Override
         public int get(int index) {
             return switch (index) {
-                case 0 -> PandoraBoxCoreBlockEntity.this.energyHandler.getEnergyStored();
-                case 1 -> (int) (PandoraBoxCoreBlockEntity.this.overload % Integer.MAX_VALUE);
-                case 2 -> (int) (PandoraBoxCoreBlockEntity.this.overload / Integer.MAX_VALUE);
-                case 3 -> (int) (PandoraBoxCoreBlockEntity.this.totalXp % Integer.MAX_VALUE);
-                case 4 -> (int) (PandoraBoxCoreBlockEntity.this.totalXp / Integer.MAX_VALUE);
+                case 0 -> (int) (PandoraBoxCoreBlockEntity.this.energyHandler.getLongEnergyStored() & 0xFFFFFFFFL); // Lower 32 bits of current energy
+                case 1 -> (int) ((PandoraBoxCoreBlockEntity.this.energyHandler.getLongEnergyStored() >>> 32) & 0xFFFFFFFFL); // Upper 32 bits of current energy
+                case 2 -> (int) (PandoraBoxCoreBlockEntity.this.energyHandler.getMaxCapacityLong() & 0xFFFFFFFFL); // Lower 32 bits of max energy
+                case 3 -> (int) ((PandoraBoxCoreBlockEntity.this.energyHandler.getMaxCapacityLong() >>> 32) & 0xFFFFFFFFL); // Upper 32 bits of max energy
+                case 4 -> (int) (PandoraBoxCoreBlockEntity.this.overload & 0xFFFFFFFFL); // Lower 32 bits of overload
+                case 5 -> (int) ((PandoraBoxCoreBlockEntity.this.overload >>> 32) & 0xFFFFFFFFL); // Upper 32 bits of overload
+                case 6 -> (int) (PandoraBoxCoreBlockEntity.this.totalXp & 0xFFFFFFFFL); // Lower 32 bits of totalXp
+                case 7 -> (int) ((PandoraBoxCoreBlockEntity.this.totalXp >>> 32) & 0xFFFFFFFFL); // Upper 32 bits of totalXp
                 default -> 0;
             };
         }
 
         @Override
         public void set(int index, int value) {
-            switch (index) {
-                case 0 -> PandoraBoxCoreBlockEntity.this.energyHandler.setEnergy(value);
-            }
+
         }
 
         @Override
         public int getCount() {
-            return 5;
+            return 8; // 2 for energy, 2 for max energy, 2 for overload, 2 for totalXp
         }
     };
 
     private long overload = 0;
     private long totalXp = 0;
     private int cooldown = 0;
-    
+
+    public long getOverload() {
+        return this.overload;
+    }
+
+    public long getTotalXp() {
+        return this.totalXp;
+    }
+
     // Cache
     private long cachedProduction = 0;
     private boolean cacheDirty = true;
@@ -102,32 +112,54 @@ public class PandoraBoxCoreBlockEntity extends BlockEntity implements MenuProvid
         long production = this.cachedProduction;
         
         if (production > 0) {
-            int currentEnergy = energyHandler.getEnergyStored();
-            int maxEnergy = energyHandler.getMaxEnergyStored();
-            if (currentEnergy < maxEnergy) {
-                long newEnergy = currentEnergy + production;
-                energyHandler.setEnergy((int) Math.min(newEnergy, maxEnergy));
+            long energyBeforeAdd = energyHandler.getLongEnergyStored();
+            energyHandler.addEnergy(production);
+            if (energyHandler.getLongEnergyStored() != energyBeforeAdd) {
                 changed = true;
             }
         }
         
-        if (this.energyHandler.getEnergyStored() > 0) {
-            for (BlockPos offset : this.hatchOffsets) {
-                BlockPos hatchPos = pos.offset(offset);
+        // Energy Distribution Loop
+        if (this.energyHandler.getLongEnergyStored() > 0) {
+            boolean energyTransferredInPass;
+            do {
+                energyTransferredInPass = false;
+                for (BlockPos offset : this.hatchOffsets) {
+                    BlockPos hatchPos = pos.offset(offset);
 
-                Utils.forEachNeighborCapability(Capabilities.EnergyStorage.BLOCK, level, hatchPos, (targetHandler, side) -> {
-                    int energyToPush = this.energyHandler.getEnergyStored();
-                    if (energyToPush > 0 && targetHandler.canReceive()) {
-                        int accepted = targetHandler.receiveEnergy(energyToPush, false);
-                        if (accepted > 0) {
-                            this.energyHandler.setEnergy(this.energyHandler.getEnergyStored() - accepted);
-                            setChanged();
+                    // Use a local variable to track energy pushed to this specific neighbor in this pass
+                    final long[] energyPushedToNeighbor = {0};
+                    Utils.forEachNeighborCapability(Capabilities.EnergyStorage.BLOCK, level, hatchPos, (targetHandler, side) -> {
+                        if (targetHandler.canReceive()) {
+                            long remainingEnergyInBox = this.energyHandler.getLongEnergyStored();
+                            while (remainingEnergyInBox > 0) {
+                                // Neoforge's receiveEnergy takes an int, so we push in chunks of Integer.MAX_VALUE
+                                int amountToPush = (int) Math.min(remainingEnergyInBox, Integer.MAX_VALUE);
+                                int accepted = targetHandler.receiveEnergy(amountToPush, false);
+                                if (accepted > 0) {
+                                    this.energyHandler.extractEnergy(accepted, false);
+                                    energyPushedToNeighbor[0] += accepted;
+                                    remainingEnergyInBox -= accepted; // Update remaining for next iteration
+                                    // Mark changed only if energy was actually moved
+                                    if (accepted > 0) {
+                                        setChanged();
+                                    }
+                                } else {
+                                    // Neighbor can't accept more, break inner loop for this neighbor
+                                    break;
+                                }
+                            }
                         }
+                    });
+                    if (energyPushedToNeighbor[0] > 0) {
+                        energyTransferredInPass = true; // Mark that some energy was transferred in this pass
+                        changed = true; // Mark block entity as changed
                     }
-                });
-
-                if (this.energyHandler.getEnergyStored() <= 0) break;
-            }
+                    if (this.energyHandler.getLongEnergyStored() <= 0) {
+                        break; // If box is empty, stop distributing to other neighbors in this pass
+                    }
+                }
+            } while (energyTransferredInPass && this.energyHandler.getLongEnergyStored() > 0); // Repeat pass if energy was transferred and box not empty
         }
 
         if(cooldown >= 1200){
@@ -176,7 +208,7 @@ public class PandoraBoxCoreBlockEntity extends BlockEntity implements MenuProvid
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putInt("energy", this.energyHandler.getEnergyStored());
+        tag.putLong("energy", this.energyHandler.getLongEnergyStored());
         tag.put("inventory", itemHandler.serializeNBT(registries));
         tag.putLong("overload", this.overload);
         tag.putLong("totalXp", this.totalXp);
@@ -185,7 +217,7 @@ public class PandoraBoxCoreBlockEntity extends BlockEntity implements MenuProvid
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        this.energyHandler.setEnergy(tag.getInt("energy"));
+        this.energyHandler.setEnergy(tag.getLong("energy"));
         itemHandler.deserializeNBT(registries, tag.getCompound("inventory"));
         this.overload = tag.getLong("overload");
         this.totalXp = tag.getLong("totalXp");

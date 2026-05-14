@@ -26,16 +26,17 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
     public final int containerId;
     public final ContainerData data;
     public final Player player;
-    public final int tier;
     private final Block correctBlock;
 
     private static final int VANILLA_SLOT_COUNT = 36;
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
-    private static int CUSTOM_INVENTORY_COUNT = 4;
+    private static final int CUSTOM_INVENTORY_COUNT = 1;
+    private static final int UPGRADE_SLOT_COUNT = 4;
     private static final int CUSTOM_INVENTORY_FIRST_SLOT_INDEX = VANILLA_SLOT_COUNT;
+    private static final int UPGRADE_FIRST_SLOT_INDEX = CUSTOM_INVENTORY_FIRST_SLOT_INDEX + CUSTOM_INVENTORY_COUNT;
 
     public EternalGeneratorMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
-        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(6));
+        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(7));
     }
 
     public EternalGeneratorMenu(int containerId, Inventory inv, BlockEntity blockEntity, ContainerData data) {
@@ -45,15 +46,7 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
         this.level = player.level();
         this.containerId = containerId;
         this.data = data;
-        this.tier = this.blockEntity.tier;
-        CUSTOM_INVENTORY_COUNT = 4 + (int) Math.pow(2, this.tier - 1);
-        this.correctBlock = switch (this.tier) {
-            case 1 -> ModBlocks.ETERNAL_GENERATOR_TIER1.get();
-            case 2 -> ModBlocks.ETERNAL_GENERATOR_TIER2.get();
-            case 3 -> ModBlocks.ETERNAL_GENERATOR_TIER3.get();
-            case 4 -> ModBlocks.ETERNAL_GENERATOR_TIER4.get();
-            default -> null;
-        };
+        this.correctBlock = ModBlocks.ETERNAL_GENERATOR.get();
 
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
@@ -61,7 +54,7 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
         addSlots();
 
         for (int i = 0; i < 4; i++) {
-            this.addSlot(new UpgradeSlot(this.blockEntity.upgradeHandler, i, -19, i * 18 + 7));
+            this.addSlot(new UpgradeSlot(this.blockEntity.upgradeHandler, i, -19, i * 18 + 6));
         }
         addDataSlots(data);
     }
@@ -69,27 +62,7 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
     private void addSlots() {
         int centerX = 80;
         int centerY = 31;
-        int[] xOffsets;
-        int[] yOffsets;
-
-        switch (tier) {
-            case 1 -> { xOffsets = new int[]{0};               yOffsets = new int[]{0}; }
-            case 2 -> { xOffsets = new int[]{-18, 18};         yOffsets = new int[]{0}; }
-            case 3 -> { xOffsets = new int[]{-54, -18, 18, 54}; yOffsets = new int[]{0}; }
-            case 4 -> { xOffsets = new int[]{-54, -18, 18, 54}; yOffsets = new int[]{-18, 18}; }
-            default -> { xOffsets = new int[0]; yOffsets = new int[0]; }
-        }
-
-        int index = 0;
-        for (int yOff : yOffsets) {
-            for (int xOff : xOffsets) {
-                int yAdjust = 0;
-                if (tier == 4) {
-                    yAdjust = (index < 4) ? 1 : -1;
-                }
-                this.addSlot(new SupplierSlot(this.blockEntity.itemHandler, index++, centerX + xOff, centerY + yOff + yAdjust));
-            }
-        }
+        this.addSlot(new SupplierSlot(this.blockEntity.itemHandler, 0, centerX, centerY));
     }
 
     public int getProgress() {
@@ -128,6 +101,10 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
         return Math.round((process / (float)maxProcess) * 100);
     }
 
+    public int getConsumptionRate() {
+        return this.data.get(6);
+    }
+
     @Override
     public boolean clickMenuButton(Player player, int id) {
         long totalXp = (long)this.data.get(3) + (long)this.data.get(5) * Integer.MAX_VALUE;
@@ -148,25 +125,47 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
         if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY;
         ItemStack sourceStack = sourceSlot.getItem();
         ItemStack copyOfSourceStack = sourceStack.copy();
-        if(index < VANILLA_SLOT_COUNT) {
-            if (!this.moveItemStackTo(sourceStack, CUSTOM_INVENTORY_FIRST_SLOT_INDEX, CUSTOM_INVENTORY_FIRST_SLOT_INDEX + CUSTOM_INVENTORY_COUNT, false)) {
+
+        // 1. If the item is in the Player Inventory (0-35)
+        if (index < VANILLA_SLOT_COUNT) {
+            // Try to move to upgrades first if it's an upgrade
+            if (isUpgrade(sourceStack)) {
+                if (!this.moveItemStackTo(sourceStack, UPGRADE_FIRST_SLOT_INDEX, UPGRADE_FIRST_SLOT_INDEX + UPGRADE_SLOT_COUNT, false)) {
+                    // If it fails to move to upgrades, try moving to the supplier slot
+                    if (!this.moveItemStackTo(sourceStack, CUSTOM_INVENTORY_FIRST_SLOT_INDEX, CUSTOM_INVENTORY_FIRST_SLOT_INDEX + CUSTOM_INVENTORY_COUNT, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                }
+            }
+            // If not an upgrade, try moving to supplier slot
+            else if (!this.moveItemStackTo(sourceStack, CUSTOM_INVENTORY_FIRST_SLOT_INDEX, CUSTOM_INVENTORY_FIRST_SLOT_INDEX + CUSTOM_INVENTORY_COUNT, false)) {
                 return ItemStack.EMPTY;
             }
-        } else if(index < CUSTOM_INVENTORY_FIRST_SLOT_INDEX + CUSTOM_INVENTORY_COUNT) {
+        }
+        // 2. If the item is in the Supplier Slot or Upgrade Slots
+        else if (index < UPGRADE_FIRST_SLOT_INDEX + UPGRADE_SLOT_COUNT) {
             if (!this.moveItemStackTo(sourceStack, VANILLA_FIRST_SLOT_INDEX, VANILLA_SLOT_COUNT, false)) {
                 return ItemStack.EMPTY;
             }
         } else {
-            MinForMax.LOGGER.error("Invalid slotIndex:" + index);
             return ItemStack.EMPTY;
         }
-        if(sourceStack.getCount() == 0) {
+
+        if (sourceStack.getCount() == 0) {
             sourceSlot.set(ItemStack.EMPTY);
         } else {
             sourceSlot.setChanged();
         }
         sourceSlot.onTake(player, sourceStack);
         return copyOfSourceStack;
+    }
+
+    // Helper method to keep quickMoveStack clean
+    private boolean isUpgrade(ItemStack stack) {
+        return stack.is(ModTags.EXTRA_DROP_UPGRADES)
+                || stack.is(ModItems.INVERTED_UPGRADE)
+                || stack.is(ModTags.SPEED_UPGRADES)
+                || (stack.is(ModTags.PROCESSING_UPGRADES) && !(stack.getItem() == ModItems.ULTIMATE_PROCESSING_UPGRADE.get()));
     }
 
     @Override
