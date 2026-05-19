@@ -132,7 +132,6 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
     private int maxProcess = 256;
     private int duration = maxProcess;
     private int consumptionRate = 0;
-    private boolean[] enabledSides = new boolean[6];
 
     // Cache
     private boolean cacheDirty = true;
@@ -317,8 +316,15 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
         int energyCost = this.cachedEnergyCost;
         
         if (currentEnergy < energyCost) return;
-        
-        if (!Utils.canInsertAtLeastOneComplex(level, blockPos, this.cachedDrops)) return;
+
+        boolean canFitAny = false;
+        for (ItemStack drop : this.cachedDrops) {
+            if (Utils.canInsertAtLeastOneNetwork(level, blockPos, drop, this.enabledSides)) {
+                canFitAny = true;
+                break;
+            }
+        }
+        if (!canFitAny) return;
 
         energyHandler.extractEnergy(energyCost, false);
         if (energyHandler.getEnergyStored() != currentEnergy) {

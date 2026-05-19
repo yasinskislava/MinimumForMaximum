@@ -1,11 +1,17 @@
 package rewqazwas.minformax.network;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.Minecraft;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-import rewqazwas.minformax.MinForMax;
+import rewqazwas.minformax.custom.index.PlayerIndex;
+import rewqazwas.minformax.network.packet.PayloadKeybindPacket;
+import rewqazwas.minformax.network.packet.RequestIndexSyncPayload;
+import rewqazwas.minformax.network.packet.SideConfigPayload;
+import rewqazwas.minformax.network.packet.SyncJeiDataPacket;
+import rewqazwas.minformax.screen.custom.MobIndexScreen;
 
 @EventBusSubscriber
 public class ModNetwork {
@@ -22,6 +28,25 @@ public class ModNetwork {
                 SideConfigPayload.TYPE,
                 SideConfigPayload.STREAM_CODEC,
                 SideConfigPayload::handle
+        );
+
+        registrar.playToServer(
+                RequestIndexSyncPayload.TYPE,
+                RequestIndexSyncPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> {
+                    if (context.player() instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                        java.util.List<String> scanned = PlayerIndex.getLocalIndex(serverPlayer);
+                        PacketDistributor.sendToPlayer(serverPlayer, new PayloadKeybindPacket(scanned));
+                    }
+                })
+        );
+
+        registrar.playToClient(
+                PayloadKeybindPacket.TYPE,
+                PayloadKeybindPacket.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> {
+                    net.minecraft.client.Minecraft.getInstance().setScreen(new MobIndexScreen(payload.scannedMobs()));
+                })
         );
     }
 }

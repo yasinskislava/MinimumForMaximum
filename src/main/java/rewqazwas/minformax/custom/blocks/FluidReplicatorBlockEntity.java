@@ -1,6 +1,7 @@
 package rewqazwas.minformax.custom.blocks;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -27,6 +28,12 @@ import java.util.List;
 public class FluidReplicatorBlockEntity extends MachineBaseEntity {
     public FluidReplicatorBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.FLUID_REPLICATOR_BE.get(), pos, blockState);
+        this.enabledSides[Direction.DOWN.get3DDataValue()] = true;
+        this.enabledSides[Direction.UP.get3DDataValue()] = true;
+        this.enabledSides[Direction.NORTH.get3DDataValue()] = true;
+        this.enabledSides[Direction.SOUTH.get3DDataValue()] = true;
+        this.enabledSides[Direction.EAST.get3DDataValue()] = true;
+        this.enabledSides[Direction.WEST.get3DDataValue()] = true;
     }
     //Handlers
 
@@ -167,7 +174,7 @@ public class FluidReplicatorBlockEntity extends MachineBaseEntity {
         int currentEnergy = energyHandler.getEnergyStored();
         if (currentEnergy < energyCost) return;
         
-        if (!Utils.canInsertAtLeastOne(level, blockPos, sourceStack)) return;
+        if (!Utils.canInsertAtLeastOneNetwork(level, blockPos, sourceStack, this.enabledSides)) return;
 
         energyHandler.extractEnergy(energyCost, false);
         if (energyHandler.getEnergyStored() != currentEnergy) {
@@ -180,7 +187,7 @@ public class FluidReplicatorBlockEntity extends MachineBaseEntity {
 
         if (process >= Math.max(1, maxProcess / speedModifier)) {
             int totalToGenerate = this.cachedData.basicAmountGenerated() * stackMultiplier;
-            Utils.moveFluid(level, blockPos, sourceStack, totalToGenerate);
+            Utils.moveFluidNetwork(level, blockPos, sourceStack, totalToGenerate, this.enabledSides);
             process = 0;
         }
         

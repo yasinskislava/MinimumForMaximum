@@ -1,9 +1,7 @@
 package rewqazwas.minformax.screen.custom;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -13,7 +11,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import rewqazwas.minformax.MinForMax;
 import rewqazwas.minformax.custom.utility.UpgradeHud;
 import rewqazwas.minformax.custom.utility.Utils;
-import rewqazwas.minformax.network.SideConfigPayload;
+import rewqazwas.minformax.network.packet.SideConfigPayload;
 
 public class OreCoalescerScreen extends AbstractContainerScreen<OreCoalescerMenu> {
     private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "textures/gui/ore_coalescer.png");

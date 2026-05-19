@@ -1,6 +1,11 @@
 {
   "tab.minformax.items": "Minimum For Maximum",
 
+  "category.minformax.keys": "Minimum For Maximum",
+  "key.minformax.open_index_menu": "Open Index Menu",
+
+  "screen.minformax.index_menu": "Index Menu",
+
   "block.minformax.index_inscriber": "Index Inscriber",
   "block.minformax.eternal_generator": "Eternal Generator",
   "block.minformax.creative_energy": "Creative Energy",

@@ -47,8 +47,10 @@ import rewqazwas.minformax.custom.index.PlayerIndex;
 import rewqazwas.minformax.custom.items.LinkerItem;
 import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.items.upgrades.UpgradeItem;
+import rewqazwas.minformax.custom.utility.ModKeybindings;
 import rewqazwas.minformax.custom.utility.UpgradeHud;
-import rewqazwas.minformax.network.SyncJeiDataPacket;
+import rewqazwas.minformax.network.packet.RequestIndexSyncPayload;
+import rewqazwas.minformax.network.packet.SyncJeiDataPacket;
 import rewqazwas.minformax.renderer.*;
 import rewqazwas.minformax.screen.ModMenuTypes;
 import rewqazwas.minformax.screen.custom.*;
@@ -87,6 +89,11 @@ public class MinForMax {
                 ItemProperties.register(ModItems.LINKER.get(), ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "storage"),
                         ((stack, level, entity, seed) -> stack.get(ModDataComponents.LINKED_POS) != null && !stack.get(ModDataComponents.LINKED_POS).isEmpty() ? 1.0f : 0.0f));
             });
+        }
+
+        @SubscribeEvent
+        public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
+            ModKeybindings.register(event);
         }
 
         @SubscribeEvent
@@ -196,6 +203,16 @@ public class MinForMax {
             });
         }
 
+        @SubscribeEvent
+        public static void onClientTick(ClientTickEvent.Post event) {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player != null && mc.screen == null) {
+                if (ModKeybindings.OPEN_INDEX_MENU.consumeClick()) {
+                    PacketDistributor.sendToServer(new RequestIndexSyncPayload());
+                }
+            }
+        }
+
     }
 
     @EventBusSubscriber
@@ -210,7 +227,8 @@ public class MinForMax {
             MinForMax.LOGGER.info("Data sizes - Mob: {},  Fluid: {}, Block: {}, Farmer: {}",
                 ModDataReloadListener.MOB_DROPS.size(),
                 ModDataReloadListener.FLUID_REPLICATOR_DATA.size(),
-                ModDataReloadListener.BLOCK_REPLICATOR_DATA.size(), ModDataReloadListener.FARMER_DATA.size()
+                ModDataReloadListener.BLOCK_REPLICATOR_DATA.size(),
+                ModDataReloadListener.FARMER_DATA.size()
             );
 
             PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncJeiDataPacket(
@@ -274,5 +292,3 @@ public class MinForMax {
         }
     }
 }
-
-

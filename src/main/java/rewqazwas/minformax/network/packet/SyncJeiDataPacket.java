@@ -1,4 +1,4 @@
-package rewqazwas.minformax.network;
+package rewqazwas.minformax.network.packet;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;

@@ -44,5 +44,11 @@ public abstract class MachineBaseEntity extends BlockEntity {
         Containers.dropContents(this.level, this.worldPosition, inv);
     }
 
+    protected boolean[] enabledSides = new boolean[6];
+
+    public boolean[] getEnabledSides() {
+        return this.enabledSides;
+    }
+
     protected abstract List<IItemHandler> getDroppableHandlers();
 }

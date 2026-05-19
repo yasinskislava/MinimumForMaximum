@@ -11,7 +11,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import rewqazwas.minformax.MinForMax;
 import rewqazwas.minformax.custom.utility.UpgradeHud;
 import rewqazwas.minformax.custom.utility.Utils;
-import rewqazwas.minformax.network.SideConfigPayload;
+import rewqazwas.minformax.network.packet.SideConfigPayload;
 
 import static rewqazwas.minformax.custom.utility.Utils.GUI_TEXTURE;
 

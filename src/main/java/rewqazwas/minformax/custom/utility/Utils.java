@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -24,6 +25,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
@@ -42,6 +44,7 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import rewqazwas.minformax.MinForMax;
 import rewqazwas.minformax.custom.ModTags;
+import rewqazwas.minformax.custom.blocks.MachineBaseEntity;
 import rewqazwas.minformax.custom.index.HolderClass;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
 import rewqazwas.minformax.custom.items.ModItems;
@@ -114,88 +117,203 @@ public class Utils {
         }
     }
 
+    /**
+     * Initiates a network item transfer from a starting block position.
+     */
     public static ItemStack moveItem(Level level, BlockPos pos, ItemStack stack, boolean[] enabledSides) {
-        final ItemStack[] currentStack = {stack.copy()};
+        if (stack.isEmpty()) return stack;
 
-        forEachNeighborCapability(Capabilities.ItemHandler.BLOCK, level, pos, (handler, side) -> {
-            if (enabledSides[side.get3DDataValue()] && !currentStack[0].isEmpty()) {
-                currentStack[0] = ItemHandlerHelper.insertItemStacked(handler, currentStack[0], false);
-            }
-        });
+        Set<BlockPos> visited = new HashSet<>();
+        visited.add(pos);
 
-        return currentStack[0];
+        return routeItemThroughNetwork(level, pos, stack, enabledSides, visited);
     }
 
-    public static ItemStack moveItem(Level level, BlockPos pos, ItemStack stack) {
-        final ItemStack[] currentStack = {stack.copy()};
+    /**
+     * Core recursive method that handles network traversal and inventory insertion.
+     */
+    private static ItemStack routeItemThroughNetwork(Level level, BlockPos currentPos, ItemStack stack, boolean[] enabledSides, Set<BlockPos> visited) {
+        ItemStack remaining = stack.copy();
 
-        forEachNeighborCapability(Capabilities.ItemHandler.BLOCK, level, pos, (handler, side) -> {
-            if (!currentStack[0].isEmpty()) {
-                currentStack[0] = ItemHandlerHelper.insertItemStacked(handler, currentStack[0], false);
+        for (Direction side : Direction.values()) {
+            if (!enabledSides[side.get3DDataValue()]) {
+                continue;
             }
-        });
 
-        return currentStack[0];
+            BlockPos targetPos = currentPos.relative(side);
+            if (visited.contains(targetPos)) {
+                continue;
+            }
+
+            IItemHandler targetHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, targetPos, side.getOpposite());
+            if (targetHandler == null) {
+                continue;
+            }
+
+            BlockEntity targetBE = level.getBlockEntity(targetPos);
+            if (targetBE instanceof MachineBaseEntity machineBE) {
+                visited.add(targetPos);
+
+                boolean[] targetSides = machineBE.getEnabledSides();
+
+                remaining = routeItemThroughNetwork(level, targetPos, remaining, targetSides, visited);
+            } else {
+                remaining = ItemHandlerHelper.insertItemStacked(targetHandler, remaining, false);
+            }
+
+            if (remaining.isEmpty()) {
+                return ItemStack.EMPTY;
+            }
+        }
+
+        return remaining;
     }
 
-    public static int moveFluid(Level level, BlockPos pos, FluidStack sourceStack, int amount) {
-        final int[] remaining = {amount};
+    /**
+     * Initiates a network fluid transfer from a starting block position.
+     * Returns the amount of fluid that COULD NOT be accepted anywhere.
+     */
+    public static int moveFluidNetwork(Level level, BlockPos pos, FluidStack fluidStack, int amount, boolean[] enabledSides) {
+        if (fluidStack.isEmpty() || amount <= 0) return amount;
 
-        forEachNeighborCapability(Capabilities.FluidHandler.BLOCK, level, pos, (handler, side) -> {
-            if (remaining[0] > 0) {
-                FluidStack toFill = sourceStack.copy();
+        Set<BlockPos> visited = new HashSet<>();
+        visited.add(pos);
 
-                // Set the amount to the smaller of:
-                // 1. What we have left to give
-                // 2. The total amount available in the source stack
-                toFill.setAmount(Math.min(remaining[0], sourceStack.getAmount()));
-
-                int filled = handler.fill(toFill, IFluidHandler.FluidAction.EXECUTE);
-                remaining[0] -= filled;
-            }
-        });
-
-        return remaining[0];
+        return routeFluidThroughNetwork(level, pos, fluidStack, amount, enabledSides, visited);
     }
 
-    public static boolean canInsertAtLeastOne(Level level, BlockPos pos, ItemStack stack) {
-        ItemStack toInsert = stack.copy();
-        toInsert.setCount(1);
+    /**
+     * Core recursive method that handles fluid network traversal and fluid handler filling.
+     */
+    private static int routeFluidThroughNetwork(Level level, BlockPos currentPos, FluidStack fluidStack, int amount, boolean[] enabledSides, Set<BlockPos> visited) {
+        int remaining = amount;
 
-        boolean[] canInsert = {false};
+        for (Direction side : Direction.values()) {
+            if (!enabledSides[side.get3DDataValue()]) {
+                continue;
+            }
 
-        forEachNeighborCapability(Capabilities.ItemHandler.BLOCK, level, pos, (handler, side) -> {
-            if (!canInsert[0]) {
-                if (ItemHandlerHelper.insertItemStacked(handler, toInsert, true).isEmpty()) {
-                    canInsert[0] = true;
+            BlockPos targetPos = currentPos.relative(side);
+            if (visited.contains(targetPos)) {
+                continue;
+            }
+
+            IFluidHandler targetHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, targetPos, side.getOpposite());
+            if (targetHandler == null) {
+                continue;
+            }
+
+            BlockEntity targetBE = level.getBlockEntity(targetPos);
+            if (targetBE instanceof MachineBaseEntity machineBE) {
+                visited.add(targetPos);
+                boolean[] targetSides = machineBE.getEnabledSides();
+
+                remaining = routeFluidThroughNetwork(level, targetPos, fluidStack, remaining, targetSides, visited);
+            } else {
+                FluidStack toFill = fluidStack.copy();
+                toFill.setAmount(remaining);
+                int filled = targetHandler.fill(toFill, IFluidHandler.FluidAction.EXECUTE);
+                remaining -= filled;
+            }
+
+            if (remaining <= 0) {
+                return 0;
+            }
+        }
+
+        return remaining;
+    }
+
+    /**
+     * Network-aware pre-production capability check for fluids.
+     */
+    public static boolean canInsertAtLeastOneNetwork(Level level, BlockPos pos, FluidStack stack, boolean[] enabledSides) {
+        if (stack.isEmpty()) return false;
+        FluidStack testStack = stack.copy();
+        testStack.setAmount(1); // Simulate with 1mB
+
+        Set<BlockPos> visited = new HashSet<>();
+        visited.add(pos);
+
+        return simulateFluidRouteThroughNetwork(level, pos, testStack, enabledSides, visited);
+    }
+
+    private static boolean simulateFluidRouteThroughNetwork(Level level, BlockPos currentPos, FluidStack stack, boolean[] enabledSides, Set<BlockPos> visited) {
+        for (Direction side : Direction.values()) {
+            if (!enabledSides[side.get3DDataValue()]) {
+                continue;
+            }
+
+            BlockPos targetPos = currentPos.relative(side);
+            if (visited.contains(targetPos)) {
+                continue;
+            }
+
+            IFluidHandler targetHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, targetPos, side.getOpposite());
+            if (targetHandler == null) {
+                continue;
+            }
+
+            BlockEntity targetBE = level.getBlockEntity(targetPos);
+            if (targetBE instanceof MachineBaseEntity machineBE) {
+                visited.add(targetPos);
+                boolean[] targetSides = machineBE.getEnabledSides();
+
+                if (simulateFluidRouteThroughNetwork(level, targetPos, stack, targetSides, visited)) {
+                    return true;
+                }
+            } else {
+                // It's an external tank/pipe: Simulate filling 1mB
+                if (targetHandler.fill(stack, IFluidHandler.FluidAction.SIMULATE) > 0) {
+                    return true;
                 }
             }
-        });
-
-        return canInsert[0];
+        }
+        return false;
     }
 
-    public static boolean canInsertAtLeastOne(Level level, BlockPos pos, FluidStack stack) {
-        FluidStack toInsert = stack.copy();
-        toInsert.setAmount(1);
+    /**
+     * Network-aware check to see if an item stack can be inserted anywhere in the network.
+     */
+    public static boolean canInsertAtLeastOneNetwork(Level level, BlockPos pos, ItemStack stack, boolean[] enabledSides) {
+        if (stack.isEmpty()) return false;
+        ItemStack testStack = stack.copy();
+        testStack.setCount(1);
 
-        boolean[] canInsert = {false};
+        Set<BlockPos> visited = new HashSet<>();
+        visited.add(pos);
 
-        forEachNeighborCapability(Capabilities.FluidHandler.BLOCK, level, pos, (handler, side) -> {
-            if (!canInsert[0]) {
-                if (handler.fill(toInsert, IFluidHandler.FluidAction.SIMULATE) > 0) {
-                    canInsert[0] = true;
-                }
+        return simulateRouteThroughNetwork(level, pos, testStack, enabledSides, visited);
+    }
+
+    private static boolean simulateRouteThroughNetwork(Level level, BlockPos currentPos, ItemStack stack, boolean[] enabledSides, Set<BlockPos> visited) {
+        for (Direction side : Direction.values()) {
+            if (!enabledSides[side.get3DDataValue()]) {
+                continue;
             }
-        });
 
-        return canInsert[0];
-    }
+            BlockPos targetPos = currentPos.relative(side);
+            if (visited.contains(targetPos)) {
+                continue;
+            }
 
-    public static boolean canInsertAtLeastOneComplex(Level level, BlockPos pos, List<ItemStack> stacks) {
-        for (ItemStack stack : stacks) {
-            if (canInsertAtLeastOne(level, pos, stack)) {
-                return true;
+            IItemHandler targetHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, targetPos, side.getOpposite());
+            if (targetHandler == null) {
+                continue;
+            }
+
+            BlockEntity targetBE = level.getBlockEntity(targetPos);
+            if (targetBE instanceof MachineBaseEntity machineBE) {
+                visited.add(targetPos);
+                boolean[] targetSides = machineBE.getEnabledSides();
+
+                if (simulateRouteThroughNetwork(level, targetPos, stack, targetSides, visited)) {
+                    return true;
+                }
+            } else {
+                if (ItemHandlerHelper.insertItemStacked(targetHandler, stack, true).isEmpty()) {
+                    return true;
+                }
             }
         }
         return false;
@@ -885,5 +1003,48 @@ public class Utils {
 
     public static boolean isMouseOver(double mouseX, double mouseY, int x, int y, int sizeX, int sizeY) {
         return mouseX >= x && mouseX <= x + sizeX && mouseY >= y && mouseY <= y + sizeY;
+    }
+
+    public static String convertKey(String rawName) {
+        String trimmed = rawName.substring(7);
+        trimmed = trimmed.replaceFirst("\\.", ":");
+        return trimmed;
+    }
+
+    /**
+     * Renders a component bounded to a specific width. If the text width exceeds maxWidth,
+     * it scrolls continuously inside a scissored boundary box.
+     */
+    public static void renderScrollingText(GuiGraphics guiGraphics, net.minecraft.client.gui.Font font, Component text, int x, int y, int maxWidth, int textColor, float scale) {
+        int textWidth = font.width(text);
+        int maxScaledWidth = (int) (maxWidth / scale);
+
+        if (textWidth <= maxScaledWidth) {
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(x, y, 100);
+            guiGraphics.pose().scale(scale, scale, 1.0f);
+            guiGraphics.drawCenteredString(font, text, maxScaledWidth / 2, 0, textColor);
+            guiGraphics.pose().popPose();
+            return;
+        }
+
+        guiGraphics.enableScissor(x, y, x + maxWidth, y + (int)(font.lineHeight * scale));
+
+        int speedModifier = 30;
+        int gap = 30;
+        int totalLoopLength = textWidth + gap;
+
+        long time = net.minecraft.Util.getMillis() / speedModifier;
+        int offset = (int) (time % totalLoopLength);
+
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(x, y, 100);
+        guiGraphics.pose().scale(scale, scale, 1.0f);
+        guiGraphics.drawString(font, text, -offset, 0, textColor);
+        guiGraphics.drawString(font, text, -offset + totalLoopLength, 0, textColor);
+
+        guiGraphics.pose().popPose();
+
+        guiGraphics.disableScissor();
     }
 }

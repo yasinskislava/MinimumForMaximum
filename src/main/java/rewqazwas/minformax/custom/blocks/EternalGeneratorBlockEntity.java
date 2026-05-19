@@ -119,7 +119,6 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
     private int overflowXp = 0;
     private int overload;
     private int consumptionRate = 0;
-    private boolean[] enabledSides = new boolean[6];
 
     // Cache
     private boolean cacheDirty = true;
@@ -329,7 +328,7 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
         if(level.isClientSide()) return;
         
         boolean dirty = false;
-        
+
         // Update energy and check for change
         int newEnergy = energyHandler.getEnergyStored();
         if (newEnergy != this.currentEnergy) {

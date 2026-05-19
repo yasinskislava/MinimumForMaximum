@@ -1,6 +1,7 @@
 package rewqazwas.minformax.custom.blocks;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -29,6 +30,14 @@ import java.util.Map;
 public class BlockReplicatorBlockEntity extends MachineBaseEntity {
     public BlockReplicatorBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.BLOCK_REPLICATOR_BE.get(), pos, blockState);
+
+        this.enabledSides[Direction.DOWN.get3DDataValue()] = true;
+        this.enabledSides[Direction.UP.get3DDataValue()] = true;
+        this.enabledSides[Direction.NORTH.get3DDataValue()] = true;
+        this.enabledSides[Direction.SOUTH.get3DDataValue()] = true;
+        this.enabledSides[Direction.EAST.get3DDataValue()] = true;
+        this.enabledSides[Direction.WEST.get3DDataValue()] = true;
+
     }
     //Handlers
 
@@ -173,8 +182,7 @@ public class BlockReplicatorBlockEntity extends MachineBaseEntity {
         }
 
         var sourceStack = itemHandler.getStackInSlot(0);
-        // sourceStack shouldn't be empty if cachedData is not null (as findData checks for empty), 
-        // but explicit check is safer if logic changes.
+
         if (sourceStack.isEmpty()) {
              process = 0;
              setChanged(level, blockPos, blockState);
@@ -197,7 +205,7 @@ public class BlockReplicatorBlockEntity extends MachineBaseEntity {
         if (currentEnergy < energyCost) return;
         
         // Check output space before extracting energy
-        if (!Utils.canInsertAtLeastOne(level, blockPos, sourceStack)) return;
+        if (!Utils.canInsertAtLeastOneNetwork(level, blockPos, sourceStack, this.enabledSides)) return;
         
         energyHandler.extractEnergy(energyCost, false);
         if (energyHandler.getEnergyStored() != currentEnergy) {
@@ -213,7 +221,7 @@ public class BlockReplicatorBlockEntity extends MachineBaseEntity {
             var toFill = new ItemStack(sourceStack.getItem());
             toFill.setCount(stackMultiplier);
             
-            Utils.moveItem(level, blockPos, toFill);
+            Utils.moveItem(level, blockPos, toFill, this.enabledSides);
             process = 0;
         }
         

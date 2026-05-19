@@ -16,6 +16,8 @@ import rewqazwas.minformax.custom.blocks.EternalGeneratorBlockEntity;
 import java.util.HashMap;
 import java.util.Map;
 
+import static rewqazwas.minformax.custom.utility.Utils.convertKey;
+
 public class EternalGeneratorRenderer implements BlockEntityRenderer<EternalGeneratorBlockEntity> {
     private final Map<String, Entity> entityCache = new HashMap<>();
 
@@ -25,12 +27,7 @@ public class EternalGeneratorRenderer implements BlockEntityRenderer<EternalGene
     public void render(EternalGeneratorBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int combinedLight, int combinedOverlay) {String rawName = blockEntity.getMobNameInShard(); // This is "entity.minecraft.chicken"
         if (rawName == null || blockEntity.getLevel() == null) return;
 
-        String mobName = rawName;
-        if (rawName.startsWith("entity.")) {
-            String trimmed = rawName.substring(7);
-            mobName = trimmed.replaceFirst("\\.", ":");
-        }
-
+        String mobName = convertKey(rawName);
         Entity entity = entityCache.computeIfAbsent(mobName, name -> {
             try {
                 ResourceLocation loc = ResourceLocation.parse(name);

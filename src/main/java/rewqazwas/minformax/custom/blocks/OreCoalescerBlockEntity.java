@@ -391,7 +391,6 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
     private int process = 0;
     private int maxProcess = 512;
     private boolean isProcessing = false;
-    private boolean[] enabledSides = new boolean[6];
 
     // Cache
     private int speedMultiplier = 1;
