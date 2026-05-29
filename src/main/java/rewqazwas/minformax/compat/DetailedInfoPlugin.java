@@ -59,6 +59,12 @@ public class DetailedInfoPlugin implements IModPlugin {
                 VanillaTypes.ITEM_STACK,
                 Component.translatable("jei.minformax.quantum_foam.info")
         );
+
+        registration.addIngredientInfo(
+                new ItemStack(ModItems.BABYLON_KEY.get()),
+                VanillaTypes.ITEM_STACK,
+                Component.translatable("jei.minformax.babylon_key.info")
+        );
     }
 
     @Override

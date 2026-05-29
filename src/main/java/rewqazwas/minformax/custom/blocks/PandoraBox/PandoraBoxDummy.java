@@ -92,5 +92,8 @@ public class PandoraBoxDummy extends Block implements EntityBlock {
         return new PandoraBoxDummyBlockEntity(pos, state);
     }
 
-
+    @Override
+    protected int getLightBlock(BlockState state, BlockGetter level, BlockPos pos) {
+        return 0;
+    }
 }

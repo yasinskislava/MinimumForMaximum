@@ -29,6 +29,11 @@ public class ModBlockStateProvider extends BlockStateProvider {
         simpleBlock(ModBlocks.PANDORA_BOX_CORE.get(), new ModelFile.UncheckedModelFile("minformax:block/pandora_box"));
         simpleBlock(ModBlocks.PANDORA_BOX_HATCH.get(), new ModelFile.UncheckedModelFile("minformax:block/pandora_box"));
         simpleBlock(ModBlocks.PANDORA_BOX_DUMMY.get(), new ModelFile.UncheckedModelFile("minformax:block/pandora_box"));
+
+        blockWithItem(ModBlocks.SAKURADITE_CASING);
+        blockWithItem(ModBlocks.SAKURADITE_PANEL);
+        blockWithItem(ModBlocks.SAKURADITE_INPUT);
+        blockWithItem(ModBlocks.SAKURADITE_OUTPUT);
     }
 
 

@@ -13,7 +13,9 @@ import net.neoforged.fml.loading.FMLPaths;
 import rewqazwas.minformax.MinForMax;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -24,6 +26,10 @@ public class ModDataReloadListener implements ResourceManagerReloadListener {
     public static Map<String, FarmerData> FARMER_DATA = new HashMap<>();
     public static Map<String, FluidReplicatorData> FLUID_REPLICATOR_DATA = new HashMap<>();
     public static Map<String, BlockReplicatorData> BLOCK_REPLICATOR_DATA = new HashMap<>();
+    public static List<String> GATE_OF_BABYLON_BLACKLIST = new ArrayList<>();
+
+    private static final Codec<List<String>> STRING_LIST_CODEC = Codec.STRING.listOf();
+
 
     @Override
     public void onResourceManagerReload(ResourceManager resourceManager) {
@@ -32,6 +38,7 @@ public class ModDataReloadListener implements ResourceManagerReloadListener {
         FARMER_DATA.clear();
         FLUID_REPLICATOR_DATA.clear();
         BLOCK_REPLICATOR_DATA.clear();
+        GATE_OF_BABYLON_BLACKLIST.clear();
 
 
         // 1. Process Mob Drops
@@ -46,8 +53,11 @@ public class ModDataReloadListener implements ResourceManagerReloadListener {
         // 4. Process Farmer Data
         handleCategory("farmer_data.json", "farmer_data", FarmerData.CODEC, FARMER_DATA, resourceManager);
 
-        MinForMax.LOGGER.info("Data Reload Complete. Mobs: {}, Fluids: {}, Blocks: {}, Farmer: {}",
-                MOB_DROPS.size(), FLUID_REPLICATOR_DATA.size(), BLOCK_REPLICATOR_DATA.size(), FARMER_DATA.size());
+        // 5. Process Gate of Babylon Blacklist
+        handleGateOfBabylonBlacklist(resourceManager);
+
+        MinForMax.LOGGER.info("Data Reload Complete. Mobs: {}, Fluids: {}, Blocks: {}, Farmer: {}, Gate of Babylon Blacklist: {}",
+                MOB_DROPS.size(), FLUID_REPLICATOR_DATA.size(), BLOCK_REPLICATOR_DATA.size(), FARMER_DATA.size(), GATE_OF_BABYLON_BLACKLIST.size());
     }
 
     /**
@@ -81,6 +91,56 @@ public class ModDataReloadListener implements ResourceManagerReloadListener {
                 }
             } catch (IOException e) {
                 MinForMax.LOGGER.error("Error reading config: " + fileName, e);
+            }
+        }
+    }
+
+    private void handleGateOfBabylonBlacklist(ResourceManager rm) {
+        String fileName = "gate_of_babylon.json";
+        String dataPackFolder = "gate_of_babylon";
+
+        List<String> datapackBlacklist = new ArrayList<>();
+
+        // Load Defaults from Datapacks first
+        var resources = rm.listResources(dataPackFolder, id -> id.getPath().endsWith(".json") && id.getNamespace().equals("minformax"));
+        resources.forEach((location, resource) -> {
+            try (Reader reader = resource.openAsReader()) {
+                JsonObject json = GSON.fromJson(reader, JsonObject.class);
+                if (json != null && json.has("blacklist")) {
+                    STRING_LIST_CODEC.parse(JsonOps.INSTANCE, json.get("blacklist"))
+                            .resultOrPartial(error -> MinForMax.LOGGER.error("Parsing error for Gate of Babylon datapack blacklist: " + error))
+                            .ifPresent(datapackBlacklist::addAll);
+                }
+            } catch (Exception e) {
+                MinForMax.LOGGER.error("Error loading datapack resource for Gate of Babylon blacklist: " + location, e);
+            }
+        });
+
+        // Load/Create Config File
+        File configFile = FMLPaths.CONFIGDIR.get().resolve("minformax/" + fileName).toFile();
+        if (!configFile.getParentFile().exists()) configFile.getParentFile().mkdirs();
+
+        if (!configFile.exists()) {
+            // If config file doesn't exist, create it and populate with datapack entries
+            GATE_OF_BABYLON_BLACKLIST.addAll(datapackBlacklist);
+            try (FileWriter writer = new FileWriter(configFile)) {
+                JsonObject root = new JsonObject();
+                root.add("blacklist", GSON.toJsonTree(GATE_OF_BABYLON_BLACKLIST));
+                GSON.toJson(root, writer);
+            } catch (IOException e) {
+                MinForMax.LOGGER.error("Error creating default Gate of Babylon blacklist config: " + fileName, e);
+            }
+        } else {
+            // If config file exists, load from it (it takes precedence)
+            try (FileReader reader = new FileReader(configFile)) {
+                JsonObject json = GSON.fromJson(reader, JsonObject.class);
+                if (json != null && json.has("blacklist")) {
+                    STRING_LIST_CODEC.parse(JsonOps.INSTANCE, json.get("blacklist"))
+                            .resultOrPartial(error -> MinForMax.LOGGER.error("Parsing error for Gate of Babylon blacklist config: " + error))
+                            .ifPresent(GATE_OF_BABYLON_BLACKLIST::addAll);
+                }
+            } catch (IOException e) {
+                MinForMax.LOGGER.error("Error reading Gate of Babylon blacklist config: " + fileName, e);
             }
         }
     }

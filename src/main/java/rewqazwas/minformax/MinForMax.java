@@ -39,6 +39,7 @@ import rewqazwas.minformax.custom.CreativeTabs;
 import rewqazwas.minformax.custom.ModAttachmentTypes;
 import rewqazwas.minformax.custom.ModBlockEntities;
 import rewqazwas.minformax.custom.blocks.*;
+import rewqazwas.minformax.custom.blocks.Multiblocks.GateOfBabylonBlockEntity;
 import rewqazwas.minformax.custom.blocks.PandoraBox.PandoraBoxCoreBlockEntity;
 import rewqazwas.minformax.custom.command.IndexCommand;
 import rewqazwas.minformax.custom.component.ModDataComponents;
@@ -174,6 +175,7 @@ public class MinForMax {
             event.register(ModMenuTypes.ORE_COALESCER_MENU.get(), OreCoalescerScreen::new);
             event.register(ModMenuTypes.FARMER_MENU.get(), FarmerScreen::new);
             event.register(ModMenuTypes.PANDORA_MENU.get(), PandoraBoxScreen::new);
+            event.register(ModMenuTypes.GATE_OF_BABYLON_MENU.get(), GateOfBabylonScreen::new);
         }
 
         @SubscribeEvent
@@ -276,6 +278,28 @@ public class MinForMax {
                                     return core.energyHandler;
                                 }
                             }
+                        }
+                        return null;
+                    });
+            event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
+                    ModBlockEntities.MULTIBLOCK_PART_BE.get(), (be, side) -> {
+                        if (be.getBlockState().is(ModBlocks.SAKURADITE_INPUT.get())) {
+                            if (be instanceof AbstractMultiblockPartBlockEntity part) {
+                                BlockPos corePos = part.getMasterPos();
+                                if (corePos != null && part.getLevel() != null) {
+                                    BlockEntity coreBe = part.getLevel().getBlockEntity(corePos);
+                                    if (coreBe instanceof GateOfBabylonBlockEntity core) {
+                                        return core.energyHandler;
+                                    }
+                                }
+                            }
+                        }
+                        return null;
+                    });
+            event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
+                    ModBlockEntities.GATE_OF_BABYLON_BE.get(), (be, side) -> {
+                        if (be.getBlockState().is(ModBlocks.SAKURADITE_INPUT.get())) {
+                            return be.energyHandler;
                         }
                         return null;
                     });

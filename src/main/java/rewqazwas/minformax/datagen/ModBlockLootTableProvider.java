@@ -25,6 +25,10 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(ModBlocks.ORE_COALESCER.get());
         dropSelf(ModBlocks.FARMER.get());
         dropSelf(ModBlocks.PANDORA_BOX_CORE.get());
+        dropSelf(ModBlocks.SAKURADITE_CASING.get());
+        dropSelf(ModBlocks.SAKURADITE_PANEL.get());
+        dropSelf(ModBlocks.SAKURADITE_INPUT.get());
+        dropSelf(ModBlocks.SAKURADITE_OUTPUT.get());
     }
 
 

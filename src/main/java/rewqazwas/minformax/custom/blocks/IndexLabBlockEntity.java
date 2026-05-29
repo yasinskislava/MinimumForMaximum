@@ -73,7 +73,7 @@ public class IndexLabBlockEntity extends BlockEntity implements MenuProvider {
     private String keyName = null;
     private HolderClass holder = null;
     
-    public String owner;
+    public String owner = ""; // Initialize owner to an empty string
 
     //Extra
     @Override

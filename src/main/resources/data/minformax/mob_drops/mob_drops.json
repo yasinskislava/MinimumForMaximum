@@ -68,6 +68,39 @@
     "duration": 4096,
     "is_boss": true
   },
+  "entity.iceandfire.fire_dragon": {
+    "main_drop": "iceandfire:fire_dragon_heart",
+    "additional_drop": [
+      "iceandfire:fire_dragon_flesh",
+      "iceandfire:dragonscales_red",
+      "iceandfire:dragonbone"
+    ],
+    "xp": 50,
+    "duration": 1024,
+    "is_boss": true
+  },
+  "entity.iceandfire.ice_dragon": {
+    "main_drop": "iceandfire:ice_dragon_heart",
+    "additional_drop": [
+      "iceandfire:ice_dragon_flesh",
+      "iceandfire:dragonscales_blue",
+      "iceandfire:dragonbone"
+    ],
+    "xp": 50,
+    "duration": 1024,
+    "is_boss": true
+  },
+  "entity.iceandfire.lighting_dragon": {
+    "main_drop": "iceandfire:lighting_dragon_heart",
+    "additional_drop": [
+      "iceandfire:lighting_dragon_flesh",
+      "iceandfire:dragonscales_electric",
+      "iceandfire:dragonbone"
+    ],
+    "xp": 50,
+    "duration": 1024,
+    "is_boss": true
+  },
   "entity.cataclysm.netherite_monstrosity": {
     "main_drop": "cataclysm:lava_power_cell",
     "additional_drop": [

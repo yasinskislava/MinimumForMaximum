@@ -74,7 +74,7 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
             String itemString = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
 
             for (FarmerData data : ModDataReloadListener.FARMER_DATA.values()) {
-                // Prohibited check takes priority
+                // Prohibited check
                 if (data.prohibitedItems().contains(itemString)) return false;
                 for (String tag : data.prohibitedTags()) {
                     if (stack.is(TagKey.create(BuiltInRegistries.ITEM.key(), ResourceLocation.parse(tag)))) return false;
@@ -314,11 +314,27 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
         boolean dirty = false;
         int currentEnergy = energyHandler.getEnergyStored();
         int energyCost = this.cachedEnergyCost;
-        
+
         if (currentEnergy < energyCost) return;
 
-        boolean canFitAny = false;
+        var modifiers = this.cachedModifiers; // Define modifiers here
+
+        List<ItemStack> potentialDrops = new ArrayList<>();
         for (ItemStack drop : this.cachedDrops) {
+            ItemStack copy = drop.copy();
+            copy.setCount(copy.getCount() * modifiers.stackMultiplier * modifiers.fortuneMultiplier);
+            potentialDrops.add(copy);
+        }
+
+        potentialDrops = mergeStacks(potentialDrops);
+
+        if (modifiers.hasCompressing && !compressionCache.isEmpty()) {
+            potentialDrops = Utils.applyCompression(potentialDrops, compressionCache);
+            potentialDrops = mergeStacks(potentialDrops);
+        }
+
+        boolean canFitAny = false;
+        for (ItemStack drop : potentialDrops) {
             if (Utils.canInsertAtLeastOneNetwork(level, blockPos, drop, this.enabledSides)) {
                 canFitAny = true;
                 break;
@@ -332,38 +348,23 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
         }
         this.consumptionRate = energyCost;
 
-        var modifiers = this.cachedModifiers;
         int effectiveWateringMultiplier = modifiers.hasWatering ? wateringChance() : 1;
-        
+
         if(process == 0){
             maxProcess = Math.max(duration / modifiers.speedModifier / effectiveWateringMultiplier, 1);
             dirty = true;
         }
-        
+
         process++;
         dirty = true; // Process changed
 
         if(process >= maxProcess) {
-            List<ItemStack> finalDrops = new ArrayList<>();
-            for (ItemStack drop : this.cachedDrops) {
-                ItemStack copy = drop.copy();
-                copy.setCount(copy.getCount() * modifiers.stackMultiplier * modifiers.fortuneMultiplier);
-                finalDrops.add(copy);
-            }
-
-            finalDrops = mergeStacks(finalDrops);
-
-            if (modifiers.hasCompressing && !compressionCache.isEmpty()) {
-                finalDrops = Utils.applyCompression(finalDrops, compressionCache);
-                finalDrops = mergeStacks(finalDrops);
-            }
-
-            for (ItemStack drop : finalDrops) {
+            for (ItemStack drop : potentialDrops) {
                 Utils.moveItem(level, blockPos, drop, enabledSides);
             }
             process = 0;
         }
-        
+
         if (dirty) {
             setChanged(level, blockPos, blockState);
         }

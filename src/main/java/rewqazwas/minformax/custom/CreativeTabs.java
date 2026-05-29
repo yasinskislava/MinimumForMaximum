@@ -27,6 +27,7 @@ public class CreativeTabs {
                     output.accept(ModBlocks.ORE_COALESCER);
                     output.accept(ModBlocks.PANDORA_BOX_CORE);
                     output.accept(ModItems.LINKER);
+
                     output.accept(ModItems.QUANTUM_INGOT);
                     output.accept(ModItems.YINMIN_INGOT);
                     output.accept(ModItems.AMANITA_INGOT);
@@ -36,6 +37,7 @@ public class CreativeTabs {
                     output.accept(ModItems.AETHER_INGOT);
                     output.accept(ModItems.MEMORY_SHARD);
                     output.accept(ModItems.CHAOS_SHARD);
+
                     output.accept(ModItems.SPEED_UPGRADE_TIER1);
                     output.accept(ModItems.SPEED_UPGRADE_TIER2);
                     output.accept(ModItems.SPEED_UPGRADE_TIER3);
@@ -58,6 +60,14 @@ public class CreativeTabs {
                     output.accept(ModItems.AUTO_SMELTING_UPGRADE);
                     output.accept(ModItems.WATERING_UPGRADE);
                     output.accept(ModItems.COMPRESSING_UPGRADE);
+
+                    output.accept(ModBlocks.SAKURADITE_CASING);
+                    output.accept(ModBlocks.SAKURADITE_PANEL);
+                    output.accept(ModBlocks.SAKURADITE_INPUT);
+                    output.accept(ModBlocks.SAKURADITE_OUTPUT);
+
+                    output.accept(ModItems.BABYLON_KEY);
+
                     output.accept(ModItems.QUANTUM_FOAM);
                     output.accept(ModItems.FROZEN_CRYSTAL);
                     output.accept(ModItems.FROZEN_CORE);

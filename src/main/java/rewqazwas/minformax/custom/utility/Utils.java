@@ -13,6 +13,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -522,6 +524,68 @@ public class Utils {
         @Override
         public boolean canReceive() {
             return false; // Generators do not receive energy
+        }
+    }
+
+    public static class EnergyReceiverStorage extends EnergyStorage {
+        private long currentEnergy;
+        private long maxCapacity;
+
+        public EnergyReceiverStorage(long capacity) {
+            super((int) Math.min(capacity, Integer.MAX_VALUE),
+                    (int) Math.min(capacity, Integer.MAX_VALUE), 0);
+            this.maxCapacity = capacity;
+            this.currentEnergy = 0;
+        }
+
+        @Override
+        public int getEnergyStored() {
+            return (int) Math.min(currentEnergy, Integer.MAX_VALUE);
+        }
+
+        public long getLongEnergyStored() {
+            return currentEnergy;
+        }
+
+        @Override
+        public int getMaxEnergyStored() {
+            return (int) Math.min(maxCapacity, Integer.MAX_VALUE);
+        }
+
+        public long getMaxCapacityLong() {
+            return maxCapacity;
+        }
+
+        @Override
+        public int receiveEnergy(int maxReceive, boolean simulate) {
+            long energyReceived = Math.min(maxCapacity - currentEnergy, maxReceive);
+            if (!simulate) {
+                currentEnergy += energyReceived;
+            }
+            return (int) Math.min(energyReceived, Integer.MAX_VALUE);
+        }
+
+        @Override
+        public int extractEnergy(int maxExtract, boolean simulate) {
+            return 0;
+        }
+
+        public void setEnergy(long value) {
+            this.currentEnergy = Math.max(0, Math.min(maxCapacity, value));
+        }
+
+        public void consumeEnergy(long energy) {
+            this.currentEnergy = Math.max(0, this.currentEnergy - energy);
+        }
+
+        @Override
+        public boolean canExtract() {
+            return false;
+        }
+
+        @Override
+        public boolean canReceive() {
+            return true;
         }
     }
 
@@ -1046,5 +1110,17 @@ public class Utils {
         guiGraphics.pose().popPose();
 
         guiGraphics.disableScissor();
+    }
+
+    public static boolean stillValid(ContainerLevelAccess access, Player player, Block... validationBlocks) {
+        return access.evaluate((level, pos) -> {
+            BlockState state = level.getBlockState(pos);
+            for (Block block : validationBlocks) {
+                if (state.is(block)) {
+                    return player.canInteractWithBlock(pos, 4.0D);
+                }
+            }
+            return false;
+        }, false);
     }
 }

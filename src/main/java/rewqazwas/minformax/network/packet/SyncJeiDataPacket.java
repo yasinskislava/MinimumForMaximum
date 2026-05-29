@@ -41,7 +41,7 @@ public record SyncJeiDataPacket(
     public static void handle(SyncJeiDataPacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
             MinForMax.LOGGER.info("Received JEI data sync packet on client");
-            MinForMax.LOGGER.info("Data sizes - Mob: {}, Module: {}, Fluid: {}, Block: {}, Farmer: {}",
+            MinForMax.LOGGER.info("Data sizes - Mob: {}, Fluid: {}, Block: {}, Farmer: {}",
                     packet.mobDrops.size(),
                     packet.fluidReplicatorData.size(),
                     packet.blockReplicatorData.size(),

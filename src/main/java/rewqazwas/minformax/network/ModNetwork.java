@@ -18,6 +18,7 @@ public class ModNetwork {
     @SubscribeEvent
     public static void register(RegisterPayloadHandlersEvent event) {
         final PayloadRegistrar registrar = event.registrar("1");
+
         registrar.playToClient(
                 SyncJeiDataPacket.TYPE,
                 SyncJeiDataPacket.STREAM_CODEC,
@@ -44,9 +45,13 @@ public class ModNetwork {
         registrar.playToClient(
                 PayloadKeybindPacket.TYPE,
                 PayloadKeybindPacket.STREAM_CODEC,
-                (payload, context) -> context.enqueueWork(() -> {
-                    net.minecraft.client.Minecraft.getInstance().setScreen(new MobIndexScreen(payload.scannedMobs()));
-                })
+                (payload, context) -> context.enqueueWork(() -> ClientPayloadHandler.handlePayloadKeybind(payload))
         );
+    }
+
+    private static class ClientPayloadHandler {
+        public static void handlePayloadKeybind(PayloadKeybindPacket payload) {
+            Minecraft.getInstance().setScreen(new MobIndexScreen(payload.scannedMobs()));
+        }
     }
 }

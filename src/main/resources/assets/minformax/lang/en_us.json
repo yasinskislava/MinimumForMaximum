@@ -14,6 +14,11 @@
   "block.minformax.ore_coalescer": "Ore Coalescer",
   "block.minformax.farmer": "Farmer",
   "block.minformax.pandora_box": "Pandora Box",
+  "block.minformax.sakuradite_casing": "Sakuradite Casing",
+  "block.minformax.sakuradite_panel": "Sakuradite Panel",
+  "block.minformax.sakuradite_input_hatch": "Sakuradite Input Hatch",
+  "block.minformax.sakuradite_output_hatch": "Sakuradite Output Hatch",
+  "block.minformax.gate_of_babylon": "Gate of Babylon",
 
   "minformax.jade.owner": "§aOwner: §c%s",
   "config.jade.plugin_minformax.owner": "Owner",
@@ -26,6 +31,7 @@
   "jei.minformax.aether_ingot.info": "To obtain the Aether Ingot, simply throw the Quantum Foam in the Overworld at y coordinate above 1000.",
   "jei.minformax.void_ingot.info": "To obtain the Void Ingot, simply throw the Quantum Foam in the End at y coordinate below 0.",
   "jei.minformax.quantum_foam.info": "To obtain the Quantum Foam, do Shift + Right Click with Quantum Ingot on Eternal Generator. At least 5120 overload is required.",
+  "jei.minformax.babylon_key.info": "",
 
   "tooltip.minformax.owner": "§aOwner: %s",
   "tooltip.minformax.index_lab": "§aInscribes mob index on memory shards.",
@@ -60,6 +66,8 @@
   "tooltip.minformax.under_construction": "§eUnder Construction...",
   "tooltip.minformax.aether_ingot": "§aI wonder what would happen to the foam at §c1000 §ablocks high?",
   "tooltip.minformax.void_ingot": "§aIt's a pleasure to visit a §cvoid §aat week§dend",
+  "tooltip.minformax.sakuradite_multiblock_part": "§aStructural component of multiblock",
+  "tooltip.minformax.babylon_key": "\"To bend time is a trivial plaything for my treasury. Behold the wealth of Babylon!\"",
 
   "advancements.minformax.root.title": "Meow?",
   "advancements.minformax.root.description": "Adventure Time begins",
@@ -110,5 +118,6 @@
   "item.minformax.heliodor_ingot": "Heliodor Ingot",
   "item.minformax.aether_ingot": "Aether Ingot",
   "item.minformax.yinmin_ingot": "Yinmin Ingot",
-  "item.minformax.void_ingot": "Void Ingot"
+  "item.minformax.void_ingot": "Void Ingot",
+  "item.minformax.babylon_key": "Babylon Key"
 }

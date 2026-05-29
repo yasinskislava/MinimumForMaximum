@@ -11,6 +11,10 @@
     "duration": 50,
     "energy_multiplier": 500
   },
+  "minecraft:ice": {
+    "duration": 20,
+    "energy_multiplier": 250
+  },
   "pneumaticcraft:compressed_stone": {
     "duration": 20,
     "energy_multiplier": 100

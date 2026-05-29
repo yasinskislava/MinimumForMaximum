@@ -80,6 +80,8 @@ public class ModItems {
     public static final DeferredItem<Item> WATERING_UPGRADE = registerUpgradeWithTooltip("watering_upgrade", "tooltip.minformax.watering_upgrade");
     public static final DeferredItem<Item> COMPRESSING_UPGRADE = registerUpgradeWithTooltip("compressing_upgrade", "tooltip.minformax.compressing_upgrade");
 
+    public static final DeferredItem<Item> BABYLON_KEY = ITEMS.register("babylon_key", () -> new BabylonKeyItem(new Item.Properties().stacksTo(1)));
+
 
     private static DeferredItem<Item> registerUpgradeWithTooltip(String name, String tooltipKey) {
         return ITEMS.register(name, () -> new UpgradeItem() {
