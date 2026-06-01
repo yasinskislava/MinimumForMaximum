@@ -30,10 +30,10 @@ public class ModBlocks {
     public static final DeferredBlock<Block> PANDORA_BOX_HATCH = registerBlock("pandora_box_hatch", () -> new PandoraBoxEnergyHatch(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops().noLootTable().noOcclusion()));
     public static final DeferredBlock<Block> PANDORA_BOX_DUMMY = registerBlock("pandora_box_dummy", () -> new PandoraBoxDummy(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops().noLootTable().noOcclusion()));
     //Gate Of Babylon
-    public static final DeferredBlock<Block> SAKURADITE_CASING = registerBlock("sakuradite_casing", () -> new SakuraditeMultiblockPartBlock(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops()));
-    public static final DeferredBlock<Block> SAKURADITE_PANEL = registerBlock("sakuradite_panel", () -> new SakuraditeMultiblockPartBlock(BlockBehaviour.Properties.of().strength(3f).noOcclusion().requiresCorrectToolForDrops()));
-    public static final DeferredBlock<Block> SAKURADITE_INPUT = registerBlock("sakuradite_input_hatch", () -> new SakuraditeMultiblockPartBlock(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops()));
-    public static final DeferredBlock<Block> SAKURADITE_OUTPUT = registerBlock("sakuradite_output_hatch", () -> new SakuraditeMultiblockPartBlock(BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops()));
+    public static final DeferredBlock<Block> SAKURADITE_CASING = registerBlock("sakuradite_casing", () -> new SakuraditeMultiblockPartBlock(BlockBehaviour.Properties.of().strength(2f).requiresCorrectToolForDrops().lightLevel((state) -> 12)));
+    public static final DeferredBlock<Block> SAKURADITE_PANEL = registerBlock("sakuradite_panel", () -> new SakuraditeMultiblockPartBlock(BlockBehaviour.Properties.of().strength(2f).noOcclusion().requiresCorrectToolForDrops().lightLevel((state) -> 12)));
+    public static final DeferredBlock<Block> SAKURADITE_INPUT = registerBlock("sakuradite_input_hatch", () -> new SakuraditeMultiblockPartBlock(BlockBehaviour.Properties.of().strength(2f).requiresCorrectToolForDrops().noCollission().lightLevel((state) -> 12)));
+    public static final DeferredBlock<Block> SAKURADITE_OUTPUT = registerBlock("sakuradite_output_hatch", () -> new SakuraditeMultiblockPartBlock(BlockBehaviour.Properties.of().strength(2f).requiresCorrectToolForDrops().noCollission().lightLevel((state) -> 12)));
 
     //Automated register for block item
     private static <T extends Block> DeferredBlock<T> registerBlock(String name, Supplier<? extends T> block) {

@@ -28,6 +28,10 @@ public class ModBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.FARMER.get())
                 .add(ModBlocks.PANDORA_BOX_CORE.get())
                 .add(ModBlocks.PANDORA_BOX_DUMMY.get())
-                .add(ModBlocks.PANDORA_BOX_HATCH.get());
+                .add(ModBlocks.PANDORA_BOX_HATCH.get())
+                .add(ModBlocks.SAKURADITE_CASING.get())
+                .add(ModBlocks.SAKURADITE_PANEL.get())
+                .add(ModBlocks.SAKURADITE_INPUT.get())
+                .add(ModBlocks.SAKURADITE_OUTPUT.get());
     }
 }

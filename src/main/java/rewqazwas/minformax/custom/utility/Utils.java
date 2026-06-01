@@ -1,6 +1,8 @@
 package rewqazwas.minformax.custom.utility;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
@@ -39,17 +41,22 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.EnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.network.PacketDistributor;
 import rewqazwas.minformax.MinForMax;
 import rewqazwas.minformax.custom.ModTags;
+import rewqazwas.minformax.custom.blocks.EternalGeneratorBlockEntity;
 import rewqazwas.minformax.custom.blocks.MachineBaseEntity;
+import rewqazwas.minformax.custom.blocks.Multiblocks.GateOfBabylonBlockEntity;
 import rewqazwas.minformax.custom.index.HolderClass;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
 import rewqazwas.minformax.custom.items.ModItems;
+import rewqazwas.minformax.network.packet.SideConfigPayload;
 
 import java.lang.reflect.Field;
 import java.text.DecimalFormat;
@@ -71,6 +78,8 @@ public class Utils {
     public static final ResourceLocation CONSUMPTION = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/energy.png");
     public static final ResourceLocation SIDE_CONFIG = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/circuit.png");
     private static final ResourceLocation INFO = ResourceLocation.fromNamespaceAndPath(MOD_ID,"textures/item/analyzer.png");
+    private static final ResourceLocation CONFIRM_SPRITE = ResourceLocation.withDefaultNamespace("container/beacon/confirm");
+    private static final ResourceLocation CANCEL_SPRITE = ResourceLocation.withDefaultNamespace("container/beacon/cancel");
 
     // Standard Sizes
     public static final int V_BAR_HEIGHT = 55;
@@ -589,6 +598,82 @@ public class Utils {
         }
     }
 
+    public static class UniversalEnergyStorage extends EnergyStorage {
+        private long currentEnergy;
+        private long maxCapacity;
+        private final long maxReceiveRate;
+        private final long maxExtractRate;
+
+        public UniversalEnergyStorage(long capacity, long maxReceive, long maxExtract) {
+            super((int) Math.min(capacity, Integer.MAX_VALUE),
+                    (int) Math.min(maxReceive, Integer.MAX_VALUE),
+                    (int) Math.min(maxExtract, Integer.MAX_VALUE));
+            this.maxCapacity = capacity;
+            this.maxReceiveRate = maxReceive;
+            this.maxExtractRate = maxExtract;
+            this.currentEnergy = 0;
+        }
+
+
+        @Override
+        public int getEnergyStored() {
+            return (int) Math.min(currentEnergy, Integer.MAX_VALUE);
+        }
+
+        public long getLongEnergyStored() {
+            return currentEnergy;
+        }
+
+        @Override
+        public int getMaxEnergyStored() {
+            return (int) Math.min(maxCapacity, Integer.MAX_VALUE);
+        }
+
+        public long getMaxCapacityLong() {
+            return maxCapacity;
+        }
+
+        @Override
+        public int receiveEnergy(int maxReceive, boolean simulate) {
+            long energyReceived = Math.min(maxCapacity - currentEnergy, Math.min(this.maxReceiveRate, maxReceive));
+            if (!simulate) {
+                currentEnergy += energyReceived;
+            }
+            return (int) Math.min(energyReceived, Integer.MAX_VALUE);
+        }
+
+        @Override
+        public int extractEnergy(int maxExtract, boolean simulate) {
+            long energyExtracted = Math.min(currentEnergy, Math.min(this.maxExtractRate, maxExtract));
+            if (!simulate) {
+                currentEnergy -= energyExtracted;
+            }
+            return (int) Math.min(energyExtracted, Integer.MAX_VALUE);
+        }
+
+        public void setEnergy(long value) {
+            this.currentEnergy = Math.max(0, Math.min(maxCapacity, value));
+        }
+
+        public void addEnergy(long energy) {
+            this.currentEnergy = Math.min(this.currentEnergy + energy, maxCapacity);
+        }
+
+        public void consumeEnergy(long energy) {
+            this.currentEnergy = Math.max(0, this.currentEnergy - energy);
+        }
+
+        @Override
+        public boolean canExtract() {
+            return true;
+        }
+
+        @Override
+        public boolean canReceive() {
+            return true;
+        }
+    }
+
     public static class SingleItemHandler extends ItemStackHandler {
         public SingleItemHandler(int size) {
             super(size);
@@ -1027,27 +1112,69 @@ public class Utils {
     }
 
     /**
-     * Draws the energy consumption side tab extension.
+     * Draws the energy consumption side tab.
      */
-    public static void drawConsumptionTab(GuiGraphics guiGraphics, int x, int y) {
+    public static void drawConsumptionTab(GuiGraphics guiGraphics, Font font, int x, int y, int mouseX, int mouseY, int consumptionRate) {
         drawSideTab(guiGraphics, x, y + 142);
         guiGraphics.blit(CONSUMPTION, x - 19, y + 146, 0, 0, 16, 16, 16, 16);
+
+        if (isMouseOver(mouseX, mouseY, x - 24, y + 142, 26, 24)) {
+            guiGraphics.renderTooltip(font, Component.literal(simpleEnergyDisplay(consumptionRate) + "/t").withColor(0xFF5555), mouseX, mouseY);
+        }
+    }
+    public static void drawConsumptionTab(GuiGraphics guiGraphics, Font font, int x, int y, int mouseX, int mouseY, long consumptionRate) {
+        drawSideTab(guiGraphics, x, y + 142);
+        guiGraphics.blit(CONSUMPTION, x - 19, y + 146, 0, 0, 16, 16, 16, 16);
+
+        if (isMouseOver(mouseX, mouseY, x - 24, y + 142, 26, 24)) {
+            guiGraphics.renderTooltip(font, Component.literal(simpleEnergyDisplay(consumptionRate) + "/t").withColor(0xFF5555), mouseX, mouseY);
+        }
     }
 
     /**
-     * Draws the side configuration tab extension.
+     * Draws the side configuration tab.
      */
-    public static void drawIOTab(GuiGraphics guiGraphics, int x, int y) {
+    public static void drawIOTab(GuiGraphics guiGraphics, Font font, int x, int y, int mouseX, int mouseY) {
         drawSideTab(guiGraphics, x, y + 142 - 56);
         guiGraphics.blit(SIDE_CONFIG, x - 19, y + 146 - 56, 0, 0, 16, 16, 16, 16);
+
+        if (isMouseOver(mouseX, mouseY, x - 24, y + 142 - 56, 26, 24)) {
+            guiGraphics.renderTooltip(font, Component.translatable("tooltip.minformax.side_config"), mouseX, mouseY);
+        }
     }
 
     /**
      * Draws the information side tab extension.
      */
-    public static void drawInfoTab(GuiGraphics guiGraphics, int x, int y) {
+    public static void drawInfoTab(GuiGraphics guiGraphics, Font font, int x, int y, int mouseX, int mouseY, int errorMask) {
         drawSideTab(guiGraphics, x, y + 142 - 28);
-        //guiGraphics.blit(CONSUMPTION, x - 19, y + 146 - 28, 0, 0, 16, 16, 16, 16);
+        ResourceLocation sprite = errorMask == 0 ? CONFIRM_SPRITE : CANCEL_SPRITE;
+        int offset = errorMask == 0 ? 0 : 1;
+        guiGraphics.blitSprite(sprite, x - 19 , y + 142 - 26 + offset, 18, 18);
+
+        if (isMouseOver(mouseX, mouseY, x - 24, y + 142 - 28, 26, 24)) {
+            List<Component> tooltips = new java.util.ArrayList<>();
+
+            if (errorMask == 0) {
+                tooltips.add(Component.translatable("tooltip.minformax.machine.ok").withStyle(ChatFormatting.GREEN));
+            } else {
+                tooltips.add(Component.translatable("tooltip.minformax.machine.errors_found").withStyle(ChatFormatting.GOLD));
+
+                if ((errorMask & 1) != 0) {
+                    tooltips.add(Component.translatable("tooltip.minformax.gate_of_babylon.error.no_machines").withStyle(ChatFormatting.RED));
+                }
+                if ((errorMask & 2) != 0) {
+                    tooltips.add(Component.translatable("tooltip.minformax.machine.error.no_energy").withStyle(ChatFormatting.RED));
+                }
+                if ((errorMask & 4) != 0) {
+                    tooltips.add(Component.translatable("tooltip.minformax.machine.error.missing_input").withStyle(ChatFormatting.RED));
+                }
+                if ((errorMask & 8) != 0) {
+                    tooltips.add(Component.translatable("tooltip.minformax.machine.error.missing_storage").withStyle(ChatFormatting.RED));
+                }
+            }
+            guiGraphics.renderComponentTooltip(font, tooltips, mouseX, mouseY);
+        }
     }
 
     /**
@@ -1122,5 +1249,167 @@ public class Utils {
             }
             return false;
         }, false);
+    }
+
+    public static class SideConfigComponent {
+        private static final ResourceLocation SIDE_CONFIG_TEX = ResourceLocation.fromNamespaceAndPath("minformax", "textures/gui/side_config.png");
+        private static final ResourceLocation SELECT_TEXTURE = ResourceLocation.fromNamespaceAndPath("minformax", "textures/gui/select.png");
+
+        public boolean showSideConfig = false;
+        public int configX = 58; // Initial position
+        public int configY = 132;
+        private boolean isDragging = false;
+        private double dragOffsetX, dragOffsetY;
+
+        private record ConfigBox(int x, int y, int w, int h, String label) {}
+        private static final ConfigBox[] BOXES = {
+                new ConfigBox(5, 5, 18, 18, "top_left"),    // Up
+                new ConfigBox(25, 5, 18, 18, "top_mid"),    // Forward
+                new ConfigBox(5, 25, 18, 18, "mid_left"),   // Left
+                new ConfigBox(45, 25, 18, 18, "mid_right"), // Right
+                new ConfigBox(25, 45, 18, 18, "bot_mid"),   // Back
+                new ConfigBox(45, 45, 18, 18, "bot_right")  // Down
+        };
+
+        private Direction getDirectionFromBox(int boxIndex) {
+            net.minecraft.client.Minecraft minecraft = net.minecraft.client.Minecraft.getInstance();
+            if (minecraft.player == null) return Direction.NORTH;
+
+            Direction facing = minecraft.player.getDirection();
+            return switch (boxIndex) {
+                case 0 -> Direction.UP;
+                case 5 -> Direction.DOWN;
+                case 1 -> facing; // Forward
+                case 2 -> facing.getCounterClockWise(); // Left
+                case 3 -> facing.getClockWise(); // Right
+                case 4 -> facing.getOpposite(); // Back
+                default -> Direction.NORTH;
+            };
+        }
+
+        public void render(GuiGraphics guiGraphics, MachineBaseEntity blockEntity) {
+            if (!showSideConfig) return;
+
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0, 0, 300);
+            guiGraphics.blit(SIDE_CONFIG_TEX, configX, configY, 0, 0, 68, 68, 68, 68);
+            for (int i = 0; i < BOXES.length; i++) {
+                Direction dir = getDirectionFromBox(i);
+
+                if (blockEntity.isSideEnabled(dir)) {
+                    int drawX = configX + BOXES[i].x;
+                    int drawY = configY + BOXES[i].y;
+                    guiGraphics.blit(SELECT_TEXTURE, drawX, drawY, 0, 0, 18, 18, 18, 18);
+                }
+            }
+            guiGraphics.pose().popPose();
+        }
+
+        public void renderTooltips(GuiGraphics guiGraphics, net.minecraft.client.gui.Font font, int mouseX, int mouseY) {
+            if (!showSideConfig) return;
+
+            for (int i = 0; i < BOXES.length; i++) {
+                ConfigBox box = BOXES[i];
+                int boxX = configX + box.x;
+                int boxY = configY + box.y;
+                if (Utils.isMouseOver(mouseX, mouseY, boxX, boxY, box.w, box.h)) {
+                    Direction dir = getDirectionFromBox(i);
+                    guiGraphics.renderTooltip(font, Component.literal(dir.name()), mouseX, mouseY);
+                }
+            }
+        }
+
+        public boolean mouseClicked(double mouseX, double mouseY, int button, BlockPos pos) {
+            if (!showSideConfig) return false;
+
+            for (int i = 0; i < 6; i++) {
+                if (mouseX >= configX + BOXES[i].x && mouseX < configX + BOXES[i].x + BOXES[i].w &&
+                        mouseY >= configY + BOXES[i].y && mouseY < configY + BOXES[i].y + BOXES[i].h) {
+
+                    Direction dir = getDirectionFromBox(i);
+                    PacketDistributor.sendToServer(new SideConfigPayload(pos, dir.get3DDataValue()));
+                    return true;
+                }
+            }
+            // Check if clicking background to drag
+            if (mouseX >= configX && mouseX < configX + 68 && mouseY >= configY && mouseY < configY + 68) {
+                isDragging = true;
+                dragOffsetX = mouseX - configX;
+                dragOffsetY = mouseY - configY;
+                return true;
+            }
+            return false;
+        }
+
+        public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+            if (isDragging && showSideConfig) {
+                configX = (int) (mouseX - dragOffsetX);
+                configY = (int) (mouseY - dragOffsetY);
+                return true;
+            }
+            return false;
+        }
+
+        public void mouseReleased(double mouseX, double mouseY, int button) {
+            isDragging = false;
+        }
+    }
+
+    /**
+     * Renders the standard energy bar tooltip.
+     */
+    public static void renderEnergyTooltip(GuiGraphics guiGraphics, Font font, int mouseX, int mouseY, int posX, int posY, long currentEnergy, long maxEnergy) {
+        if (isMouseOver(mouseX, mouseY, posX + 163, posY + 13, 7, 56)) {
+            guiGraphics.renderTooltip(font, Component.literal(simpleEnergyDisplay(currentEnergy, maxEnergy)), mouseX, mouseY);
+        }
+    }
+
+    /**
+     * Overloaded energy bar tooltip for blocks that only display current energy (e.g., PandoraBox).
+     */
+    public static void renderEnergyTooltip(GuiGraphics guiGraphics, Font font, int mouseX, int mouseY, int posX, int posY, long currentEnergy) {
+        if (isMouseOver(mouseX, mouseY, posX + 163, posY + 13, 7, 56)) {
+            guiGraphics.renderTooltip(font, Component.literal(simpleEnergyDisplay(currentEnergy)), mouseX, mouseY);
+        }
+    }
+
+    /**
+     * Renders the standard progress bar percentage tooltip.
+     */
+    public static void renderPercentageTooltip(GuiGraphics guiGraphics, Font font, int mouseX, int mouseY, int posX, int posY, int percentage) {
+        if (isMouseOver(mouseX, mouseY, posX + 44, posY + 70, 89, 7)) {
+            guiGraphics.renderTooltip(font, Component.literal(percentage + "%").withColor(5635925), mouseX, mouseY);
+        }
+    }
+
+    /**
+     * Breadth-First Search scanning routine to find contiguous generator structures.
+     */
+    public static List<BlockPos> findConnectedGenerators(Level level, BlockPos startPos) {
+        List<BlockPos> connected = new ArrayList<>();
+        Queue<BlockPos> queue = new LinkedList<>();
+        Set<BlockPos> visited = new HashSet<>();
+
+        queue.add(startPos);
+        visited.add(startPos);
+
+        while (!queue.isEmpty() && connected.size() < 128) {
+            BlockPos current = queue.poll();
+
+            if (level.getBlockEntity(current) instanceof EternalGeneratorBlockEntity) {
+                connected.add(current);
+
+                for (Direction dir : Direction.values()) {
+                    BlockPos neighbor = current.relative(dir);
+                    if (!visited.contains(neighbor)) {
+                        visited.add(neighbor);
+                        if (level.getBlockEntity(neighbor) instanceof EternalGeneratorBlockEntity) {
+                            queue.add(neighbor);
+                        }
+                    }
+                }
+            }
+        }
+        return connected;
     }
 }

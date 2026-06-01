@@ -98,11 +98,9 @@ public class PandoraBoxScreen extends AbstractContainerScreen<PandoraBoxMenu> {
         super.renderTooltip(guiGraphics, x, y);
         int posX = (width - imageWidth) / 2;
         int posY = (height - imageHeight) / 2;
-        if(Math.clamp(x , posX + 163, posX + 169) == x && Math.clamp(y, posY + 13, posY + 68) == y) {
-            long currentEnergy = this.menu.getCurrentEnergy();
-            guiGraphics.renderTooltip(this.font, Component.literal(Utils.simpleEnergyDisplay(currentEnergy)), x, y);
-        }
-        if(Math.clamp(x , posX + 6, posX + 12) == x && Math.clamp(y, posY + 13, posY + 68) == y) {
+        Utils.renderEnergyTooltip(guiGraphics, this.font, x, y, posX, posY, this.menu.getCurrentEnergy());
+
+        if (Utils.isMouseOver(x, y, posX + 6, posY + 13, 7, 56)) {
             guiGraphics.renderTooltip(this.font, Component.literal(Utils.getDelimeter(this.menu.getOverload()) + " Overload"), x, y);
         }
     }

@@ -38,6 +38,7 @@ import java.util.List;
 
 public class EternalGeneratorBlockEntity extends MachineBaseEntity implements MenuProvider {
     private static final ResourceLocation INFERIUM_ESSENCE_RL = ResourceLocation.parse("mysticalagriculture:inferium_essence");
+    private int errorMask = 0;
 
     public EternalGeneratorBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.ETERNAL_GENERATOR_BE.get(), pos, blockState);
@@ -57,6 +58,7 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
                     case 4 -> EternalGeneratorBlockEntity.this.overload;
                     case 5 -> EternalGeneratorBlockEntity.this.overflowXp;
                     case 6 -> EternalGeneratorBlockEntity.this.consumptionRate;
+                    case 7 -> EternalGeneratorBlockEntity.this.errorMask;
                     default -> 0;
                 };
             }
@@ -71,13 +73,14 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
                     case 4: EternalGeneratorBlockEntity.this.overload = value; break;
                     case 5: EternalGeneratorBlockEntity.this.overflowXp = value; break;
                     case 6: EternalGeneratorBlockEntity.this.consumptionRate = value; break;
+                    case 7: EternalGeneratorBlockEntity.this.errorMask = value; break;
                 }
             }
 
 
             @Override
             public int getCount() {
-                return 7;
+                return 8;
             }
         };
     }
@@ -328,7 +331,7 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
         if(level.isClientSide()) return;
         
         boolean dirty = false;
-
+        int currentErrors = 0;
         // Update energy and check for change
         int newEnergy = energyHandler.getEnergyStored();
         if (newEnergy != this.currentEnergy) {
@@ -410,16 +413,21 @@ public class EternalGeneratorBlockEntity extends MachineBaseEntity implements Me
                     resetProcess();
                 }
             } else {
+                currentErrors |= 2;
                 this.consumptionRate = 0;
             }
         } else {
+            currentErrors |= 4;
             this.consumptionRate = 0;
             if (process != 0) {
                 resetProcess();
                 dirty = true;
             }
         }
-
+        if(this.errorMask != currentErrors){
+            this.errorMask = currentErrors;
+            setChanged();
+        }
         if (dirty) {
             setChanged(level, blockPos, blockState);
             level.sendBlockUpdated(blockPos, blockState, blockState, 3);

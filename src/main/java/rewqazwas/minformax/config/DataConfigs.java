@@ -12,6 +12,9 @@ public class DataConfigs {
     public static final ModConfigSpec.BooleanValue shouldRender;
     public static final ModConfigSpec.IntValue mobCoefficient;
     public static final ModConfigSpec.IntValue farmCoefficient;
+    public static final ModConfigSpec.LongValue basicConsumption;
+    public static final ModConfigSpec.IntValue exponentialGrowth;
+    public static final ModConfigSpec.IntValue gateOfBabylonSize;
 
     static {
         final var common = new ModConfigSpec.Builder();
@@ -26,7 +29,18 @@ public class DataConfigs {
         farmCoefficient = common
                 .comment("Energy multiplier for farm production")
                 .defineInRange("farm_coefficient", 1024, 1, Integer.MAX_VALUE);
+        basicConsumption = common
+                .comment("Energy required for 1 machine at basic speed")
+                .defineInRange("basic_consumption", 1_000_000_000, 0, Long.MAX_VALUE);
+        exponentialGrowth = common
+                .comment("Multiplier applied as speed increases")
+                .defineInRange("exponential_growth", 10, 0, Integer.MAX_VALUE);
+        gateOfBabylonSize = common
+                .comment("Maximum size for each edge of the Gate Of Babylon")
+                .defineInRange("gate_of_babylon_size", 256, 3, Integer.MAX_VALUE);
+
         common.pop();
+
 
         COMMON= common.build();
     }

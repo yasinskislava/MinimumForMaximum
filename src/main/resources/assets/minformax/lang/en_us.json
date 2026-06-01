@@ -31,8 +31,9 @@
   "jei.minformax.aether_ingot.info": "To obtain the Aether Ingot, simply throw the Quantum Foam in the Overworld at y coordinate above 1000.",
   "jei.minformax.void_ingot.info": "To obtain the Void Ingot, simply throw the Quantum Foam in the End at y coordinate below 0.",
   "jei.minformax.quantum_foam.info": "To obtain the Quantum Foam, do Shift + Right Click with Quantum Ingot on Eternal Generator. At least 5120 overload is required.",
-  "jei.minformax.babylon_key.info": "",
+  "jei.minformax.babylon_key.info": "Multiblock structure capable of tick-accelerating everything enclosed by it. Minimum size of 3x3x3. No maximum size.\nTo build the structure, edges and corners are built using Sakuradite Casings. Walls and faces are filled with any Sakuradite block. Requires one energy input hatch to power the structure.\nTo form the multiblock just click with Babylon Key.",
 
+  "tooltip.minformax.phantom": "§bSakuradite Hatches are phantom, so you could use them as entrance to Gate Of Babylon.",
   "tooltip.minformax.owner": "§aOwner: %s",
   "tooltip.minformax.index_lab": "§aInscribes mob index on memory shards.",
   "tooltip.minformax.eternal_generator": "§aPut any valid storage next to it to generate resources. §cMemory shards are not consumed.",
@@ -68,6 +69,12 @@
   "tooltip.minformax.void_ingot": "§aIt's a pleasure to visit a §cvoid §aat week§dend",
   "tooltip.minformax.sakuradite_multiblock_part": "§aStructural component of multiblock",
   "tooltip.minformax.babylon_key": "\"To bend time is a trivial plaything for my treasury. Behold the wealth of Babylon!\"",
+  "tooltip.minformax.machine.ok": "✔ Structure is working flawlessly.",
+  "tooltip.minformax.machine.errors_found": "Operation Halted! Errors detected:",
+  "tooltip.minformax.gate_of_babylon.error.no_machines": " ❌ No machines inside Gate of Babylon.",
+  "tooltip.minformax.machine.error.no_energy": " ❌ Insufficient energy reserves.",
+  "tooltip.minformax.machine.error.missing_input": " ❌ No input detected.",
+  "tooltip.minformax.machine.error.missing_storage": " ❌ Missing adjacent storage/space nearby.",
 
   "advancements.minformax.root.title": "Meow?",
   "advancements.minformax.root.description": "Adventure Time begins",
@@ -81,6 +88,24 @@
   "message.minformax.scanner.cannot_scan": "§cThis entity cannot be scanned: §e%s",
   "message.minformax.linker.linked": "§aLinked",
   "message.minformax.linker.cleared": "§cUnlinked",
+  "message.minformax.babylon.structure_too_small": "Structure too small! Minimum dimensions are 3x3x3.",
+  "message.minformax.babylon.structure_too_big": "Structure too big! Maximum dimensions are %sx%sx%s.",
+  "message.minformax.babylon.formed": "Gate of Babylon formed! Size: %sx%sx%s",
+  "message.minformax.babylon.unloaded_chunks": "Structure extends into unloaded chunks!",
+  "message.minformax.babylon.collision": "Structure collides or nests with an existing multiblock!",
+  "message.minformax.babylon.block_missing": "Sakuradite Block is missing at %s %s %s",
+  "message.minformax.babylon.casing_missing": "Casing is missing at %s %s %s",
+  "message.minformax.babylon.belongs_to_other": "Block at %s %s %s belongs to another multiblock",
+  "message.minformax.config_tool.copied": "Configuration Copied!",
+  "message.minformax.config_tool.pasted": "Configuration Pasted!",
+  "message.minformax.config_tool.no_config": "No configuration stored on tool!",
+  "message.minformax.linker.already": "All adjacent generators are already %slinked",
+  "message.minformax.linker.mass": "Mass-%slinked %s adjacent generators!",
+
+  "command.minformax.index.add_all": "Added all %s indexes for %s",
+  "command.minformax.index.clear": "Cleared index for %s",
+  "command.minformax.index.not_found": "Index not found: %s",
+  "command.minformax.index.new_entry": "Added index %s for %s",
 
   "item.minformax.scanner": "Scanner",
   "item.minformax.quantum_foam": "Quantum Foam",
@@ -119,5 +144,8 @@
   "item.minformax.aether_ingot": "Aether Ingot",
   "item.minformax.yinmin_ingot": "Yinmin Ingot",
   "item.minformax.void_ingot": "Void Ingot",
-  "item.minformax.babylon_key": "Babylon Key"
+  "item.minformax.babylon_key": "Babylon Key",
+  "item.minformax.configuration_tool": "Configuration Tool",
+
+  "minformax.guide_name":"BlaBla"
 }

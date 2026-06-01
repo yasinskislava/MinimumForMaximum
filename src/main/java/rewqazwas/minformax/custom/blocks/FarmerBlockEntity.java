@@ -107,6 +107,7 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
                 case 1 -> FarmerBlockEntity.this.maxProcess;
                 case 2 -> FarmerBlockEntity.this.energyHandler.getEnergyStored();
                 case 3 -> FarmerBlockEntity.this.consumptionRate;
+                case 4 -> FarmerBlockEntity.this.errorMask;
                 default -> 0;
             };
         }
@@ -118,12 +119,13 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
                 case 1 -> FarmerBlockEntity.this.maxProcess = value;
                 case 2 -> FarmerBlockEntity.this.energyHandler.receiveEnergy(value, false);
                 case 3 -> FarmerBlockEntity.this.consumptionRate = value;
+                case 4 -> FarmerBlockEntity.this.errorMask = value;
             }
         }
 
         @Override
         public int getCount() {
-            return 4;
+            return 5;
         }
     };
 
@@ -132,6 +134,7 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
     private int maxProcess = 256;
     private int duration = maxProcess;
     private int consumptionRate = 0;
+    private int errorMask = 0;
 
     // Cache
     private boolean cacheDirty = true;
@@ -299,11 +302,17 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
     public void tick(Level level, BlockPos blockPos, BlockState blockState, FarmerBlockEntity blockEntity) {
         if(level.isClientSide()) return;
         this.consumptionRate = 0;
+        int currentErrors = 0;
         if (this.cacheDirty) {
             recalculateCache((ServerLevel) level);
         }
 
         if(!this.hasValidSource) {
+            currentErrors |= 4;
+            if(this.errorMask != currentErrors){
+                this.errorMask = currentErrors;
+                setChanged(level, blockPos, blockState);
+            }
             if (process != 0) {
                 process = 0;
                 setChanged(level, blockPos, blockState);
@@ -315,7 +324,14 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
         int currentEnergy = energyHandler.getEnergyStored();
         int energyCost = this.cachedEnergyCost;
 
-        if (currentEnergy < energyCost) return;
+        if (currentEnergy < energyCost) {
+            currentErrors |= 2;
+            if(this.errorMask != currentErrors){
+                this.errorMask = currentErrors;
+                setChanged(level, blockPos, blockState);
+            }
+            return;
+        }
 
         var modifiers = this.cachedModifiers; // Define modifiers here
 
@@ -340,7 +356,14 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
                 break;
             }
         }
-        if (!canFitAny) return;
+        if (!canFitAny) {
+            currentErrors |= 8;
+            if(this.errorMask != currentErrors){
+                this.errorMask = currentErrors;
+                setChanged(level, blockPos, blockState);
+            }
+            return;
+        }
 
         energyHandler.extractEnergy(energyCost, false);
         if (energyHandler.getEnergyStored() != currentEnergy) {
@@ -364,7 +387,10 @@ public class FarmerBlockEntity extends MachineBaseEntity implements MenuProvider
             }
             process = 0;
         }
-
+        if(this.errorMask != currentErrors){
+            this.errorMask = currentErrors;
+            setChanged();
+        }
         if (dirty) {
             setChanged(level, blockPos, blockState);
         }

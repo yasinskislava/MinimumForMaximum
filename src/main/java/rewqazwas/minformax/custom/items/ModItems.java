@@ -39,6 +39,7 @@ public class ModItems {
         }
     });
 
+    public static final DeferredItem<Item> CONFIG_TOOL = ITEMS.register("configuration_tool", () -> new ConfigurationToolItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<Item> LINKER = ITEMS.register("linker", () -> new LinkerItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<Item> SCANNER = ITEMS.register("scanner", () -> new ScannerItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<Item> ANALYZER = ITEMS.register("analyzer", () -> new AnalyzerItem(new Item.Properties().stacksTo(1)));

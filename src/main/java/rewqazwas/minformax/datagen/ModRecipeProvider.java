@@ -130,15 +130,73 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_diamond", has(Items.DIAMOND))
                 .save(recipeOutput);
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CONFIG_TOOL.get())
+                .pattern("ga ")
+                .pattern("ir ")
+                .pattern("iq ")
+                .define('i', Items.IRON_BLOCK)
+                .define('r', Items.REDSTONE_BLOCK)
+                .define('g', Items.GLASS)
+                .define('q', Items.QUARTZ_BLOCK)
+                .define('a', ModItems.AMANITA_INGOT)
+                .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .save(recipeOutput);
+
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.PANDORA_BOX_CORE.get())
-                .pattern("hpv")
-                .pattern("vch")
-                .pattern("hsv")
+                .pattern("qpq")
+                .pattern("qcq")
+                .pattern("qsq")
                 .define('c', ModItems.FROZEN_CORE)
-                .define('h', ModItems.AETHER_INGOT)
-                .define('v', ModItems.VOID_INGOT)
+                .define('q', ModBlocks.SAKURADITE_CASING)
                 .define('p', ModItems.ULTIMATE_PROCESSING_UPGRADE)
                 .define('s', ModItems.ULTIMATE_SPEED_UPGRADE)
+                .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.SAKURADITE_CASING.get())
+                .pattern("vuv")
+                .pattern("u u")
+                .pattern("vuv")
+                .define('u', ModItems.ULTIMATE_INGOT)
+                .define('v', ModItems.VOID_INGOT)
+                .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.SAKURADITE_OUTPUT.get())
+                .pattern(" c ")
+                .pattern("cac")
+                .pattern(" c ")
+                .define('c', ModBlocks.SAKURADITE_CASING)
+                .define('a', ModItems.AETHER_INGOT)
+                .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.SAKURADITE_INPUT.get())
+                .pattern(" c ")
+                .pattern("cvc")
+                .pattern(" c ")
+                .define('c', ModBlocks.SAKURADITE_CASING)
+                .define('v', ModItems.VOID_INGOT)
+                .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.SAKURADITE_PANEL.get())
+                .pattern("cg ")
+                .pattern("   ")
+                .pattern("   ")
+                .define('c', ModBlocks.SAKURADITE_CASING)
+                .define('g', Items.GLASS)
+                .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.BABYLON_KEY.get())
+                .pattern(" gn")
+                .pattern(" cg")
+                .pattern("h  ")
+                .define('c', ModItems.FROZEN_CRYSTAL)
+                .define('g', Items.GOLD_BLOCK)
+                .define('n', Items.NETHER_STAR)
+                .define('h', ModItems.HELIODOR_INGOT)
                 .unlockedBy("has_diamond", has(Items.DIAMOND))
                 .save(recipeOutput);
 

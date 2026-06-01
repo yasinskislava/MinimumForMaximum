@@ -190,7 +190,7 @@ public class PandoraBoxCoreBlockEntity extends BlockEntity implements MenuProvid
     private void recalculateCache() {
         long xpLevel = Utils.calculateLevel(totalXp).level();
         double multiplier = Math.log10(xpLevel + 10);
-        this.cachedProduction = (long) (overload * multiplier);
+        this.cachedProduction = (long) Math.min(overload * multiplier, Long.MAX_VALUE);
         this.cacheDirty = false;
     }
     

@@ -67,6 +67,7 @@ public class CreativeTabs {
                     output.accept(ModBlocks.SAKURADITE_OUTPUT);
 
                     output.accept(ModItems.BABYLON_KEY);
+                    output.accept(ModItems.CONFIG_TOOL);
 
                     output.accept(ModItems.QUANTUM_FOAM);
                     output.accept(ModItems.FROZEN_CRYSTAL);

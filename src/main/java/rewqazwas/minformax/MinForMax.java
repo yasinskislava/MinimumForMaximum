@@ -2,17 +2,28 @@ package rewqazwas.minformax;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import guideme.GuidesCommon;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -28,9 +39,12 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,12 +64,14 @@ import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.items.upgrades.UpgradeItem;
 import rewqazwas.minformax.custom.utility.ModKeybindings;
 import rewqazwas.minformax.custom.utility.UpgradeHud;
+import rewqazwas.minformax.custom.utility.Utils;
 import rewqazwas.minformax.network.packet.RequestIndexSyncPayload;
 import rewqazwas.minformax.network.packet.SyncJeiDataPacket;
 import rewqazwas.minformax.renderer.*;
 import rewqazwas.minformax.screen.ModMenuTypes;
 import rewqazwas.minformax.screen.custom.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static rewqazwas.minformax.custom.utility.Utils.clearContent;
@@ -83,6 +99,7 @@ public class MinForMax {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             event.enqueueWork(() -> {
+                ItemBlockRenderTypes.setRenderLayer(ModBlocks.SAKURADITE_PANEL.get(), RenderType.translucent());
                 ItemProperties.register(ModItems.MEMORY_SHARD.get(), ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "storage"),
                         ((stack, level, entity, seed) -> stack.get(ModDataComponents.MOB_INDEX) != null ? 1.0f : 0.0f));
                 ItemProperties.register(ModItems.CHAOS_SHARD.get(), ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "storage"),
@@ -212,6 +229,10 @@ public class MinForMax {
                 if (ModKeybindings.OPEN_INDEX_MENU.consumeClick()) {
                     PacketDistributor.sendToServer(new RequestIndexSyncPayload());
                 }
+                if (ModKeybindings.OPEN_GUIDE_KEY.consumeClick()) {
+                    ResourceLocation guideId = ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "guide");
+                    GuidesCommon.openGuide(mc.player, guideId);
+                }
             }
         }
 
@@ -219,6 +240,16 @@ public class MinForMax {
 
     @EventBusSubscriber
     public static class ClientServerSetup {
+
+        @SubscribeEvent
+        public static void onBlockRightClick(PlayerInteractEvent.RightClickBlock event) {
+            ItemStack stack = event.getItemStack();
+
+            if (stack.is(ModItems.LINKER) || stack.is(ModItems.CONFIG_TOOL)) {
+                event.setUseBlock(TriState.FALSE);
+                event.setUseItem(TriState.TRUE);
+            }
+        }
 
         @SubscribeEvent
         public static void playerJoins(PlayerEvent.PlayerLoggedInEvent event) {
@@ -268,8 +299,7 @@ public class MinForMax {
             event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.ORE_COALESCER_BE.get(), (OreCoalescerBlockEntity be, Direction context) -> be.automationHandler);
             event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.ORE_COALESCER_BE.get(), (OreCoalescerBlockEntity be, Direction context) -> be.energyHandler);
             event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.PANDORA_BOX_CORE_BE.get(), (PandoraBoxCoreBlockEntity be, Direction context) -> be.energyHandler);
-            event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
-                    ModBlockEntities.PANDORA_BOX_DUMMY_BE.get(), (be, side) -> {
+            event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.PANDORA_BOX_DUMMY_BE.get(), (be, side) -> {
                         if (be.getBlockState().is(ModBlocks.PANDORA_BOX_HATCH.get())) {
                             BlockPos corePos = be.getCorePos();
                             if (corePos != null) {
@@ -281,28 +311,81 @@ public class MinForMax {
                         }
                         return null;
                     });
-            event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
-                    ModBlockEntities.MULTIBLOCK_PART_BE.get(), (be, side) -> {
-                        if (be.getBlockState().is(ModBlocks.SAKURADITE_INPUT.get())) {
-                            if (be instanceof AbstractMultiblockPartBlockEntity part) {
-                                BlockPos corePos = part.getMasterPos();
-                                if (corePos != null && part.getLevel() != null) {
-                                    BlockEntity coreBe = part.getLevel().getBlockEntity(corePos);
-                                    if (coreBe instanceof GateOfBabylonBlockEntity core) {
-                                        return core.energyHandler;
-                                    }
-                                }
+            event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.GATE_OF_BABYLON_HATCH_BE.get(), (be, side) -> {
+                GateOfBabylonBlockEntity master = be.getMasterBlockEntity();
+                if (master != null) {
+                    BlockState state = be.getBlockState();
+
+                    if (state.is(ModBlocks.SAKURADITE_INPUT.get())) {
+                        return new IEnergyStorage() {
+                            @Override
+                            public int receiveEnergy(int maxReceive, boolean simulate) {
+                                return master.energyHandler.receiveEnergy(maxReceive, simulate);
                             }
-                        }
-                        return null;
-                    });
-            event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
-                    ModBlockEntities.GATE_OF_BABYLON_BE.get(), (be, side) -> {
-                        if (be.getBlockState().is(ModBlocks.SAKURADITE_INPUT.get())) {
-                            return be.energyHandler;
-                        }
-                        return null;
-                    });
+
+                            @Override
+                            public int extractEnergy(int maxExtract, boolean simulate) {
+                                return 0;
+                            }
+
+                            @Override
+                            public int getEnergyStored() {
+                                return master.energyHandler.getEnergyStored();
+                            }
+
+                            @Override
+                            public int getMaxEnergyStored() {
+                                return master.energyHandler.getMaxEnergyStored();
+                            }
+
+                            @Override
+                            public boolean canExtract() {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean canReceive() {
+                                return true;
+                            }
+                        };
+                    }
+
+                    if (state.is(ModBlocks.SAKURADITE_OUTPUT.get())) {
+                        return new IEnergyStorage() {
+                            @Override
+                            public int receiveEnergy(int maxReceive, boolean simulate) {
+                                return 0;
+                            }
+
+                            @Override
+                            public int extractEnergy(int maxExtract, boolean simulate) {
+                                return master.energyHandler.extractEnergy(maxExtract, simulate);
+                            }
+
+                            @Override
+                            public int getEnergyStored() {
+                                return master.energyHandler.getEnergyStored();
+                            }
+
+                            @Override
+                            public int getMaxEnergyStored() {
+                                return master.energyHandler.getMaxEnergyStored();
+                            }
+
+                            @Override
+                            public boolean canExtract() {
+                                return true;
+                            }
+
+                            @Override
+                            public boolean canReceive() {
+                                return false;
+                            }
+                        };
+                    }
+                }
+                return null;
+            });
          }
 
         @SubscribeEvent
@@ -316,3 +399,10 @@ public class MinForMax {
         }
     }
 }
+
+// TODO
+// Beehive
+// Logistics
+// Render HUD for side config
+// Guide
+

@@ -1,5 +1,13 @@
 {
   "blacklist": [
-    "projecte:dm_pedestal"
+    "projecte:dm_pedestal",
+    "mekanism:ultimate_universal_cable",
+    "mekanism:elite_universal_cable",
+    "mekanism:advanced_universal_cable",
+    "mekanism:basic_universal_cable",
+    "mekanism:ultimate_energy_cube",
+    "mekanism:elite_energy_cube",
+    "mekanism:advanced_energy_cube",
+    "mekanism:basic_energy_cube"
   ]
 }

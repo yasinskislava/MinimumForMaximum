@@ -3,6 +3,7 @@ package rewqazwas.minformax.custom.items;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
+import net.neoforged.neoforge.common.util.FakePlayer;
 import rewqazwas.minformax.custom.blocks.EternalGeneratorBlockEntity;
 
 import java.util.List;
@@ -27,7 +28,6 @@ public class QuantumIngotItem extends Item {
                 }
             }
         }
-
         return super.useOn(context);
     }
 

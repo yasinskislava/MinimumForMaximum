@@ -368,6 +368,7 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
                 case 0 -> OreCoalescerBlockEntity.this.process;
                 case 1 -> OreCoalescerBlockEntity.this.maxProcess;
                 case 2 -> OreCoalescerBlockEntity.this.energyHandler.getEnergyStored();
+                case 3 -> OreCoalescerBlockEntity.this.errorMask;
                 default -> 0;
             };
         }
@@ -378,12 +379,13 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
                 case 0 -> OreCoalescerBlockEntity.this.process = value;
                 case 1 -> OreCoalescerBlockEntity.this.maxProcess = value;
                 case 2 -> OreCoalescerBlockEntity.this.energyHandler.receiveEnergy(value, false);
+                case 3 -> OreCoalescerBlockEntity.this.errorMask = value;
             }
         }
 
         @Override
         public int getCount() {
-            return 3;
+            return 4;
         }
     };
 
@@ -391,6 +393,7 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
     private int process = 0;
     private int maxProcess = 512;
     private boolean isProcessing = false;
+    private int errorMask = 0;
 
     // Cache
     private int speedMultiplier = 1;
@@ -715,8 +718,22 @@ public class OreCoalescerBlockEntity extends MachineBaseEntity implements MenuPr
     //Main
     public void tick(Level level, BlockPos blockPos, BlockState blockState, OreCoalescerBlockEntity blockEntity) {
         if(level.isClientSide()) return;
+        int currentErrors = 0;
 
         autoExportItems();
+        if(!hasInput()){
+            currentErrors |= 4;
+        }
+        if(isOutputFull()){
+            currentErrors |= 8;
+        }
+        if(this.energyHandler.getEnergyStored() < 1024){
+            currentErrors |= 2;
+        }
+        if(this.errorMask != currentErrors){
+            this.errorMask = currentErrors;
+            setChanged();
+        }
 
         if (!hasInput() || isOutputFull()) {
             if (process > 0) {

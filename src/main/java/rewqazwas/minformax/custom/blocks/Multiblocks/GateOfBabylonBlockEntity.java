@@ -7,6 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -16,9 +17,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import rewqazwas.minformax.config.DataConfigs;
 import rewqazwas.minformax.custom.ModBlockEntities;
 import rewqazwas.minformax.custom.blocks.AbstractMultiblockPartBlockEntity;
 import rewqazwas.minformax.custom.index.ModDataReloadListener;
+import rewqazwas.minformax.custom.utility.MultiblockSavedData;
 import rewqazwas.minformax.custom.utility.Utils;
 import rewqazwas.minformax.screen.custom.GateOfBabylonMenu;
 
@@ -33,33 +36,44 @@ public class GateOfBabylonBlockEntity extends AbstractMultiblockPartBlockEntity 
     private final List<BlockEntity> cachedMachines = new ArrayList<>();
     private boolean requiresRescan = true;
     private long lastTickTime = -1L;
+    private int tickRate = 2;
+    private long consumptionRate = 0;
+    private int errorMask = 0;
 
     public void flagForRescan() {
         this.requiresRescan = true;
     }
 
-    public final Utils.EnergyReceiverStorage energyHandler = new Utils.EnergyReceiverStorage(Long.MAX_VALUE);
+    public final Utils.UniversalEnergyStorage energyHandler = new Utils.UniversalEnergyStorage(Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE);
 
     protected final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
             return switch (index) {
-                case 0 -> (int) (GateOfBabylonBlockEntity.this.energyHandler.getLongEnergyStored() & 0xFFFFFFFFL); // Lower 32 bits of current energy
-                case 1 -> (int) ((GateOfBabylonBlockEntity.this.energyHandler.getLongEnergyStored() >>> 32) & 0xFFFFFFFFL); // Upper 32 bits of current energy
-                case 2 -> (int) (GateOfBabylonBlockEntity.this.energyHandler.getMaxCapacityLong() & 0xFFFFFFFFL); // Lower 32 bits of max energy
-                case 3 -> (int) ((GateOfBabylonBlockEntity.this.energyHandler.getMaxCapacityLong() >>> 32) & 0xFFFFFFFFL); // Upper 32 bits of max energy
+                case 0 -> (int) (GateOfBabylonBlockEntity.this.energyHandler.getLongEnergyStored() & 0xFFFFFFFFL);
+                case 1 -> (int) ((GateOfBabylonBlockEntity.this.energyHandler.getLongEnergyStored() >>> 32) & 0xFFFFFFFFL);
+                case 2 -> (int) (GateOfBabylonBlockEntity.this.energyHandler.getMaxCapacityLong() & 0xFFFFFFFFL);
+                case 3 -> (int) ((GateOfBabylonBlockEntity.this.energyHandler.getMaxCapacityLong() >>> 32) & 0xFFFFFFFFL);
+                case 4 -> GateOfBabylonBlockEntity.this.tickRate;
+                case 5 -> GateOfBabylonBlockEntity.this.cachedMachines.size();
+                case 6 -> GateOfBabylonBlockEntity.this.errorMask;
+                case 7 -> (int) (GateOfBabylonBlockEntity.this.consumptionRate & 0xFFFFFFFFL);
+                case 8 -> (int) ((GateOfBabylonBlockEntity.this.consumptionRate >>> 32) & 0xFFFFFFFFL);
                 default -> 0;
             };
         }
 
         @Override
         public void set(int index, int value) {
-            // Read-only on the client side
+            if (index == 4) {
+                GateOfBabylonBlockEntity.this.tickRate = value;
+                GateOfBabylonBlockEntity.this.setChanged();
+            }
         }
 
         @Override
         public int getCount() {
-            return 4; // 2 integers for current energy, 2 integers for max energy
+            return 9;
         }
     };
 
@@ -102,7 +116,6 @@ public class GateOfBabylonBlockEntity extends AbstractMultiblockPartBlockEntity 
                                 }
                             }
 
-                            // Check if the block is in the blacklist
                             String blockId = machine.getBlockState().getBlock().builtInRegistryHolder().key().location().toString();
                             if (!(machine instanceof GateOfBabylonBlockEntity) && !ModDataReloadListener.GATE_OF_BABYLON_BLACKLIST.contains(blockId)) {
                                 this.cachedMachines.add(machine);
@@ -117,34 +130,63 @@ public class GateOfBabylonBlockEntity extends AbstractMultiblockPartBlockEntity 
 
     @Override
     protected void serverTick(Level level, BlockPos pos, BlockState state) {
-        // TICK ACCELERATION GUARD
         long currentTick = level.getGameTime();
         if (this.lastTickTime == currentTick) {
             return;
         }
         this.lastTickTime = currentTick;
-        // -------------------------------
+
         if (this.requiresRescan) {
             rescanInterior(level, pos);
         }
 
-        for (int i = 0; i < this.cachedMachines.size(); i++) {
-            BlockEntity machine = this.cachedMachines.get(i);
+        int currentErrors = 0;
+        if(this.cachedMachines.isEmpty()){
+            currentErrors |= 1;
+            this.consumptionRate = 0;
+        }
 
-            if (machine.isRemoved()) {
-                this.requiresRescan = true;
-                continue;
+        int power = (int) (Math.log(this.tickRate) / Math.log(2) - 1);
+        long cost = (long) (this.cachedMachines.size() * DataConfigs.basicConsumption.get() * Math.pow(DataConfigs.exponentialGrowth.get(), power));
+        long requiredEnergy = (long) (DataConfigs.basicConsumption.get() * Math.pow(DataConfigs.exponentialGrowth.get(), power));
+
+        if(this.energyHandler.getLongEnergyStored() >= cost){
+            for (int i = 0; i < this.cachedMachines.size(); i++) {
+                BlockEntity machine = this.cachedMachines.get(i);
+
+                if (machine.isRemoved()) {
+                    this.requiresRescan = true;
+                    continue;
+                }
+
+                BlockPos mPos = machine.getBlockPos();
+                BlockState mState = machine.getBlockState();
+                var rawTicker = mState.getTicker(level, machine.getType());
+
+                if (rawTicker != null) {
+                    @SuppressWarnings("unchecked")
+                    BlockEntityTicker<BlockEntity> ticker = (BlockEntityTicker<BlockEntity>) rawTicker;
+
+                    for (int t = 0; t < this.tickRate; t++) {
+                        if (machine.isRemoved()) {
+                            this.requiresRescan = true;
+                            break;
+                        }
+                        ticker.tick(level, mPos, mState, machine);
+                    }
+                    this.energyHandler.consumeEnergy(requiredEnergy);
+                    this.consumptionRate = requiredEnergy;
+                    setChanged();
+                }
             }
+        } else {
+            currentErrors |= 2;
+            this.consumptionRate = 0;
+        }
 
-            BlockPos mPos = machine.getBlockPos();
-            BlockState mState = machine.getBlockState();
-            var rawTicker = mState.getTicker(level, machine.getType());
-
-            if (rawTicker != null) {
-                @SuppressWarnings("unchecked")
-                BlockEntityTicker<BlockEntity> ticker = (BlockEntityTicker<BlockEntity>) rawTicker;
-                ticker.tick(level, mPos, mState, machine);
-            }
+        if(this.errorMask != currentErrors){
+            this.errorMask = currentErrors;
+            setChanged();
         }
     }
 
@@ -169,11 +211,17 @@ public class GateOfBabylonBlockEntity extends AbstractMultiblockPartBlockEntity 
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putLong("energy", this.energyHandler.getLongEnergyStored());
+        tag.putInt("tickRate", this.tickRate);
     }
 
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.energyHandler.setEnergy(tag.getLong("energy"));
+        if (tag.contains("tickRate")) {
+            this.tickRate = tag.getInt("tickRate");
+        } else {
+            this.tickRate = 2;
+        }
     }
 }

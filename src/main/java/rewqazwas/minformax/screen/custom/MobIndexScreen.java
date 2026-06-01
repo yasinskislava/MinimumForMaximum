@@ -74,7 +74,7 @@ public class MobIndexScreen extends Screen {
 
         this.searchBox = new EditBox(this.font, searchX, searchY, searchBoxWidth, searchBoxHeight, Component.translatable("gui.minformax.search"));
         this.searchBox.setMaxLength(32);
-        this.searchBox.setHint(Component.literal("Search..."));
+        this.searchBox.setHint(Component.literal("Gotta catch 'em all..."));
 
         this.searchBox.setResponder(this::onSearchTextChanged);
 

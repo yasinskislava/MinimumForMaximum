@@ -46,7 +46,7 @@ public class FarmerMenu extends AbstractContainerMenu {
     private static final int CUSTOM_INVENTORY_FIRST_SLOT_INDEX = VANILLA_SLOT_COUNT;
 
     public FarmerMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
-        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(4));
+        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(5));
     }
 
     public FarmerMenu(int containerId, Inventory inv, BlockEntity blockEntity, ContainerData data) {
@@ -90,6 +90,11 @@ public class FarmerMenu extends AbstractContainerMenu {
     public int getConsumptionRate() {
         return this.data.get(3);
     }
+
+    public int getErrorMask() {
+        return this.data.get(4);
+    }
+
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {

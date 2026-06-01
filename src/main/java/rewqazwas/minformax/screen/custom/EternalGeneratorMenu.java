@@ -36,7 +36,7 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
     private static final int UPGRADE_FIRST_SLOT_INDEX = CUSTOM_INVENTORY_FIRST_SLOT_INDEX + CUSTOM_INVENTORY_COUNT;
 
     public EternalGeneratorMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
-        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(7));
+        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(8));
     }
 
     public EternalGeneratorMenu(int containerId, Inventory inv, BlockEntity blockEntity, ContainerData data) {
@@ -82,6 +82,10 @@ public class EternalGeneratorMenu extends AbstractContainerMenu {
         long xp = (long)this.data.get(3) + (long)this.data.get(5) * Integer.MAX_VALUE;
         var res = Utils.calculateLevel(xp);
         return res.level();
+    }
+
+    public int getErrorMask() {
+        return this.data.get(7);
     }
 
     public int getEnergyLevel() {

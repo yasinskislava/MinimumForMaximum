@@ -60,6 +60,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.YINMIN_INGOT.get());
         basicItem(ModItems.VOID_INGOT.get());
         basicItem(ModItems.BABYLON_KEY.get());
+        basicItem(ModItems.CONFIG_TOOL.get());
     }
 
     /**

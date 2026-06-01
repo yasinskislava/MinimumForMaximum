@@ -63,10 +63,10 @@ public class IndexCommand {
         if (ModDataReloadListener.MOB_DROPS.containsKey(index)) {
             PlayerIndex.add(finalPlayer, index);
             finalPlayer.setData(ModAttachmentTypes.INDEX_SYNC, clearContent(PlayerIndex.getLocalIndex(finalPlayer), finalPlayer.level()));
-            context.getSource().sendSuccess(() -> Component.literal("Added index: " + index + " for " + finalPlayer.getName().getString()), true);
+            context.getSource().sendSuccess(() -> Component.translatable("message.minformax.scanner.new_entry", index, finalPlayer.getDisplayName()), true);
             return 1;
         } else {
-            context.getSource().sendFailure(Component.literal("Index not found: " + index));
+            context.getSource().sendFailure(Component.translatable("message.minformax.index_not_found", index));
             return 0;
         }
     }
@@ -87,7 +87,7 @@ public class IndexCommand {
         }
 
         finalPlayer.setData(ModAttachmentTypes.INDEX_SYNC, clearContent(PlayerIndex.getLocalIndex(finalPlayer), finalPlayer.level()));
-        context.getSource().sendSuccess(() -> Component.literal("Added all " + allIndexes.size() + " indexes for " + finalPlayer.getName().getString()), true);
+        context.getSource().sendSuccess(() -> Component.translatable("command.minformax.index.add_all", allIndexes.size(), finalPlayer.getDisplayName()), true);
         return allIndexes.size();
     }
 
@@ -102,7 +102,7 @@ public class IndexCommand {
 
         PlayerIndex.clear(finalPlayer);
         finalPlayer.setData(ModAttachmentTypes.INDEX_SYNC, clearContent(PlayerIndex.getLocalIndex(finalPlayer), finalPlayer.level()));
-        context.getSource().sendSuccess(() -> Component.literal("Cleared index for " + finalPlayer.getName().getString()), true);
+        context.getSource().sendSuccess(() -> Component.translatable("command.minformax.index.clear", finalPlayer.getDisplayName()), true);
         return 1;
     }
 }

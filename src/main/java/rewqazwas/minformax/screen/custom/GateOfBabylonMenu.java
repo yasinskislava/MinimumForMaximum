@@ -27,7 +27,7 @@ public class GateOfBabylonMenu extends AbstractContainerMenu {
     private static final int VANILLA_SLOT_COUNT = 36;
 
     public GateOfBabylonMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
-        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(4));
+        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(9));
     }
 
     public GateOfBabylonMenu(int containerId, Inventory inv, BlockEntity blockEntity, ContainerData data) {
@@ -47,6 +47,47 @@ public class GateOfBabylonMenu extends AbstractContainerMenu {
         addPlayerHotbar(inv);
 
         addDataSlots(data);
+    }
+
+    public int getTickRate() {
+        return this.data.get(4);
+    }
+
+    public int getMachineCount() {
+        return this.data.get(5);
+    }
+
+    public int getErrorMask() {
+        return this.data.get(6);
+    }
+
+    public long getConsumptionRate() {
+        int lower = this.data.get(7);
+        int upper = this.data.get(8);
+        return ((long) upper << 32) | (lower & 0xFFFFFFFFL);
+    }
+
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        int currentRate = getTickRate();
+        if (id == 0) {
+            if (currentRate > 2) {
+                this.data.set(4, currentRate / 2);
+                return true;
+            }
+        } else if (id == 1) {
+            if (currentRate < 256) {
+                this.data.set(4, currentRate * 2);
+                return true;
+            }
+        } else if(id == 2){
+            if(this.blockEntity != null) {
+                this.blockEntity.flagForRescan();
+                return true;
+            }
+        }
+        return super.clickMenuButton(player, id);
     }
 
     public long getCurrentEnergy() {
@@ -100,12 +141,10 @@ public class GateOfBabylonMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return Utils.stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player,
-                ModBlocks.SAKURADITE_CASING.get(),
-                ModBlocks.SAKURADITE_PANEL.get(),
-                ModBlocks.SAKURADITE_INPUT.get(),
-                ModBlocks.SAKURADITE_OUTPUT.get()
-        );
+        if (this.blockEntity == null || this.blockEntity.isRemoved()) {
+            return false;
+        }
+        return true;
     }
 
     private void addPlayerInventory(Inventory playerInventory) {
@@ -119,17 +158,6 @@ public class GateOfBabylonMenu extends AbstractContainerMenu {
     private void addPlayerHotbar(Inventory playerInventory) {
         for (int i = 0; i < 9; ++i) {
             this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
-        }
-    }
-
-    class SupplierSlot extends SlotItemHandler {
-        public SupplierSlot(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
-            super(itemHandler, index, xPosition, yPosition);
-        }
-
-        @Override
-        public boolean mayPlace(ItemStack stack) {
-            return stack.is(ModItems.LINKER);
         }
     }
 }

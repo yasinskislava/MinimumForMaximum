@@ -34,7 +34,7 @@ public class OreCoalescerMenu extends AbstractContainerMenu {
     private static final int TE_INVENTORY_SLOT_COUNT = UPGRADE_SLOTS + INPUT_SLOTS + OUTPUT_SLOTS;
 
     public OreCoalescerMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
-        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(3));
+        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(4));
     }
 
     public OreCoalescerMenu(int containerId, Inventory inv, BlockEntity blockEntity, ContainerData data) {
@@ -81,6 +81,10 @@ public class OreCoalescerMenu extends AbstractContainerMenu {
         int energy = this.data.get(2);
         int maxEnergy = this.blockEntity.energyHandler.getMaxEnergyStored();
         return Math.round((energy / (float)maxEnergy) * 55);
+    }
+
+    public int getErrorMask() {
+        return this.data.get(3);
     }
 
     @Override

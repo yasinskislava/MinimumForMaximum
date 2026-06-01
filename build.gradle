@@ -39,6 +39,10 @@ repositories {
     maven {
         url 'https://maven.blakesmods.com'
     }
+    maven {
+        name = "TeamResourceful Maven"
+        url = "https://maven.teamresourceful.com/repository/maven-public/"
+    }
     //maven { url = "https://maven.createmod.net" } // Create, Ponder, Flywheel
     //maven { url = "https://maven.ithundxr.dev/snapshots" } // Registrate
     mavenCentral()
@@ -78,6 +82,14 @@ neoForge {
             server()
             programArgument '--nogui'
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        guide {
+            client()
+            systemProperty 'guideme.minformax.guide.sources', file('src/main/resources/assets/minformax/guides/minformax/guide').absolutePath
+
+            // 2. Optional: Skip the title screen and force-open your guide instantly on boot!
+            systemProperty 'guideme.showOnStartup', 'minformax:index.md'
         }
 
         // This run config launches GameTestServer and runs all registered gametests, then exits.
@@ -141,6 +153,8 @@ dependencies {
     //implementation "team-twilight:twilightforest:${twilight_version}:universal"
     //implementation "org.appliedenergistics:appliedenergistics2:${ae2_version}"
     implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    implementation "earth.terrarium.athena:athena-neoforge-1.21.1:4.0.6"
+    implementation "maven.modrinth:guideme:${guideme_version}"
 
     //implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
     //implementation("net.createmod.ponder:ponder-neoforge:${ponder_version}+mc${minecraft_version}")

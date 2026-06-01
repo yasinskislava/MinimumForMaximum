@@ -1,6 +1,7 @@
 package rewqazwas.minformax.custom.blocks;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -45,9 +46,22 @@ public abstract class MachineBaseEntity extends BlockEntity {
     }
 
     protected boolean[] enabledSides = new boolean[6];
-
     public boolean[] getEnabledSides() {
         return this.enabledSides;
+    }
+
+    public boolean isSideEnabled(Direction dir) {
+        return this.enabledSides[dir.get3DDataValue()];
+    }
+
+    public void setEnabledSides(boolean[] sides) {
+        if (sides.length == 6) {
+            System.arraycopy(sides, 0, this.enabledSides, 0, 6);
+            this.setChanged();
+            if (this.level != null) {
+                this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
+            }
+        }
     }
 
     protected abstract List<IItemHandler> getDroppableHandlers();
