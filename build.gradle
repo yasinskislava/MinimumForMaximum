@@ -88,7 +88,6 @@ neoForge {
             client()
             systemProperty 'guideme.minformax.guide.sources', file('src/main/resources/assets/minformax/guides/minformax/guide').absolutePath
 
-            // 2. Optional: Skip the title screen and force-open your guide instantly on boot!
             systemProperty 'guideme.showOnStartup', 'minformax:index.md'
         }
 
@@ -149,6 +148,8 @@ configurations {
 
 dependencies {
     //runtimeOnly "mekanism:Mekanism:${mekanism_version}"
+    implementation "maven.modrinth:limlog:1.0.0:api"
+
     implementation "maven.modrinth:jade:${project.jade_version}+neoforge"
     //implementation "team-twilight:twilightforest:${twilight_version}:universal"
     //implementation "org.appliedenergistics:appliedenergistics2:${ae2_version}"

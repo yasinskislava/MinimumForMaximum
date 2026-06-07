@@ -504,7 +504,6 @@ public class Utils {
 
         @Override
         public int receiveEnergy(int maxReceive, boolean simulate) {
-            // Generators do not receive energy from external sources
             return 0;
         }
 
@@ -532,7 +531,7 @@ public class Utils {
 
         @Override
         public boolean canReceive() {
-            return false; // Generators do not receive energy
+            return false;
         }
     }
 

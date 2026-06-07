@@ -20,7 +20,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.Nullable;
+import rewqazwas.limlog.api.ILongEnergyStorage;
+import rewqazwas.limlog.api.LimLogAPI;
 import rewqazwas.minformax.MinForMax;
 import rewqazwas.minformax.custom.ModBlockEntities;
 import rewqazwas.minformax.custom.blocks.EternalGeneratorBlockEntity;
@@ -97,20 +100,20 @@ public class PandoraBoxCoreBlockEntity extends BlockEntity implements MenuProvid
     //Main
     public void tick(Level level, BlockPos pos, BlockState state) {
         if (level.isClientSide) return;
-        
+
         if (cacheDirty) {
             recalculateCache();
         }
-        
+
         if (!hatchesInitialized) {
             initializeHatches();
         }
 
         cooldown++;
-        
+
         boolean changed = false;
         long production = this.cachedProduction;
-        
+
         if (production > 0) {
             long energyBeforeAdd = energyHandler.getLongEnergyStored();
             energyHandler.addEnergy(production);
@@ -118,8 +121,7 @@ public class PandoraBoxCoreBlockEntity extends BlockEntity implements MenuProvid
                 changed = true;
             }
         }
-        
-        // Energy Distribution Loop
+
         if (this.energyHandler.getLongEnergyStored() > 0) {
             boolean energyTransferredInPass;
             do {
@@ -127,39 +129,52 @@ public class PandoraBoxCoreBlockEntity extends BlockEntity implements MenuProvid
                 for (BlockPos offset : this.hatchOffsets) {
                     BlockPos hatchPos = pos.offset(offset);
 
-                    // Use a local variable to track energy pushed to this specific neighbor in this pass
-                    final long[] energyPushedToNeighbor = {0};
-                    Utils.forEachNeighborCapability(Capabilities.EnergyStorage.BLOCK, level, hatchPos, (targetHandler, side) -> {
-                        if (targetHandler.canReceive()) {
-                            long remainingEnergyInBox = this.energyHandler.getLongEnergyStored();
-                            while (remainingEnergyInBox > 0) {
-                                // Neoforge's receiveEnergy takes an int, so we push in chunks of Integer.MAX_VALUE
-                                int amountToPush = (int) Math.min(remainingEnergyInBox, Integer.MAX_VALUE);
-                                int accepted = targetHandler.receiveEnergy(amountToPush, false);
-                                if (accepted > 0) {
-                                    this.energyHandler.extractEnergy(accepted, false);
-                                    energyPushedToNeighbor[0] += accepted;
-                                    remainingEnergyInBox -= accepted; // Update remaining for next iteration
-                                    // Mark changed only if energy was actually moved
+                    for (Direction dir : Direction.values()) {
+                        BlockPos targetPos = hatchPos.relative(dir);
+                        Direction targetSide = dir.getOpposite();
+
+                        boolean limLogHandled = false;
+
+                        if (net.neoforged.fml.ModList.get().isLoaded("limlog")) {
+                            limLogHandled = rewqazwas.minformax.compat.LimLogInterop.tryPushLimLogEnergy(
+                                    level, targetPos, targetSide, this.energyHandler
+                            );
+                            if (limLogHandled) {
+                                energyTransferredInPass = true;
+                                changed = true;
+                                setChanged();
+                            }
+                        }
+
+                        if (!limLogHandled) {
+                            IEnergyStorage standardStorage = level.getCapability(Capabilities.EnergyStorage.BLOCK, targetPos, targetSide);
+                            if (standardStorage != null && standardStorage.canReceive()) {
+                                long remaining = this.energyHandler.getLongEnergyStored();
+                                while (remaining > 0) {
+                                    int amountToPush = (int) Math.min(remaining, Integer.MAX_VALUE);
+                                    int accepted = standardStorage.receiveEnergy(amountToPush, false);
                                     if (accepted > 0) {
+                                        this.energyHandler.setEnergy(remaining - accepted);
+                                        remaining -= accepted;
+                                        energyTransferredInPass = true;
+                                        changed = true;
                                         setChanged();
+                                    } else {
+                                        break;
                                     }
-                                } else {
-                                    // Neighbor can't accept more, break inner loop for this neighbor
-                                    break;
                                 }
                             }
                         }
-                    });
-                    if (energyPushedToNeighbor[0] > 0) {
-                        energyTransferredInPass = true; // Mark that some energy was transferred in this pass
-                        changed = true; // Mark block entity as changed
+
+                        if (this.energyHandler.getLongEnergyStored() <= 0) {
+                            break;
+                        }
                     }
                     if (this.energyHandler.getLongEnergyStored() <= 0) {
-                        break; // If box is empty, stop distributing to other neighbors in this pass
+                        break;
                     }
                 }
-            } while (energyTransferredInPass && this.energyHandler.getLongEnergyStored() > 0); // Repeat pass if energy was transferred and box not empty
+            } while (energyTransferredInPass && this.energyHandler.getLongEnergyStored() > 0);
         }
 
         if(cooldown >= 1200){
@@ -186,14 +201,14 @@ public class PandoraBoxCoreBlockEntity extends BlockEntity implements MenuProvid
             setChanged(level, pos, state);
         }
     }
-    
+
     private void recalculateCache() {
         long xpLevel = Utils.calculateLevel(totalXp).level();
         double multiplier = Math.log10(xpLevel + 10);
         this.cachedProduction = (long) Math.min(overload * multiplier, Long.MAX_VALUE);
         this.cacheDirty = false;
     }
-    
+
     private void initializeHatches() {
         hatchOffsets.clear();
         for (BlockPos offset : PandoraBoxCore.STRUCTURE_OFFSETS) {

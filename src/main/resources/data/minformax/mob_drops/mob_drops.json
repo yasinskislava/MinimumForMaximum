@@ -23,7 +23,8 @@
   "entity.minecraft.ender_dragon": {
     "main_drop": "minecraft:dragon_egg",
     "additional_drop": [
-      "minecraft:dragon_breath"
+      "minecraft:dragon_breath",
+      "draconicevolution:dragon_heart"
     ],
     "xp": 100,
     "duration": 4096,

@@ -120,6 +120,7 @@ public class BabylonKeyItem extends Item {
             // 4. Run validation over the discovered cuboid space
             if (validateStructure(level, finalMin, finalMax, clickedPos, player)) {
                 formStructure(level, finalMin, finalMax, clickedPos);
+                context.getItemInHand().shrink(1);
                 if (player != null) {
                     player.sendSystemMessage(Component.translatable("message.minformax.babylon.formed", xSize, ySize, zSize).withStyle(ChatFormatting.GREEN));
                 }

@@ -3,7 +3,6 @@ package rewqazwas.minformax;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import guideme.GuidesCommon;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -12,18 +11,12 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -31,6 +24,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
@@ -40,19 +34,22 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.common.util.TriState;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import rewqazwas.minformax.compat.LimLogCompat;
 import rewqazwas.minformax.config.DataConfigs;
 import rewqazwas.minformax.custom.CreativeTabs;
 import rewqazwas.minformax.custom.ModAttachmentTypes;
 import rewqazwas.minformax.custom.ModBlockEntities;
 import rewqazwas.minformax.custom.blocks.*;
+import rewqazwas.minformax.custom.blocks.Multiblocks.GateHatchEnergyWrapper;
 import rewqazwas.minformax.custom.blocks.Multiblocks.GateOfBabylonBlockEntity;
 import rewqazwas.minformax.custom.blocks.PandoraBox.PandoraBoxCoreBlockEntity;
 import rewqazwas.minformax.custom.command.IndexCommand;
@@ -62,9 +59,7 @@ import rewqazwas.minformax.custom.index.PlayerIndex;
 import rewqazwas.minformax.custom.items.LinkerItem;
 import rewqazwas.minformax.custom.items.ModItems;
 import rewqazwas.minformax.custom.items.upgrades.UpgradeItem;
-import rewqazwas.minformax.custom.utility.ModKeybindings;
-import rewqazwas.minformax.custom.utility.UpgradeHud;
-import rewqazwas.minformax.custom.utility.Utils;
+import rewqazwas.minformax.custom.utility.*;
 import rewqazwas.minformax.network.packet.RequestIndexSyncPayload;
 import rewqazwas.minformax.network.packet.SyncJeiDataPacket;
 import rewqazwas.minformax.renderer.*;
@@ -73,6 +68,7 @@ import rewqazwas.minformax.screen.custom.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static rewqazwas.minformax.custom.utility.Utils.clearContent;
 
@@ -220,6 +216,21 @@ public class MinForMax {
                     }
                 }
             });
+
+            event.registerAbove(VanillaGuiLayers.CROSSHAIR, ResourceLocation.fromNamespaceAndPath(MinForMax.MOD_ID, "side_config_hud"), (guiGraphics, deltaTracker) -> {
+                Minecraft mc = Minecraft.getInstance();
+                if (mc.player == null || mc.level == null) return;
+
+                if (mc.player.getMainHandItem().is(ModItems.CONFIG_TOOL) || mc.player.getOffhandItem().is(ModItems.CONFIG_TOOL)) {
+                    HitResult hitResult = mc.hitResult;
+                    if (hitResult instanceof BlockHitResult blockHitResult) {
+                        BlockEntity be = mc.level.getBlockEntity(blockHitResult.getBlockPos());
+                        if (be != null && SideConfigHud.isBlockValid(be)) {
+                            SideConfigHud.render(guiGraphics, mc, be);
+                        }
+                    }
+                }
+            });
         }
 
         @SubscribeEvent
@@ -236,6 +247,72 @@ public class MinForMax {
             }
         }
 
+        @SubscribeEvent
+        public static void onPlayerTick(PlayerTickEvent.Post event) {
+            if (event.getEntity() instanceof ServerPlayer player) {
+                if (player.isCreative() || player.isSpectator()) {
+                    return;
+                }
+
+                boolean insideGate = false;
+                ServerLevel level = player.serverLevel();
+                MultiblockSavedData data = MultiblockSavedData.get(level);
+                BlockPos pos = player.blockPosition();
+
+                for (MultiblockSavedData.StructureBounds bounds : data.getStructures().values()) {
+                    if (pos.getX() >= bounds.min().getX() && pos.getX() <= bounds.max().getX() &&
+                            pos.getY() >= bounds.min().getY() && pos.getY() <= bounds.max().getY() &&
+                            pos.getZ() >= bounds.min().getZ() && pos.getZ() <= bounds.max().getZ()) {
+
+                        if (level.getBlockEntity(bounds.masterPos()) instanceof GateOfBabylonBlockEntity gate && gate.isFormed()) {
+                            insideGate = true;
+                            break;
+                        }
+                    }
+                }
+
+                CompoundTag persistentData = player.getPersistentData();
+                boolean hadModFlight = persistentData.getBoolean("minformax_gate_flight");
+
+                if (insideGate) {
+                    if (!player.getAbilities().mayfly) {
+                        player.getAbilities().mayfly = true;
+                        player.onUpdateAbilities();
+                        persistentData.putBoolean("minformax_gate_flight", true);
+                    }
+                } else {
+                    if (hadModFlight) {
+                        player.getAbilities().mayfly = false;
+                        player.getAbilities().flying = false;
+                        player.onUpdateAbilities();
+                        persistentData.remove("minformax_gate_flight");
+                    }
+                }
+            }
+        }
+
+        @SubscribeEvent
+        public static void onLevelLoad(LevelEvent.Load event) {
+            if (event.getLevel() instanceof ServerLevel serverLevel) {
+                MultiblockSavedData data = MultiblockSavedData.get(serverLevel);
+                List<UUID> toRemove = new ArrayList<>();
+
+                data.getStructures().forEach((id, bounds) -> {
+                    BlockEntity be = serverLevel.getBlockEntity(bounds.masterPos());
+
+                    if (!(be instanceof AbstractMultiblockPartBlockEntity part) || !part.isFormed()) {
+                        toRemove.add(id);
+                    }
+                });
+
+                if (!toRemove.isEmpty()) {
+                    for (UUID id : toRemove) {
+                        data.remove(id);
+                    }
+                    MinForMax.LOGGER.info("Cleaned up {} corrupted or stale multiblock bounding box entries.", toRemove.size());
+                }
+            }
+        }
     }
 
     @EventBusSubscriber
@@ -300,92 +377,23 @@ public class MinForMax {
             event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.ORE_COALESCER_BE.get(), (OreCoalescerBlockEntity be, Direction context) -> be.energyHandler);
             event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.PANDORA_BOX_CORE_BE.get(), (PandoraBoxCoreBlockEntity be, Direction context) -> be.energyHandler);
             event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.PANDORA_BOX_DUMMY_BE.get(), (be, side) -> {
-                        if (be.getBlockState().is(ModBlocks.PANDORA_BOX_HATCH.get())) {
-                            BlockPos corePos = be.getCorePos();
-                            if (corePos != null) {
-                                BlockEntity coreBe = be.getLevel().getBlockEntity(corePos);
-                                if (coreBe instanceof PandoraBoxCoreBlockEntity core) {
-                                    return core.energyHandler;
-                                }
-                            }
-                        }
-                        return null;
-                    });
-            event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.GATE_OF_BABYLON_HATCH_BE.get(), (be, side) -> {
-                GateOfBabylonBlockEntity master = be.getMasterBlockEntity();
-                if (master != null) {
-                    BlockState state = be.getBlockState();
-
-                    if (state.is(ModBlocks.SAKURADITE_INPUT.get())) {
-                        return new IEnergyStorage() {
-                            @Override
-                            public int receiveEnergy(int maxReceive, boolean simulate) {
-                                return master.energyHandler.receiveEnergy(maxReceive, simulate);
-                            }
-
-                            @Override
-                            public int extractEnergy(int maxExtract, boolean simulate) {
-                                return 0;
-                            }
-
-                            @Override
-                            public int getEnergyStored() {
-                                return master.energyHandler.getEnergyStored();
-                            }
-
-                            @Override
-                            public int getMaxEnergyStored() {
-                                return master.energyHandler.getMaxEnergyStored();
-                            }
-
-                            @Override
-                            public boolean canExtract() {
-                                return false;
-                            }
-
-                            @Override
-                            public boolean canReceive() {
-                                return true;
-                            }
-                        };
-                    }
-
-                    if (state.is(ModBlocks.SAKURADITE_OUTPUT.get())) {
-                        return new IEnergyStorage() {
-                            @Override
-                            public int receiveEnergy(int maxReceive, boolean simulate) {
-                                return 0;
-                            }
-
-                            @Override
-                            public int extractEnergy(int maxExtract, boolean simulate) {
-                                return master.energyHandler.extractEnergy(maxExtract, simulate);
-                            }
-
-                            @Override
-                            public int getEnergyStored() {
-                                return master.energyHandler.getEnergyStored();
-                            }
-
-                            @Override
-                            public int getMaxEnergyStored() {
-                                return master.energyHandler.getMaxEnergyStored();
-                            }
-
-                            @Override
-                            public boolean canExtract() {
-                                return true;
-                            }
-
-                            @Override
-                            public boolean canReceive() {
-                                return false;
-                            }
-                        };
+                if (be.getBlockState().is(ModBlocks.PANDORA_BOX_HATCH.get())) {
+                    BlockPos corePos = be.getCorePos();
+                    if (corePos != null && be.getLevel().getBlockEntity(corePos) instanceof PandoraBoxCoreBlockEntity core) {
+                        return core.energyHandler;
                     }
                 }
                 return null;
             });
+
+            event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.GATE_OF_BABYLON_HATCH_BE.get(), (be, side) -> {
+                GateOfBabylonBlockEntity master = be.getMasterBlockEntity();
+                return master != null ? new GateHatchEnergyWrapper(master, be.getBlockState()) : null;
+            });
+
+            if (ModList.get().isLoaded("limlog")) {
+                LimLogCompat.registerLimLogCaps(event);
+            }
          }
 
         @SubscribeEvent
@@ -396,13 +404,13 @@ public class MinForMax {
         @SubscribeEvent
         public static void registerCommands(RegisterCommandsEvent event) {
             IndexCommand.register(event.getDispatcher());
+
         }
     }
 }
 
 // TODO
 // Beehive
-// Logistics
-// Render HUD for side config
-// Guide
+
+
 
